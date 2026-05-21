@@ -70,11 +70,23 @@ export default async function handler(req, res) {
 
     const uploadData = await uploadResp.json();
     // Upload returns { file_id: "...", presigned_url: "..." }
-    // Extract input must use reducto:// prefix with file_id
-    const fileRef = `reducto://${uploadData.file_id}`;
+    // Pass the presigned_url directly as input, or use the upload response object
+    const fileRef = uploadData.presigned_url || `reducto://${uploadData.file_id}`;
 
     // Step 2: Extract with schema
     const schemaConfig = SCHEMAS[docType] || SCHEMAS['EBCS'];
+
+    const extractBody = {
+      input: fileRef,
+      instructions: {
+        schema: schemaConfig.schema,
+        system_prompt: schemaConfig.system_prompt
+      },
+      settings: {
+        include_images: false,
+        optimize_for_latency: false
+      }
+    };
 
     const extractResp = await fetch('https://platform.reducto.ai/extract', {
       method: 'POST',
@@ -82,13 +94,7 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${process.env.REDUCTO_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        input: fileRef,
-        instructions: {
-          schema: schemaConfig.schema,
-          system_prompt: schemaConfig.system_prompt
-        }
-      }),
+      body: JSON.stringify(extractBody),
     });
 
     const extractData = await extractResp.json();
