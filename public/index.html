@@ -577,34 +577,65 @@ async function pipeline(file) {
 
 async function callReducto(file) {
   const fd = new FormData(); fd.append('file', file);
-  const r = await fetch('/api/reducto', { method: 'POST', body: fd });
-  if (!r.ok) { const t = await r.text(); throw new Error(r.status + ' — ' + t.slice(0, 200)); }
+  const r = await fetch('/api/reducto', {
+    method: 'POST',
+    headers: { 'x-doc-type': S.docType },
+    body: fd
+  });
+  if (!r.ok) { const t = await r.text(); throw new Error(r.status + ' — ' + t.slice(0, 300)); }
   return r.json();
 }
 
 async function callClaude(extraction, docType) {
-  const text = JSON.stringify(extraction).slice(0, 8000);
-  const prompt = `You are an OACIQ compliance verification engine for Quebec real estate brokerages.\n\nDocument type: ${docType}\nExtracted content:\n${text}\n\nRespond ONLY with valid JSON, no markdown:\n{"verdict":"COMPLETE","score":85,"property_address":"address or null","broker_name":"name or null","seller_name":"name or null","contract_number":"number or null","cadastral_number":"number or null","checks_run":12,"flagged_items":["issue"],"missing_items":["field"],"ok_items":["field"],"summary":"2-3 sentence English summary."}\n\nverdict = COMPLETE, MISSING_FIELDS, or FLAGGED. Be strict on OACIQ requirements.`;
+  const structured = extraction.extraction || extraction;
+  const text = JSON.stringify(structured).slice(0, 10000);
+  const prompt = `You are an OACIQ compliance verification engine for Quebec real estate brokerages.
+
+Document type: ${docType}
+Structured extraction from Reducto (fields already mapped to OACIQ form fields):
+${text}
+
+Verify compliance and respond ONLY with valid JSON, no markdown:
+{"verdict":"COMPLETE","score":85,"property_address":"from Property Address field","broker_name":"from Name of Agency or Broker[0].Representative","seller_name":"from Sellers[0].Full Name","contract_number":"from Brokerage contract number","cadastral_number":"from Cadastral Number","checks_run":24,"flagged_items":["specific issue"],"missing_items":["required field that is null"],"ok_items":["field: value confirmed"],"summary":"2-3 sentence plain English summary."}
+
+verdict = COMPLETE, MISSING_FIELDS, or FLAGGED.
+
+Required OACIQ fields to check for ${docType}:
+- Brokerage contract number (must be present)
+- At least Seller 1: Full Name, Address, ID type, ID Document Number, Date of Birth
+- Property Address and Cadastral Number
+- Contract End Date
+- Asking Price
+- Agency/Broker Name and Licence Number
+- Seller initials (at least Seller 1)
+- Signatures: broker signature present + at least 1 seller signature present
+- Remuneration percentage or amount
+
+Flag if: missing seller ID, blank signatures, missing cadastral number, missing contract end date, remuneration not specified, missing seller initials.`;
+
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1200, messages: [{ role: 'user', content: prompt }] })
   });
   if (!r.ok) throw new Error(await r.text());
   const d = await r.json();
-  return JSON.parse(d.content.map(c => c.text || '').join('').replace(/```json|```/g, '').trim());
+  const parsed = JSON.parse(d.content.map(c => c.text || '').join('').replace(/```json|```/g, '').trim());
+  parsed.full_extraction = structured;
+  return parsed;
 }
 
 function buildFile(extraction, report, filename) {
   const now = new Date();
+  const structured = extraction.extraction || extraction;
   return {
     id: 'local-' + Date.now(),
-    txn_number: 'TXN-' + now.getFullYear() + '-' + String(S.files.length + 1).padStart(4, '0'),
-    property_address: report.property_address || 'Unknown Address',
-    broker_name: report.broker_name || '—',
-    seller_name: report.seller_name || null,
-    contract_number: report.contract_number || null,
-    cadastral_number: report.cadastral_number || null,
+    txn_number: report.contract_number || ('TXN-' + now.getFullYear() + '-' + String(S.files.length + 1).padStart(4, '0')),
+    property_address: report.property_address || structured['Property Address'] || 'Unknown Address',
+    broker_name: report.broker_name || structured['Name of Agency or Broker']?.[0]?.Representative || '—',
+    seller_name: report.seller_name || structured['Sellers']?.[0]?.['Full Name'] || null,
+    contract_number: report.contract_number || structured['Brokerage contract number'] || null,
+    cadastral_number: report.cadastral_number || structured['Cadastral Number'] || null,
     file_type: S.docType,
     status: report.verdict === 'COMPLETE' ? 'complete' : report.verdict === 'FLAGGED' ? 'flagged' : 'missing',
     score: report.score || 0,
