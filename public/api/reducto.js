@@ -39,6 +39,12 @@ const SCHEMAS = {
   'Brokerage Contract': { schema: EBCS_SCHEMA, system_prompt: EBCS_SYSTEM_PROMPT }, // same for now
 };
 
+// Deployed pipeline IDs from Reducto Studio
+const PIPELINES = {
+  'EBCS': 'md72sz0ax5dvyrh40gatf7ea7s875mxw',
+  'Brokerage Contract': 'md72sz0ax5dvyrh40gatf7ea7s875mxw',
+};
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -69,40 +75,42 @@ export default async function handler(req, res) {
     }
 
     const uploadData = await uploadResp.json();
-    // Upload returns { file_id: "...", presigned_url: "..." }
-    // Pass the presigned_url directly as input, or use the upload response object
     const fileRef = uploadData.presigned_url || `reducto://${uploadData.file_id}`;
 
-    // Step 2: Extract with schema
-    const schemaConfig = SCHEMAS[docType] || SCHEMAS['EBCS'];
+    // Step 2: Run deployed pipeline
+    const pipelineId = PIPELINES[docType] || PIPELINES['EBCS'];
 
-    const extractBody = {
-      input: fileRef,
-      instructions: {
-        schema: schemaConfig.schema,
-        system_prompt: schemaConfig.system_prompt
-      },
-      settings: {
-        include_images: false,
-        optimize_for_latency: false
-      }
-    };
-
-    const extractResp = await fetch('https://platform.reducto.ai/extract', {
+    const pipelineResp = await fetch(`https://platform.reducto.ai/pipeline/${pipelineId}/run`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.REDUCTO_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(extractBody),
+      body: JSON.stringify({ input: fileRef }),
     });
 
-    const extractData = await extractResp.json();
-    res.status(extractResp.status).json({ 
-      extraction: extractData,
-      doc_type: docType,
-      upload_ref: fileRef
-    });
+    if (!pipelineResp.ok) {
+      const err = await pipelineResp.text();
+      // Fallback: try extract endpoint directly with schema
+      const schemaConfig = SCHEMAS[docType] || SCHEMAS['EBCS'];
+      const extractResp = await fetch('https://platform.reducto.ai/extract', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.REDUCTO_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          input: fileRef,
+          instructions: { schema: schemaConfig.schema, system_prompt: schemaConfig.system_prompt },
+          settings: { include_images: false }
+        }),
+      });
+      const extractData = await extractResp.json();
+      return res.status(extractResp.status).json({ extraction: extractData, doc_type: docType });
+    }
+
+    const pipelineData = await pipelineResp.json();
+    res.status(200).json({ extraction: pipelineData, doc_type: docType });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
