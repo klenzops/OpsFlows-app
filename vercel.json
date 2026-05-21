@@ -1,11 +1,5 @@
 {
-  "functions": {
-    "api/reducto.js": {
-      "maxDuration": 60
-    }
-  },
-  "routes": [
-    { "src": "/api/reducto", "dest": "/api/reducto.js" },
-    { "src": "/(.*)", "dest": "/public/index.html" }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/public/index.html" }
   ]
 }
