@@ -4,8 +4,8 @@
       "maxDuration": 60
     }
   },
-  "rewrites": [
-    { "source": "/api/reducto", "destination": "/api/reducto" },
-    { "source": "/(.*)", "destination": "/public/index.html" }
+  "routes": [
+    { "src": "/api/reducto", "dest": "/api/reducto.js" },
+    { "src": "/(.*)", "dest": "/public/index.html" }
   ]
 }
