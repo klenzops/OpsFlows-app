@@ -69,7 +69,9 @@ export default async function handler(req, res) {
     }
 
     const uploadData = await uploadResp.json();
-    const fileRef = uploadData.url || uploadData.file_url || uploadData.input || uploadData;
+    // Upload returns { file_id: "...", presigned_url: "..." }
+    // Extract input must use reducto:// prefix with file_id
+    const fileRef = `reducto://${uploadData.file_id}`;
 
     // Step 2: Extract with schema
     const schemaConfig = SCHEMAS[docType] || SCHEMAS['EBCS'];
@@ -81,7 +83,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        input: typeof fileRef === 'string' ? fileRef : JSON.stringify(fileRef),
+        input: fileRef,
         instructions: {
           schema: schemaConfig.schema,
           system_prompt: schemaConfig.system_prompt
