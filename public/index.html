@@ -68,7 +68,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 /* APP SHELL */
 .app { display: none; height: 100vh; overflow: hidden; }
 .app.visible { display: flex; }
-.sidebar { width: 224px; min-width: 224px; background: var(--surface); border-right: 1px solid var(--border-light); display: flex; flex-direction: column; padding: 0; }
+.sidebar { width: 216px; min-width: 216px; background: var(--surface); border-right: 0.5px solid var(--border-light); display: flex; flex-direction: column; padding: 0; }
 .sidebar-header { padding: 18px 16px 14px; border-bottom: 1px solid var(--border-light); }
 .sidebar-logo { display: flex; align-items: center; gap: 9px; }
 .sidebar-logo-icon { width: 26px; height: 26px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
@@ -96,7 +96,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 
 /* MAIN */
 .main { flex: 1; overflow: auto; display: flex; flex-direction: column; }
-.topbar { background: var(--surface); border-bottom: 1px solid var(--border-light); padding: 0 32px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+.topbar { background: var(--surface); border-bottom: 0.5px solid var(--border-light); padding: 0 32px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
 .topbar-left { display: flex; flex-direction: column; }
 .topbar-title { font-size: 14px; font-weight: 600; letter-spacing: -.2px; color: var(--text-primary); }
 .topbar-sub { font-size: 11.5px; color: var(--text-tertiary); letter-spacing: -.01em; margin-top: 1px; }
@@ -114,11 +114,12 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .content { padding: 32px 32px 48px; flex: 1; }
 
 /* STAT CARDS */
-.stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 32px; }
-.stat-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 22px 24px 20px; position: relative; overflow: hidden; }
-.stat-accent { position: absolute; top: 0; left: 0; right: 0; height: 2.5px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
-.stat-label { font-size: 10.5px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 12px; }
-.stat-value { font-size: 36px; font-weight: 600; letter-spacing: -1.2px; line-height: 1; margin-bottom: 10px; }
+.stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 32px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 24px 24px 20px; position: relative; overflow: hidden; transition: border-color .15s; }
+.stat-card.critical { border-color: var(--red); }
+.stat-accent { display: none; }
+.stat-label { font-size: 10.5px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .09em; text-transform: uppercase; margin-bottom: 14px; }
+.stat-value { font-size: 40px; font-weight: 600; letter-spacing: -1.5px; line-height: 1; margin-bottom: 8px; }
 .stat-sub { font-size: 12px; font-weight: 500; letter-spacing: -.01em; }
 .sub-green { color: var(--green-text); }
 .sub-orange { color: var(--orange); }
@@ -129,13 +130,13 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .main-grid { display: grid; grid-template-columns: 1fr 210px; gap: 12px; margin-bottom: 32px; }
 
 /* FILES PANEL */
-.panel { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; }
+.panel { background: var(--surface); border: 0.5px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; }
 .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid var(--border-light); }
 .panel-title { font-size: 10.5px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .08em; text-transform: uppercase; }
 .action-pill { background: var(--red-bg); color: var(--red); font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
 .files-table { width: 100%; border-collapse: collapse; }
-.files-table th { font-size: 10.5px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .07em; text-transform: uppercase; padding: 11px 24px; text-align: left; border-bottom: 1px solid var(--border-light); }
-.files-table td { padding: 14px 24px; font-size: 13px; border-bottom: 1px solid var(--border-light); }
+.files-table th { font-size: 10.5px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .07em; text-transform: uppercase; padding: 11px 24px; text-align: left; border-bottom: 0.5px solid var(--border-light); }
+.files-table td { padding: 14px 24px; font-size: 13px; border-bottom: 0.5px solid var(--border-light); }
 .files-table tr:last-child td { border-bottom: none; }
 .files-table tr.row:hover td { background: var(--bg); cursor: pointer; }
 .file-addr { font-weight: 500; font-size: 13px; letter-spacing: -.15px; color: var(--text-primary); }
@@ -152,7 +153,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .score-lo { color: var(--blue); }
 
 /* PORTFOLIO */
-.portfolio { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 22px 20px; }
+.portfolio { background: var(--surface); border: 0.5px solid var(--border-light); border-radius: var(--radius-lg); padding: 22px 20px; }
 .portfolio-title { font-size: 10.5px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 18px; }
 .donut-wrap { display: flex; justify-content: center; margin-bottom: 20px; }
 .legend { display: flex; flex-direction: column; gap: 8px; }
@@ -163,7 +164,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 
 /* AGENT CARDS */
 .agent-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 32px; }
-.agent-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 22px 24px; }
+.agent-card { background: var(--surface); border: 0.5px solid var(--border-light); border-radius: var(--radius-lg); padding: 22px 24px; }
 .agent-card.offline { opacity: .4; }
 .agent-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .agent-name { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; color: var(--text-primary); letter-spacing: -.1px; }
@@ -177,7 +178,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .agent-bar-fill { height: 100%; border-radius: 2px; }
 
 /* UPLOAD SECTION */
-.upload-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 32px; }
+.upload-card { background: var(--surface); border: 0.5px solid var(--border-light); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 32px; }
 .upload-card-title { font-size: 14px; font-weight: 600; letter-spacing: -.25px; margin-bottom: 4px; }
 .upload-card-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
 .doc-types { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -374,8 +375,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       <div class="stat-grid">
         <div class="stat-card"><div class="stat-accent" style="background:var(--green)"></div><div class="stat-label">Files Complete</div><div class="stat-value" id="s-complete">0</div><div class="stat-sub sub-green">+0 this week</div></div>
         <div class="stat-card"><div class="stat-accent" style="background:var(--orange)"></div><div class="stat-label">Awaiting Docs</div><div class="stat-value" id="s-awaiting">0</div><div class="stat-sub sub-orange">0 past deadline</div></div>
-        <div class="stat-card"><div class="stat-accent" style="background:var(--amber)"></div><div class="stat-label">Flagged Issues</div><div class="stat-value" id="s-flagged">0</div><div class="stat-sub sub-amber">0 new today</div></div>
-        <div class="stat-card"><div class="stat-accent" style="background:var(--blue)"></div><div class="stat-label">Checks Run Today</div><div class="stat-value" id="s-checks">0</div><div class="stat-sub sub-blue">↑ live</div></div>
+        <div class="stat-card" id="flagged-card"><div class="stat-accent" style="background:var(--amber)"></div><div class="stat-label">Flagged Issues</div><div class="stat-value" id="s-flagged">0</div><div class="stat-sub sub-amber" id="s-flagged-sub">0 new today</div></div>
       </div>
 
       <div class="main-grid">
@@ -743,10 +743,13 @@ function renderDash() {
   document.getElementById('s-complete').textContent = complete;
   document.getElementById('s-awaiting').textContent = missing;
   document.getElementById('s-flagged').textContent = flagged;
-  document.getElementById('s-checks').textContent = S.checks;
   document.getElementById('active-count').textContent = S.files.length;
   document.getElementById('files-badge').textContent = S.files.length;
   document.getElementById('ag-v').textContent = S.checks;
+  const flaggedCard = document.getElementById('flagged-card');
+  if (flaggedCard) flaggedCard.classList.toggle('critical', flagged > 0);
+  const flaggedSub = document.getElementById('s-flagged-sub');
+  if (flaggedSub) flaggedSub.textContent = flagged > 0 ? flagged + ' require action' : '0 new today';
   document.getElementById('leg-c').textContent = complete;
   document.getElementById('leg-p').textContent = pending;
   document.getElementById('leg-m').textContent = missing;
