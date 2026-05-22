@@ -296,7 +296,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   flex-direction: column;
   gap: 10px;
   padding: 28px 32px 28px 28px;
-  max-width: 980px;
+  max-width: 1020px;
 }
 
 /* KPI STRIP — small summary tiles, never stretch */
@@ -308,14 +308,14 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   background: var(--surface);
   border: 0.5px solid var(--border-light);
   border-radius: var(--radius-md);
-  padding: 12px 16px;
-  min-width: 140px;
+  padding: 13px 18px 12px;
+  min-width: 148px;
   transition: border-color .15s;
   flex-shrink: 0;
 }
 .ov-kpi-card.critical { border-color: var(--red); }
-.ov-kpi-label { font-size: 10px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .09em; text-transform: uppercase; margin-bottom: 7px; }
-.ov-kpi-val { font-size: 26px; font-weight: 600; letter-spacing: -1px; line-height: 1; color: var(--text-primary); margin-bottom: 3px; }
+.ov-kpi-label { font-size: 10px; font-weight: 600; color: #9a9a95; letter-spacing: .09em; text-transform: uppercase; margin-bottom: 8px; }
+.ov-kpi-val { font-size: 28px; font-weight: 600; letter-spacing: -1.2px; line-height: 1; color: var(--text-primary); margin-bottom: 4px; }
 .ov-kpi-sub { font-size: 11px; font-weight: 500; }
 
 /* CENTER GRID */
@@ -336,16 +336,17 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 9px 14px;
+  padding: 10px 14px;
   border-bottom: 0.5px solid var(--border-light);
+  background: var(--surface);
 }
-.ov-panel-title { font-size: 10px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .09em; text-transform: uppercase; }
+.ov-panel-title { font-size: 10px; font-weight: 600; color: #9a9a95; letter-spacing: .09em; text-transform: uppercase; }
 .ov-table-wrap { overflow: hidden; }
 .ov-table { width: 100%; border-collapse: collapse; }
-.ov-table th { font-size: 10px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .07em; text-transform: uppercase; padding: 7px 14px; text-align: left; border-bottom: 0.5px solid var(--border-light); background: var(--surface); }
-.ov-table td { padding: 9px 14px; font-size: 12px; border-bottom: 0.5px solid var(--border-light); }
+.ov-table th { font-size: 10px; font-weight: 600; color: #9a9a95; letter-spacing: .07em; text-transform: uppercase; padding: 8px 14px; text-align: left; border-bottom: 0.5px solid var(--border-light); background: var(--surface); }
+.ov-table td { padding: 10px 14px; font-size: 12px; border-bottom: 0.5px solid var(--border-light); color: var(--text-primary); }
 .ov-table tr:last-child td { border-bottom: none; }
-.ov-table tr.row:hover td { background: var(--bg); cursor: pointer; }
+.ov-table tr.row:hover td { background: #f7f7f4; cursor: pointer; transition: background .1s; }
 
 /* RIGHT COLUMN — two compact widgets stacked */
 .ov-right { display: flex; flex-direction: column; gap: 8px; }
@@ -355,12 +356,12 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   border-radius: var(--radius-md);
   padding: 11px 11px;
 }
-.ov-mini-title { font-size: 10px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .09em; text-transform: uppercase; margin-bottom: 9px; }
+.ov-mini-title { font-size: 10px; font-weight: 600; color: #9a9a95; letter-spacing: .09em; text-transform: uppercase; margin-bottom: 9px; }
 .ov-action-item { display: flex; align-items: center; gap: 7px; padding: 5px 6px; border-radius: 4px; cursor: pointer; margin-bottom: 3px; }
 .ov-action-item:hover { background: var(--bg); }
 .ov-action-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-.ov-action-text { font-size: 11px; color: var(--text-primary); font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ov-action-meta { font-size: 10px; color: var(--text-tertiary); flex-shrink: 0; }
+.ov-action-text { font-size: 11px; color: var(--text-primary); font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: -.01em; }
+.ov-action-meta { font-size: 10px; color: #9a9a95; flex-shrink: 0; font-weight: 500; }
 
 /* AGENTS ROW — three tight modules */
 .ov-agents { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -372,9 +373,9 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 }
 .ov-agent.offline { opacity: .38; }
 .ov-agent-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
-.ov-agent-name { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 500; color: var(--text-primary); }
+.ov-agent-name { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--text-primary); letter-spacing: -.01em; }
 .ov-agent-dot { width: 5px; height: 5px; border-radius: 50%; }
-.ov-agent-tag { font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 3px; letter-spacing: .05em; }
+.ov-agent-tag { font-size: 8.5px; font-weight: 700; padding: 1px 5px; border-radius: 3px; letter-spacing: .06em; }
 .ov-tag-run { background: var(--blue-bg); color: var(--blue); }
 .ov-tag-off { background: var(--bg); color: var(--text-tertiary); }
 .ov-agent-num { font-size: 17px; font-weight: 600; letter-spacing: -.5px; color: var(--text-primary); line-height: 1; margin-bottom: 1px; }
@@ -388,7 +389,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .legend-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 .legend-left { display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--text-secondary); }
 .legend-dot { width: 5px; height: 5px; border-radius: 50%; }
-.legend-val { font-size: 10.5px; font-weight: 600; color: var(--text-primary); }
+.legend-val { font-size: 11px; font-weight: 600; color: var(--text-primary); }
 
 
 /* OVERVIEW INTERNAL HEADER — row 0 of composition */
@@ -396,14 +397,14 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding-bottom: 16px;
-  border-bottom: 0.5px solid var(--border-light);
-  margin-bottom: 2px;
+  padding-bottom: 14px;
+  border-bottom: 0.5px solid #e4e4de;
+  margin-bottom: 0;
 }
 .ov-header-title {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 600;
-  letter-spacing: -.4px;
+  letter-spacing: -.35px;
   color: var(--text-primary);
   margin-bottom: 3px;
 }
@@ -560,13 +561,13 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
           <div class="ov-table-wrap">
             <table class="ov-table">
               <colgroup>
-  <col style="width:34%">
-  <col style="width:18%">
-  <col style="width:20%">
-  <col style="width:18%">
-  <col style="width:10%">
+  <col style="width:32%">
+  <col style="width:17%">
+  <col style="width:19%">
+  <col style="width:17%">
+  <col style="width:15%">
 </colgroup>
-<thead><tr><th>Property Address</th><th>Broker</th><th>Status</th><th>Expires</th><th style="text-align:right;padding-right:20px">Score</th></tr></thead>
+<thead><tr><th>Property Address</th><th>Broker</th><th>Status</th><th>Expires</th><th style="text-align:right;padding-right:24px">Score</th></tr></thead>
               <tbody id="files-tbody">
                 <tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-tertiary);font-size:12.5px">
                   <i class="ti ti-file-off" style="font-size:22px;display:block;margin-bottom:8px"></i>
@@ -1021,7 +1022,7 @@ function renderTable() {
       '<td style="font-size:12px;color:var(--text-secondary)">' + (f.broker_name || '—') + '</td>' +
       '<td><span class="status-pill ' + sp + '" style="font-size:10.5px">' + sl + '</span></td>' +
       '<td style="font-size:11.5px;' + (isExpired ? 'color:var(--red)' : isExpiringSoon ? 'color:var(--orange)' : 'color:var(--text-tertiary)') + '">' + expiry + '</td>' +
-      '<td style="text-align:right;padding-right:20px"><span class="score ' + sc + '" style="font-size:12px">' + f.score + '%</span></td>' +
+      '<td style="text-align:right;padding-right:24px"><span class="score ' + sc + '" style="font-size:12px">' + f.score + '%</span></td>' +
     '</tr>';
   }).join('');
 }
