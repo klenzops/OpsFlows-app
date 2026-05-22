@@ -275,6 +275,68 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .coming-soon h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; letter-spacing: -.2px; }
 .coming-soon p { font-size: 13px; color: var(--text-secondary); }
 
+
+/* ============================================================
+   OVERVIEW — COMPACT COMPOSED LAYOUT
+   ============================================================ */
+#view-overview { display:flex; flex-direction:column; gap:12px; height:100%; }
+
+/* KPI STRIP */
+.ov-kpi { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; flex-shrink:0; }
+.ov-kpi-card { background:var(--surface); border:0.5px solid var(--border-light); border-radius:var(--radius-md); padding:14px 18px; transition:border-color .15s; }
+.ov-kpi-card.critical { border-color:var(--red); }
+.ov-kpi-label { font-size:10px; font-weight:600; color:var(--text-tertiary); letter-spacing:.09em; text-transform:uppercase; margin-bottom:8px; }
+.ov-kpi-val { font-size:28px; font-weight:600; letter-spacing:-1px; line-height:1; color:var(--text-primary); margin-bottom:4px; }
+.ov-kpi-sub { font-size:11px; font-weight:500; }
+
+/* CENTER GRID */
+.ov-center { display:grid; grid-template-columns:1fr 176px; gap:10px; flex:1; min-height:0; }
+
+/* MAIN PANEL */
+.ov-panel { background:var(--surface); border:0.5px solid var(--border-light); border-radius:var(--radius-md); overflow:hidden; display:flex; flex-direction:column; min-height:0; }
+.ov-panel-head { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; border-bottom:0.5px solid var(--border-light); flex-shrink:0; }
+.ov-panel-title { font-size:10px; font-weight:600; color:var(--text-tertiary); letter-spacing:.09em; text-transform:uppercase; }
+.ov-table-wrap { flex:1; overflow-y:auto; }
+.ov-table { width:100%; border-collapse:collapse; }
+.ov-table th { font-size:10px; font-weight:600; color:var(--text-tertiary); letter-spacing:.07em; text-transform:uppercase; padding:8px 16px; text-align:left; border-bottom:0.5px solid var(--border-light); position:sticky; top:0; background:var(--surface); }
+.ov-table td { padding:10px 16px; font-size:12.5px; border-bottom:0.5px solid var(--border-light); }
+.ov-table tr:last-child td { border-bottom:none; }
+.ov-table tr.row:hover td { background:var(--bg); cursor:pointer; }
+
+/* RIGHT COLUMN */
+.ov-right { display:flex; flex-direction:column; gap:10px; min-height:0; }
+.ov-mini-panel { background:var(--surface); border:0.5px solid var(--border-light); border-radius:var(--radius-md); padding:14px; }
+.ov-mini-title { font-size:10px; font-weight:600; color:var(--text-tertiary); letter-spacing:.09em; text-transform:uppercase; margin-bottom:10px; }
+.ov-action-panel { flex:1; min-height:0; }
+.ov-action-item { display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:5px; cursor:pointer; margin-bottom:4px; }
+.ov-action-item:hover { background:var(--bg); }
+.ov-action-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.ov-action-text { font-size:11.5px; color:var(--text-primary); font-weight:500; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ov-action-meta { font-size:10.5px; color:var(--text-tertiary); flex-shrink:0; }
+
+/* AGENTS ROW */
+.ov-agents { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; flex-shrink:0; }
+.ov-agent { background:var(--surface); border:0.5px solid var(--border-light); border-radius:var(--radius-md); padding:12px 14px; }
+.ov-agent.offline { opacity:.4; }
+.ov-agent-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.ov-agent-name { display:flex; align-items:center; gap:5px; font-size:12px; font-weight:500; color:var(--text-primary); }
+.ov-agent-dot { width:5px; height:5px; border-radius:50%; }
+.ov-agent-tag { font-size:9px; font-weight:700; padding:2px 6px; border-radius:3px; letter-spacing:.05em; }
+.ov-tag-run { background:var(--blue-bg); color:var(--blue); }
+.ov-tag-off { background:var(--bg); color:var(--text-tertiary); }
+.ov-agent-num { font-size:22px; font-weight:600; letter-spacing:-.8px; color:var(--text-primary); line-height:1; margin-bottom:2px; }
+.ov-agent-lbl { font-size:10.5px; color:var(--text-tertiary); margin-bottom:8px; }
+.ov-agent-bar { height:2px; background:var(--border-light); border-radius:2px; }
+
+/* Override content padding for overview — tighter */
+#main-content { padding:20px 24px 20px; }
+
+/* Keep legend styles */
+.legend-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; }
+.legend-left { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-secondary); }
+.legend-dot { width:6px; height:6px; border-radius:50%; }
+.legend-val { font-size:11px; font-weight:600; color:var(--text-primary); }
+
 </style>
 </head>
 <body>
@@ -372,86 +434,96 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
     </div>
 
     <div class="content" id="main-content"><div class="view active" id="view-overview">
-      <div class="stat-grid">
-        <div class="stat-card"><div class="stat-accent" style="background:var(--green)"></div><div class="stat-label">Files Complete</div><div class="stat-value" id="s-complete">0</div><div class="stat-sub sub-green">+0 this week</div></div>
-        <div class="stat-card"><div class="stat-accent" style="background:var(--orange)"></div><div class="stat-label">Awaiting Docs</div><div class="stat-value" id="s-awaiting">0</div><div class="stat-sub sub-orange">0 past deadline</div></div>
-        <div class="stat-card" id="flagged-card"><div class="stat-accent" style="background:var(--amber)"></div><div class="stat-label">Flagged Issues</div><div class="stat-value" id="s-flagged">0</div><div class="stat-sub sub-amber" id="s-flagged-sub">0 new today</div></div>
+
+      <!-- KPI STRIP -->
+      <div class="ov-kpi">
+        <div class="ov-kpi-card">
+          <div class="ov-kpi-label">Files Complete</div>
+          <div class="ov-kpi-val" id="s-complete">0</div>
+          <div class="ov-kpi-sub sub-green">+0 this week</div>
+        </div>
+        <div class="ov-kpi-card">
+          <div class="ov-kpi-label">Awaiting Docs</div>
+          <div class="ov-kpi-val" id="s-awaiting">0</div>
+          <div class="ov-kpi-sub sub-orange" id="s-awaiting-sub">0 past deadline</div>
+        </div>
+        <div class="ov-kpi-card" id="flagged-card">
+          <div class="ov-kpi-label" id="flagged-label">Flagged Issues</div>
+          <div class="ov-kpi-val" id="s-flagged">0</div>
+          <div class="ov-kpi-sub" id="s-flagged-sub">0 new today</div>
+        </div>
       </div>
 
-      <div class="main-grid">
-        <div class="panel">
-          <div class="panel-header">
-            <span class="panel-title">Active Transaction Files</span>
+      <!-- CENTER: TABLE + RIGHT COLUMN -->
+      <div class="ov-center">
+        <div class="ov-panel">
+          <div class="ov-panel-head">
+            <span class="ov-panel-title">Active Transaction Files</span>
             <span class="action-pill" id="action-pill" style="display:none">0 require action</span>
           </div>
-          <table class="files-table">
-            <thead><tr><th>Property Address</th><th>Broker</th><th>Status</th><th>Score</th></tr></thead>
-            <tbody id="files-tbody">
-              <tr><td colspan="4" style="text-align:center;padding:48px;color:var(--text-tertiary);font-size:13px">
-                <i class="ti ti-file-off" style="font-size:26px;display:block;margin-bottom:10px"></i>
-                No files yet — upload your first document below
-              </td></tr>
-            </tbody>
-          </table>
+          <div class="ov-table-wrap">
+            <table class="ov-table">
+              <thead><tr><th>Property Address</th><th>Broker</th><th>Status</th><th style="text-align:right">Score</th></tr></thead>
+              <tbody id="files-tbody">
+                <tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-tertiary);font-size:12.5px">
+                  <i class="ti ti-file-off" style="font-size:22px;display:block;margin-bottom:8px"></i>
+                  No files yet — add a file from Transaction Files
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="portfolio">
-          <div class="portfolio-title">Portfolio</div>
-          <div class="donut-wrap"><canvas id="donut" width="130" height="130"></canvas></div>
-          <div class="legend">
-            <div class="legend-row"><div class="legend-left"><span class="legend-dot" style="background:var(--green)"></span>Complete</div><span class="legend-val" id="leg-c">0</span></div>
-            <div class="legend-row"><div class="legend-left"><span class="legend-dot" style="background:var(--amber)"></span>Pending</div><span class="legend-val" id="leg-p">0</span></div>
-            <div class="legend-row"><div class="legend-left"><span class="legend-dot" style="background:var(--orange)"></span>Missing</div><span class="legend-val" id="leg-m">0</span></div>
+
+        <div class="ov-right">
+          <!-- Portfolio -->
+          <div class="ov-mini-panel">
+            <div class="ov-mini-title">Portfolio</div>
+            <div style="display:flex;justify-content:center;margin-bottom:10px">
+              <canvas id="donut" width="90" height="90"></canvas>
+            </div>
+            <div class="legend">
+              <div class="legend-row"><div class="legend-left"><span class="legend-dot" style="background:var(--green)"></span>Complete</div><span class="legend-val" id="leg-c">0</span></div>
+              <div class="legend-row"><div class="legend-left"><span class="legend-dot" style="background:var(--amber)"></span>Pending</div><span class="legend-val" id="leg-p">0</span></div>
+              <div class="legend-row"><div class="legend-left"><span class="legend-dot" style="background:var(--orange)"></span>Missing</div><span class="legend-val" id="leg-m">0</span></div>
+            </div>
+          </div>
+
+          <!-- Requires Action -->
+          <div class="ov-mini-panel ov-action-panel">
+            <div class="ov-mini-title">Requires Action</div>
+            <div id="requires-action-list">
+              <div style="font-size:12px;color:var(--text-tertiary);padding:8px 0">No actions required</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="agent-grid">
-        <div class="agent-card offline">
-          <div class="agent-top"><div class="agent-name"><div class="agent-indicator" style="background:#d4d4d0"></div>Monitor Agent</div><span class="agent-tag at-offline">OFFLINE</span></div>
-          <div class="agent-num">—</div><div class="agent-label">Files under watch</div>
-          <div class="agent-bar-track"><div class="agent-bar-fill" style="width:0%;background:#d4d4d0"></div></div>
+      <!-- AGENTS ROW -->
+      <div class="ov-agents">
+        <div class="ov-agent offline">
+          <div class="ov-agent-top"><div class="ov-agent-name"><div class="ov-agent-dot" style="background:#d4d4d0"></div>Monitor</div><span class="ov-agent-tag ov-tag-off">OFFLINE</span></div>
+          <div class="ov-agent-num">—</div><div class="ov-agent-lbl">Files under watch</div>
+          <div class="ov-agent-bar"><div style="width:0%;background:#d4d4d0;height:100%;border-radius:2px"></div></div>
         </div>
-        <div class="agent-card">
-          <div class="agent-top"><div class="agent-name"><div class="agent-indicator" style="background:var(--blue);animation:pulse 2s infinite"></div>Verify Agent</div><span class="agent-tag at-running">RUNNING</span></div>
-          <div class="agent-num" id="ag-v">0</div><div class="agent-label">Checks completed today</div>
-          <div class="agent-bar-track"><div class="agent-bar-fill" style="width:65%;background:var(--blue)"></div></div>
+        <div class="ov-agent">
+          <div class="ov-agent-top"><div class="ov-agent-name"><div class="ov-agent-dot" style="background:var(--blue);animation:pulse 2s infinite"></div>Verify</div><span class="ov-agent-tag ov-tag-run">RUNNING</span></div>
+          <div class="ov-agent-num" id="ag-v">0</div><div class="ov-agent-lbl">Checks completed</div>
+          <div class="ov-agent-bar"><div style="width:65%;background:var(--blue);height:100%;border-radius:2px"></div></div>
         </div>
-        <div class="agent-card offline">
-          <div class="agent-top"><div class="agent-name"><div class="agent-indicator" style="background:#d4d4d0"></div>Audit Agent</div><span class="agent-tag at-offline">OFFLINE</span></div>
-          <div class="agent-num">—</div><div class="agent-label">Audit packets ready</div>
-          <div class="agent-bar-track"><div class="agent-bar-fill" style="width:0%;background:#d4d4d0"></div></div>
+        <div class="ov-agent offline">
+          <div class="ov-agent-top"><div class="ov-agent-name"><div class="ov-agent-dot" style="background:#d4d4d0"></div>Audit</div><span class="ov-agent-tag ov-tag-off">OFFLINE</span></div>
+          <div class="ov-agent-num">—</div><div class="ov-agent-lbl">Audit packets ready</div>
+          <div class="ov-agent-bar"><div style="width:0%;background:#d4d4d0;height:100%;border-radius:2px"></div></div>
         </div>
       </div>
 
-      <div class="upload-card" id="upload-card">
-        <div class="upload-card-title">Upload Document for Verification</div>
-        <div class="upload-card-sub">Select document type, upload your file — Reducto extracts the fields, Claude verifies compliance, report saved to dashboard.</div>
-        <div style="margin-bottom:16px">
-          <div style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Document type</div>
-          <div class="doc-types">
-            <button class="doc-type active" onclick="selDoc(this,'EBCS')">EBCS</button>
-            <button class="doc-type" onclick="selDoc(this,'Brokerage Contract')">Brokerage Contract</button>
-            <button class="doc-type" onclick="selDoc(this,'Deed of Sale')">Deed of Sale</button>
-            <button class="doc-type" onclick="selDoc(this,'Seller Declaration')">Seller Declaration</button>
-            <button class="doc-type" onclick="selDoc(this,'Municipal Taxes')">Municipal Taxes</button>
-            <button class="doc-type" onclick="selDoc(this,'Certificate of Location')">Cert. of Location</button>
-          </div>
-        </div>
-        <div class="drop-zone" id="drop-zone"
-          onclick="document.getElementById('file-in').click()"
-          ondragover="event.preventDefault();this.classList.add('drag')"
-          ondragleave="this.classList.remove('drag')"
-          ondrop="onDrop(event)">
-          <i class="ti ti-cloud-upload drop-icon"></i>
-          <div class="drop-title">Click to upload or drag & drop</div>
-          <div class="drop-sub">PDF, PNG, JPG — max 20MB</div>
-        </div>
-        <input type="file" id="file-in" style="display:none" accept=".pdf,.png,.jpg,.jpeg" onchange="onFile(this.files[0])">
-        <div class="processing" id="proc">
-          <div class="proc-filename" id="proc-name"></div>
-          <div id="proc-steps"></div>
-        </div>
+      <!-- Hidden upload inputs still needed for Transaction Files view -->
+      <input type="file" id="file-in" style="display:none" accept=".pdf,.png,.jpg,.jpeg" onchange="onFile(this.files[0])">
+      <div class="processing" id="proc" style="display:none">
+        <div class="proc-filename" id="proc-name"></div>
+        <div id="proc-steps"></div>
       </div>
+
     </div><!-- end view-overview -->
 
     <!-- TRANSACTION FILES VIEW -->
@@ -740,21 +812,54 @@ function renderDash() {
   const flagged = S.files.filter(f => f.status === 'flagged').length;
   const pending = S.files.filter(f => f.status === 'pending').length;
   const need = missing + flagged;
+
   document.getElementById('s-complete').textContent = complete;
   document.getElementById('s-awaiting').textContent = missing;
   document.getElementById('s-flagged').textContent = flagged;
   document.getElementById('active-count').textContent = S.files.length;
   document.getElementById('files-badge').textContent = S.files.length;
   document.getElementById('ag-v').textContent = S.checks;
+
+  // KPI card states
   const flaggedCard = document.getElementById('flagged-card');
   if (flaggedCard) flaggedCard.classList.toggle('critical', flagged > 0);
   const flaggedSub = document.getElementById('s-flagged-sub');
-  if (flaggedSub) flaggedSub.textContent = flagged > 0 ? flagged + ' require action' : '0 new today';
-  document.getElementById('leg-c').textContent = complete;
-  document.getElementById('leg-p').textContent = pending;
-  document.getElementById('leg-m').textContent = missing;
+  if (flaggedSub) {
+    flaggedSub.textContent = flagged > 0 ? flagged + ' require action' : '0 new today';
+    flaggedSub.className = 'ov-kpi-sub ' + (flagged > 0 ? 'sub-orange' : '');
+  }
+  const flaggedLabel = document.getElementById('flagged-label');
+  if (flaggedLabel) flaggedLabel.style.color = flagged > 0 ? 'var(--red)' : '';
+
+  // Portfolio legend
+  const lc = document.getElementById('leg-c'); if (lc) lc.textContent = complete;
+  const lp = document.getElementById('leg-p'); if (lp) lp.textContent = pending;
+  const lm = document.getElementById('leg-m'); if (lm) lm.textContent = missing;
+
+  // Action pill
   const ap = document.getElementById('action-pill');
-  if (need > 0) { ap.style.display = ''; ap.textContent = need + ' require action'; } else ap.style.display = 'none';
+  if (ap) { if (need > 0) { ap.style.display = ''; ap.textContent = need + ' require action'; } else ap.style.display = 'none'; }
+
+  // Requires Action panel
+  const ral = document.getElementById('requires-action-list');
+  if (ral) {
+    const needFiles = S.files.filter(f => f.status === 'missing' || f.status === 'flagged');
+    if (!needFiles.length) {
+      ral.innerHTML = '<div style="font-size:11.5px;color:var(--text-tertiary);padding:4px 0">No actions required</div>';
+    } else {
+      ral.innerHTML = needFiles.slice(0, 5).map(f => {
+        const dot = f.status === 'flagged' ? 'var(--red)' : 'var(--orange)';
+        const meta = f.status === 'flagged' ? 'Flagged' : 'Missing ' + (f.report?.missing_items?.length || '');
+        const addr = (f.property_address || '').split(',')[0];
+        return '<div class="ov-action-item" onclick="openReport(S.files[' + S.files.indexOf(f) + '])">' +
+          '<div class="ov-action-dot" style="background:' + dot + '"></div>' +
+          '<div class="ov-action-text">' + addr + '</div>' +
+          '<div class="ov-action-meta">' + meta + '</div>' +
+          '</div>';
+      }).join('');
+    }
+  }
+
   drawDonut(complete, pending, missing + flagged);
   renderTable();
 }
@@ -764,8 +869,8 @@ function drawDonut(c, p, m) {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const total = c + p + m || 1;
-  const cx = 65, cy = 65, r = 52, inner = 34;
-  ctx.clearRect(0, 0, 130, 130);
+  const cx = 45, cy = 45, r = 36, inner = 22;
+  ctx.clearRect(0, 0, 90, 90);
   let angle = -Math.PI / 2;
   [{ v: c, col: '#16a34a' }, { v: p, col: '#b45309' }, { v: m, col: '#c2410c' }].forEach(s => {
     if (!s.v) return;
@@ -773,29 +878,36 @@ function drawDonut(c, p, m) {
     ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, angle, angle + sweep); ctx.closePath();
     ctx.fillStyle = s.col; ctx.fill(); angle += sweep;
   });
-  ctx.beginPath(); ctx.arc(cx, cy, inner, 0, 2 * Math.PI); ctx.fillStyle = '#fff'; ctx.fill();
-  ctx.fillStyle = '#111110'; ctx.font = '600 15px Inter,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(c + p + m, cx, cy - 8);
-  ctx.font = '400 11px Inter,sans-serif'; ctx.fillStyle = '#a8a8a3';
-  ctx.fillText('files', cx, cy + 9);
+  if (total === 1 && c + p + m === 0) {
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI); ctx.fillStyle = '#e8e8e4'; ctx.fill();
+  }
+  ctx.beginPath(); ctx.arc(cx, cy, inner, 0, 2 * Math.PI); ctx.fillStyle = '#ffffff'; ctx.fill();
+  ctx.fillStyle = '#111110'; ctx.font = '600 12px Inter,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(c + p + m, cx, cy - 6);
+  ctx.font = '400 10px Inter,sans-serif'; ctx.fillStyle = '#a8a8a3';
+  ctx.fillText('files', cx, cy + 7);
 }
 
 function renderTable() {
   const tbody = document.getElementById('files-tbody');
+  if (!tbody) return;
   if (!S.files.length) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:48px;color:var(--text-tertiary);font-size:13px"><i class="ti ti-file-off" style="font-size:26px;display:block;margin-bottom:10px"></i>No files yet — upload your first document below</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-tertiary);font-size:12.5px"><i class="ti ti-file-off" style="font-size:20px;display:block;margin-bottom:8px"></i>No files yet — add from Transaction Files</td></tr>';
     return;
   }
   tbody.innerHTML = S.files.map((f, i) => {
     const sp = { complete: 'sp-complete', missing: 'sp-missing', flagged: 'sp-flagged', pending: 'sp-pending' }[f.status] || 'sp-pending';
-    const sl = { complete: 'Complete', missing: `Missing ${f.report?.missing_items?.length || ''}`, flagged: 'Flagged', pending: 'Pending' }[f.status] || f.status;
+    const sl = { complete: 'Complete', missing: 'Missing ' + (f.report?.missing_items?.length || ''), flagged: 'Flagged', pending: 'Pending' }[f.status] || f.status;
     const sc = f.score >= 90 ? 'score-hi' : f.score >= 70 ? 'score-mid' : 'score-lo';
-    return `<tr class="row" onclick="openReport(S.files[${i}])">
-      <td><div class="file-addr">${f.property_address}</div><div class="file-meta">${f.txn_number || ''} · ${f.file_type || ''}</div></td>
-      <td><span class="broker-name">${f.broker_name || '—'}</span></td>
-      <td><span class="status-pill ${sp}">${sl}</span></td>
-      <td><span class="score ${sc}">${f.score}%</span></td>
-    </tr>`;
+    const addr = (f.property_address || '').split(',')[0];
+    const city = (f.property_address || '').split(',').slice(1).join(',').trim();
+    return '<tr class="row" onclick="openReport(S.files[' + i + '])">' +
+      '<td><div class="file-addr" style="font-size:12.5px">' + addr + (city ? '<span style="color:var(--text-tertiary);font-weight:400">, ' + city + '</span>' : '') + '</div>' +
+      '<div class="file-meta">' + (f.txn_number || '') + (f.file_type ? ' · ' + f.file_type : '') + '</div></td>' +
+      '<td style="font-size:12px;color:var(--text-secondary)">' + (f.broker_name || '—') + '</td>' +
+      '<td><span class="status-pill ' + sp + '" style="font-size:10.5px">' + sl + '</span></td>' +
+      '<td style="text-align:right"><span class="score ' + sc + '" style="font-size:12px">' + f.score + '%</span></td>' +
+    '</tr>';
   }).join('');
 }
 
@@ -901,7 +1013,7 @@ function navTo(view) {
 
   // Show/hide topbar buttons
   const newFileBtn = document.querySelector('.btn.btn-dark');
-  if (newFileBtn) newFileBtn.style.display = view === 'overview' ? '' : 'none';
+  if (newFileBtn) newFileBtn.style.display = '';
 
   S.currentView = view;
   if (view === 'files') renderFilesView();
