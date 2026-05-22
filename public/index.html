@@ -741,17 +741,31 @@ function openReport(f) {
     const vi = r.verdict === 'COMPLETE' ? 'ti-circle-check' : r.verdict === 'FLAGGED' ? 'ti-alert-triangle' : 'ti-alert-circle';
     b += `<div class="verdict ${vc}"><i class="ti ${vi}"></i>${r.verdict} — Score: ${r.score}% — ${r.checks_run} checks run</div>`;
     b += `<div class="section"><div class="section-title">Summary</div><p class="summary-text">${r.summary || '—'}</p></div>`;
+
+    // Anchor fields
     b += `<div class="section"><div class="section-title">Anchor Fields</div><div class="field-grid">`;
     [{ l: 'Property Address', v: r.property_address }, { l: 'Broker', v: r.broker_name }, { l: 'Seller', v: r.seller_name }, { l: 'Contract #', v: r.contract_number }, { l: 'Cadastral #', v: r.cadastral_number }].forEach(a => {
       const ok = a.v && a.v !== 'null';
       b += `<div class="field-box"><div class="field-box-label">${a.l}</div><div class="field-box-val">${ok ? a.v : '—'}</div><div class="field-box-status" style="color:${ok ? 'var(--green-text)' : 'var(--orange)'}">${ok ? '✓ extracted' : '✗ not found'}</div></div>`;
     });
     b += '</div></div>';
-    if (r.missing_items?.length) {
-      b += `<div class="section"><div class="section-title" style="color:var(--red)">🔴 Critical Issues (${r.missing_items.length})</div>`;
-      r.missing_items.forEach(x => { b += `<div class="report-item ri-missing"><i class="ti ti-circle-x"></i>${x}</div>`; });
+
+    // Critical issues — expanded with next action
+    if (r.failed_checks?.length) {
+      b += `<div class="section"><div class="section-title" style="color:var(--red)">🔴 Critical Issues (${r.failed_checks.length})</div>`;
+      r.failed_checks.forEach(c => {
+        b += `<div style="background:var(--red-bg);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px">
+          <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:4px">[${c.clause}] ${c.rule}</div>
+          <div style="font-size:12.5px;color:#7f1d1d;margin-bottom:6px">${c.email_text || ''}</div>
+          <div style="display:inline-flex;align-items:center;gap:4px;background:var(--red);color:white;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px">
+            <i class="ti ti-arrow-right" style="font-size:11px"></i>${c.next_action || ''}
+          </div>
+        </div>`;
+      });
       b += '</div>';
     }
+
+    // Audit trail table
     if (r.check_results?.length) {
       b += `<div class="section"><div class="section-title">Verification Audit Trail</div>`;
       b += `<div style="font-size:11px;color:var(--text-tertiary);margin-bottom:8px">Every check performed — verified at ${r.verified_at ? new Date(r.verified_at).toLocaleString('en-CA') : 'now'}</div>`;
@@ -759,16 +773,23 @@ function openReport(f) {
       b += `<tr style="border-bottom:1px solid var(--border-light)"><th style="text-align:left;padding:6px 8px;color:var(--text-tertiary)">Field</th><th style="text-align:left;padding:6px 8px;color:var(--text-tertiary)">Clause</th><th style="text-align:left;padding:6px 8px;color:var(--text-tertiary)">Result</th><th style="text-align:left;padding:6px 8px;color:var(--text-tertiary)">Value</th></tr>`;
       r.check_results.forEach(c => {
         const color = c.passed ? 'var(--green-text)' : 'var(--red)';
-        const icon = c.passed ? '✓' : '✗';
-        b += `<tr style="border-bottom:1px solid var(--border-light)"><td style="padding:7px 8px;font-weight:500">${c.rule}</td><td style="padding:7px 8px;color:var(--text-tertiary)">${c.clause}</td><td style="padding:7px 8px;color:${color};font-weight:600">${icon} ${c.passed ? 'PASS' : 'FAIL'}</td><td style="padding:7px 8px;color:var(--text-secondary);font-size:11px">${c.value || '—'}</td></tr>`;
+        b += `<tr style="border-bottom:1px solid var(--border-light)"><td style="padding:7px 8px;font-weight:500">${c.rule}</td><td style="padding:7px 8px;color:var(--text-tertiary)">${c.clause}</td><td style="padding:7px 8px;color:${color};font-weight:600">${c.passed ? '✓ PASS' : '✗ FAIL'}</td><td style="padding:7px 8px;color:var(--text-secondary);font-size:11px">${c.value || '—'}</td></tr>`;
       });
       b += '</table></div>';
     }
-    if (r.ok_items?.length) {
-      b += `<div class="section"><div class="section-title" style="color:var(--green-text)">✓ Verified (${r.ok_items.length})</div>`;
-      r.ok_items.slice(0, 8).forEach(x => { b += `<div class="report-item ri-ok"><i class="ti ti-check"></i>${x}</div>`; });
-      if (r.ok_items.length > 8) b += `<div style="font-size:12px;color:var(--text-tertiary);padding:4px 0">+${r.ok_items.length - 8} more verified</div>`;
-      b += '</div>';
+
+    // Send to broker button
+    if (r.broker_email_body) {
+      const encodedEmail = encodeURIComponent(r.broker_email_body);
+      const encodedSubject = encodeURIComponent(`OpsFlows Compliance Review — ${r.contract_number || 'EBCS'}`);
+      const brokerEmail = r.broker_email || '';
+      b += `<div class="section" style="border-top:1px solid var(--border-light);padding-top:20px;margin-top:4px">
+        <div class="section-title">Send to Broker</div>
+        <div style="background:var(--bg);border-radius:var(--radius-md);padding:14px;margin-bottom:12px;font-size:13px;white-space:pre-line;color:var(--text-secondary);line-height:1.6">${r.broker_email_body}</div>
+        <a href="mailto:${brokerEmail}?subject=${encodedSubject}&body=${encodedEmail}" style="display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:white;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;text-decoration:none;letter-spacing:-.01em">
+          <i class="ti ti-mail"></i> Send Email to Broker
+        </a>
+      </div>`;
     }
   }
   document.getElementById('m-body').innerHTML = b;
