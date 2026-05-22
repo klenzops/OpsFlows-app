@@ -368,17 +368,17 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   background: var(--surface);
   border: 0.5px solid var(--border-light);
   border-radius: var(--radius-md);
-  padding: 10px 12px;
+  padding: 8px 10px;
 }
 .ov-agent.offline { opacity: .38; }
-.ov-agent-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.ov-agent-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
 .ov-agent-name { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 500; color: var(--text-primary); }
 .ov-agent-dot { width: 5px; height: 5px; border-radius: 50%; }
 .ov-agent-tag { font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 3px; letter-spacing: .05em; }
 .ov-tag-run { background: var(--blue-bg); color: var(--blue); }
 .ov-tag-off { background: var(--bg); color: var(--text-tertiary); }
-.ov-agent-num { font-size: 20px; font-weight: 600; letter-spacing: -.6px; color: var(--text-primary); line-height: 1; margin-bottom: 1px; }
-.ov-agent-lbl { font-size: 10px; color: var(--text-tertiary); margin-bottom: 7px; }
+.ov-agent-num { font-size: 17px; font-weight: 600; letter-spacing: -.5px; color: var(--text-primary); line-height: 1; margin-bottom: 1px; }
+.ov-agent-lbl { font-size: 10px; color: var(--text-tertiary); margin-bottom: 5px; }
 .ov-agent-bar { height: 2px; background: var(--border-light); border-radius: 2px; }
 
 /* Content area — no padding, overview manages its own */
@@ -566,7 +566,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   <col style="width:18%">
   <col style="width:10%">
 </colgroup>
-<thead><tr><th>Property Address</th><th>Broker</th><th>Status</th><th>Expires</th><th style="text-align:right">Score</th></tr></thead>
+<thead><tr><th>Property Address</th><th>Broker</th><th>Status</th><th>Expires</th><th style="text-align:right;padding-right:20px">Score</th></tr></thead>
               <tbody id="files-tbody">
                 <tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-tertiary);font-size:12.5px">
                   <i class="ti ti-file-off" style="font-size:22px;display:block;margin-bottom:8px"></i>
@@ -1021,7 +1021,7 @@ function renderTable() {
       '<td style="font-size:12px;color:var(--text-secondary)">' + (f.broker_name || '—') + '</td>' +
       '<td><span class="status-pill ' + sp + '" style="font-size:10.5px">' + sl + '</span></td>' +
       '<td style="font-size:11.5px;' + (isExpired ? 'color:var(--red)' : isExpiringSoon ? 'color:var(--orange)' : 'color:var(--text-tertiary)') + '">' + expiry + '</td>' +
-      '<td style="text-align:right"><span class="score ' + sc + '" style="font-size:12px">' + f.score + '%</span></td>' +
+      '<td style="text-align:right;padding-right:20px"><span class="score ' + sc + '" style="font-size:12px">' + f.score + '%</span></td>' +
     '</tr>';
   }).join('');
 }
