@@ -4,36 +4,140 @@ export const config = {
 };
 
 // ============================================================
-// EBCS VERIFICATION RULES — based on Lena's rule sheet
+// EBCS VERIFICATION RULES — with next actions + email text
 // ============================================================
 const EBCS_RULES = [
-  { field: "Brokerage contract number", clause: "Cover", severity: "critical", check: "present_and_format", format: /^EBCS\s\d+/i, label: "Brokerage Contract Number" },
-  { field: "Declaration by the seller contract number", clause: "12.1", severity: "critical", check: "present", label: "Declaration Seller (DS) Number" },
-  { field: "Sellers[0].Full Name", clause: "1", severity: "critical", check: "present", label: "Seller 1 Full Name" },
-  { field: "Signature Part - Seller(s)[0].Signature present", clause: "15", severity: "critical", check: "is_true", label: "Seller Signature" },
-  { field: "Signature Part - Agency/Broker[0].Signature present", clause: "15", severity: "critical", check: "is_true", label: "Broker Signature" },
-  { field: "Property Address", clause: "3.1", severity: "critical", check: "present", label: "Property Address" },
-  { field: "Cadastral Number", clause: "3.1", severity: "critical", check: "present", label: "Cadastral Number" },
-  { field: "Asking Price", clause: "4.1", severity: "critical", check: "present", label: "Asking Price" },
-  { field: "Sellers[0].ID type", clause: "1.1", severity: "critical", check: "one_of", values: ["Driver's Licence","Permanent Resident Card","Health Insurance Card","Passport","Other ID document (with photo)"], label: "Seller ID Type" },
-  { field: "Sellers[0].ID Document Number", clause: "1.1", severity: "critical", check: "present", label: "Seller ID Document Number" },
-  { field: "Sellers[0].Date of Birth", clause: "1.1", severity: "critical", check: "present", label: "Seller Date of Birth" },
-  { field: "Remuneration", clause: "7.1 & 7.3", severity: "critical", check: "present", label: "Remuneration" },
-  { field: "Seller(s) initials[0].Initials", clause: "Cover", severity: "critical", check: "present", label: "Seller 1 Initials" },
-  { field: "Name of Agency or Broker[0].Licence Number", clause: "1", severity: "critical", check: "present", label: "Broker Licence Number" },
-  { field: "Goods and Services Tax and the Quebec Sales Tax", clause: "4.2", severity: "critical", check: "present", label: "GST/QST Status" },
-  { field: "Pre-emptive rights", clause: "8.1", severity: "critical", check: "present", label: "Pre-emptive Rights" },
+  {
+    field: "Brokerage contract number", clause: "-", severity: "critical",
+    check: "present_and_format", format: /^EBCS\s?\d+/i,
+    label: "Brokerage Contract Number",
+    next_action: "Re-upload brokerage contract",
+    email_text: "We're unable to retrieve the brokerage contract number. Please re-upload your document in PDF."
+  },
+  {
+    field: "Declaration by the seller contract number", clause: "12.1", severity: "critical",
+    check: "present",
+    label: "Declaration Seller (DS) Number",
+    next_action: "Draft an Amendment",
+    email_text: "The Declaration of the Seller (DS) at clause 12.1 is missing. Please draft an amendment for correction."
+  },
+  {
+    field: "Sellers[0].Full Name", clause: "1", severity: "critical",
+    check: "present",
+    label: "Seller 1 Full Name",
+    next_action: "Draft an Amendment",
+    email_text: "The Full Name of the seller(s) is missing. Please draft an amendment for correction."
+  },
+  {
+    field: "Signature Part - Seller(s)[0].Signature present", clause: "15", severity: "critical",
+    check: "is_true",
+    label: "Seller Signature",
+    next_action: "Contact Seller Immediately",
+    email_text: "A seller signature is missing. Please have the seller sign and resubmit."
+  },
+  {
+    field: "Signature Part - Agency/Broker[0].Signature present", clause: "15", severity: "critical",
+    check: "is_true",
+    label: "Broker Signature",
+    next_action: "Contact Broker Immediately",
+    email_text: "A broker signature is missing. Please have the broker sign and resubmit."
+  },
+  {
+    field: "Property Address", clause: "3.1", severity: "critical",
+    check: "present",
+    label: "Property Address",
+    next_action: "Draft an Amendment",
+    email_text: "The property address at clause 3.1 is missing. Please draft an amendment for correction."
+  },
+  {
+    field: "Cadastral Number", clause: "3.1", severity: "critical",
+    check: "present",
+    label: "Cadastral Number",
+    next_action: "Draft an Amendment",
+    email_text: "The cadastral number at clause 3.1 is missing. Please draft an amendment for correction."
+  },
+  {
+    field: "Asking Price", clause: "4.1", severity: "critical",
+    check: "present",
+    label: "Asking Price",
+    next_action: "Draft an Amendment",
+    email_text: "The asking price at clause 4.1 is missing. Please draft an amendment for correction."
+  },
+  {
+    field: "Sellers[0].ID type", clause: "1.1", severity: "critical",
+    check: "one_of",
+    values: ["Driver's Licence","Permanent Resident Card","Health Insurance Card","Passport","Other ID document (with photo)"],
+    label: "Seller ID Type",
+    next_action: "Draft an Amendment",
+    email_text: "The Seller ID type at clause 1.1 is missing or invalid. Please draft an amendment for correction."
+  },
+  {
+    field: "Sellers[0].ID Document Number", clause: "1.1", severity: "critical",
+    check: "present",
+    label: "Seller ID Document Number",
+    next_action: "Draft an Amendment",
+    email_text: "The Seller ID document number at clause 1.1 is missing or invalid. Please draft an amendment for correction."
+  },
+  {
+    field: "Sellers[0].Date of Birth", clause: "1.1", severity: "critical",
+    check: "present",
+    label: "Seller Date of Birth",
+    next_action: "Draft an Amendment",
+    email_text: "The Seller Date of Birth at clause 1.1 is missing or invalid. Please draft an amendment for correction."
+  },
+  {
+    field: "Remuneration", clause: "7.1", severity: "critical",
+    check: "present",
+    label: "Remuneration",
+    next_action: "Draft an Amendment",
+    email_text: "The remuneration at clause 7.1 is missing or invalid. Please draft an amendment for correction."
+  },
+  {
+    field: "Shared remuneration", clause: "7.3", severity: "critical",
+    check: "present",
+    label: "Shared Remuneration",
+    next_action: "Draft an Amendment",
+    email_text: "The shared remuneration at clause 7.3 is missing or invalid. Please draft an amendment for correction."
+  },
+  {
+    field: "Seller(s) initials[0].Initials", clause: "Cover", severity: "critical",
+    check: "present",
+    label: "Seller 1 Initials",
+    next_action: "Contact Seller Immediately",
+    email_text: "Seller initials are missing. Please have the seller initial and resubmit."
+  },
+  {
+    field: "Name of Agency or Broker[0].Licence Number", clause: "1", severity: "critical",
+    check: "present",
+    label: "Broker Licence Number",
+    next_action: "Draft an Amendment",
+    email_text: "The broker licence number at clause 1 is missing. Please draft an amendment for correction."
+  },
+  {
+    field: "Goods and Services Tax and the Quebec Sales Tax", clause: "4.2", severity: "critical",
+    check: "present",
+    label: "GST/QST Status",
+    next_action: "Draft an Amendment",
+    email_text: "The GST/QST status at clause 4.2 is missing. Please draft an amendment for correction."
+  },
+  {
+    field: "Pre-emptive rights", clause: "8.1", severity: "critical",
+    check: "present",
+    label: "Pre-emptive Rights",
+    next_action: "Draft an Amendment",
+    email_text: "The Pre-emptive rights at clause 8.1 is missing. Please draft an amendment for correction."
+  }
 ];
 
 const EBCS_CONDITIONAL_RULES = [
-  { 
-    condition_field: "Sellers[1].Full Name", 
+  {
+    condition_field: "Sellers[1].Full Name",
     condition: "present",
     then_check: [
-      { field: "Sellers[1].ID type", severity: "critical", label: "Seller 2 ID Type" },
-      { field: "Sellers[1].ID Document Number", severity: "critical", label: "Seller 2 ID Document Number" },
-      { field: "Sellers[1].Date of Birth", severity: "critical", label: "Seller 2 Date of Birth" },
-      { field: "Signature Part - Seller(s)[1].Signature present", severity: "critical", label: "Seller 2 Signature", check: "is_true" }
+      { field: "Sellers[1].ID type", severity: "critical", label: "Seller 2 ID Type", check: "present", next_action: "Draft an Amendment", email_text: "The seller 2 info at clause 1 is missing. Please draft an amendment for correction." },
+      { field: "Sellers[1].ID Document Number", severity: "critical", label: "Seller 2 ID Document Number", check: "present", next_action: "Draft an Amendment", email_text: "The seller 2 ID document number is missing. Please draft an amendment for correction." },
+      { field: "Sellers[1].Date of Birth", severity: "critical", label: "Seller 2 Date of Birth", check: "present", next_action: "Draft an Amendment", email_text: "The seller 2 date of birth is missing. Please draft an amendment for correction." },
+      { field: "Signature Part - Seller(s)[1].Signature present", severity: "critical", label: "Seller 2 Signature", check: "is_true", next_action: "Contact Seller Immediately", email_text: "Seller 2 signature is missing. Please have the seller sign and resubmit." }
     ]
   }
 ];
@@ -93,10 +197,7 @@ const EBCS_SCHEMA = {
       type: "array",
       items: {
         type: "object",
-        properties: {
-          "Seller": { type: "number" },
-          "Initials": { type: "string" }
-        }
+        properties: { "Seller": { type: "number" }, "Initials": { type: "string" } }
       },
       description: "4 initial boxes on page 1 above Section 1"
     },
@@ -109,8 +210,7 @@ const EBCS_SCHEMA = {
           "Signature date and time": { type: "string" },
           "Signature location": { type: "string" }
         }
-      },
-      description: "Broker signatures clause 15"
+      }
     },
     "Signature Part - Seller(s)": {
       type: "array",
@@ -121,8 +221,7 @@ const EBCS_SCHEMA = {
           "Signature date and time": { type: "string" },
           "Signature location": { type: "string" }
         }
-      },
-      description: "Seller signatures clause 15"
+      }
     },
     "Intervention of the married or civil union spouse of the seller": { type: "string" },
     "Other Declaration - Clause 11.1": { type: "string" },
@@ -132,9 +231,6 @@ const EBCS_SCHEMA = {
 
 const EBCS_SYSTEM_PROMPT = "This is a Quebec OACIQ mandatory form — Exclusive Brokerage Contract for Sale (EBCS). Extract data ONLY from filled-in fields. Do not infer or assume blank fields. For signature fields, return true only if a visible signature or handwritten mark is present. The brokerage contract number appears in the bottom right corner of every page in large bold text. Extract each seller separately. Do not merge seller information.";
 
-// ============================================================
-// FIELD RESOLVER — gets nested values from extraction JSON
-// ============================================================
 function getField(obj, path) {
   const parts = path.replace(/\[(\d+)\]/g, '.$1').split('.');
   let current = obj;
@@ -145,9 +241,6 @@ function getField(obj, path) {
   return current ?? null;
 }
 
-// ============================================================
-// VERIFICATION ENGINE
-// ============================================================
 function verifyEBCS(extraction) {
   const results = [];
   let criticalFails = 0;
@@ -189,11 +282,13 @@ function verifyEBCS(extraction) {
       severity: rule.severity,
       passed,
       value: detail,
-      field: rule.field
+      field: rule.field,
+      next_action: !passed ? rule.next_action : null,
+      email_text: !passed ? rule.email_text : null
     });
   }
 
-  // Conditional rules (Seller 2, 3, 4)
+  // Conditional rules
   for (const condRule of EBCS_CONDITIONAL_RULES) {
     const condValue = getField(extraction, condRule.condition_field);
     const condMet = condValue !== null && condValue !== undefined && condValue !== '' && condValue !== 'null';
@@ -208,7 +303,9 @@ function verifyEBCS(extraction) {
           severity: check.severity,
           passed,
           value: passed ? String(value).slice(0, 100) : null,
-          field: check.field
+          field: check.field,
+          next_action: !passed ? check.next_action : null,
+          email_text: !passed ? check.email_text : null
         });
       }
     }
@@ -219,13 +316,14 @@ function verifyEBCS(extraction) {
   const score = Math.round((passed / totalChecks) * 100);
   const verdict = criticalFails === 0 ? 'COMPLETE' : criticalFails <= 3 ? 'MISSING_FIELDS' : 'FLAGGED';
 
-  const missing = results.filter(r => !r.passed && r.severity === 'critical').map(r => `[${r.clause}] ${r.rule}`);
-  const ok = results.filter(r => r.passed).map(r => `${r.rule}: ${r.value || '✓'}`);
+  const failedChecks = results.filter(r => !r.passed);
+  const missing = failedChecks.map(r => `[${r.clause}] ${r.rule}`);
 
-  // Build summary
   const seller1Name = getField(extraction, 'Sellers[0].Full Name') || 'Unknown Seller';
   const address = getField(extraction, 'Property Address') || 'Unknown Address';
   const contractNum = getField(extraction, 'Brokerage contract number') || 'Unknown';
+  const brokerEmail = getField(extraction, 'Name of Agency or Broker[0].Email') || null;
+  const brokerName = getField(extraction, 'Name of Agency or Broker[0].Representative') || null;
 
   let summary = '';
   if (criticalFails === 0) {
@@ -234,29 +332,39 @@ function verifyEBCS(extraction) {
     summary = `EBCS ${contractNum} for ${address} has ${criticalFails} critical issue(s) requiring attention. ${passed} of ${totalChecks} checks passed. Seller: ${seller1Name}.`;
   }
 
+  // Build broker email body
+  const failedEmailLines = failedChecks
+    .filter(r => r.email_text)
+    .map((r, i) => `${i+1}. ${r.email_text}`)
+    .join('\n');
+
+  const brokerEmailBody = criticalFails === 0
+    ? `Hi ${brokerName || 'there'},\n\nThank you for uploading your documents. After verification, your EBCS file for ${address} (${contractNum}) has passed all compliance checks.\n\nHave a great day,\nOpsFlows Compliance`
+    : `Hi ${brokerName || 'there'},\n\nThank you for uploading your documents. After verification of your EBCS file for ${address} (${contractNum}), the following items require your attention:\n\n${failedEmailLines}\n\nPlease address these items as soon as possible to ensure compliance with OACIQ regulations.\n\nHave a great day,\nOpsFlows Compliance`;
+
   return {
     verdict,
     score,
     checks_run: totalChecks,
     critical_fails: criticalFails,
     property_address: address,
-    broker_name: getField(extraction, 'Name of Agency or Broker[0].Representative'),
+    broker_name: brokerName,
+    broker_email: brokerEmail,
     seller_name: seller1Name,
     contract_number: contractNum,
     cadastral_number: getField(extraction, 'Cadastral Number'),
     missing_items: missing,
-    ok_items: ok,
+    ok_items: results.filter(r => r.passed).map(r => `${r.rule}: ${r.value || '✓'}`),
     flagged_items: [],
+    failed_checks: failedChecks,
     summary,
-    check_results: results,  // Full audit trail
+    broker_email_body: brokerEmailBody,
+    check_results: results,
     verified_at: new Date().toISOString(),
     document_type: 'EBCS'
   };
 }
 
-// ============================================================
-// MAIN HANDLER
-// ============================================================
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -271,7 +379,6 @@ export default async function handler(req, res) {
     const contentType = req.headers['content-type'] || '';
     const apiKey = process.env.REDUCTO_API_KEY;
 
-    // Step 1: Upload to Reducto
     const uploadResp = await fetch('https://platform.reducto.ai/upload', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': contentType },
@@ -286,7 +393,6 @@ export default async function handler(req, res) {
     const uploadData = await uploadResp.json();
     const fileRef = `reducto://${uploadData.file_id}`;
 
-    // Step 2: Extract with EBCS schema
     const extractResp = await fetch('https://platform.reducto.ai/extract', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
@@ -299,19 +405,13 @@ export default async function handler(req, res) {
 
     if (!extractResp.ok) {
       const t = await extractResp.text();
-      return res.status(200).json({ 
-        error: `Extract failed: ${extractResp.status} — ${t}`,
-        file_id: uploadData.file_id
-      });
+      return res.status(200).json({ error: `Extract failed: ${extractResp.status} — ${t}`, file_id: uploadData.file_id });
     }
 
     const extractData = await extractResp.json();
     const rawExtraction = extractData.result?.[0] ?? extractData.result ?? extractData;
-
-    // Step 3: Run verification engine (no Claude needed — rules are deterministic)
     const report = verifyEBCS(rawExtraction);
 
-    // Return everything
     return res.status(200).json({
       extraction: rawExtraction,
       report,
