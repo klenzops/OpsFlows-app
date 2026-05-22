@@ -1138,46 +1138,26 @@ async function handleDetailFile(file, fileIdx) {
 // ============================================================
 async function renderAuditLog() {
   const el = document.getElementById('audit-log-content');
-  el.innerHTML = `<div class="view-header"><div class="view-title">Audit Log</div><div class="view-sub">Every action performed by the platform — timestamped</div></div><div style="color:var(--text-tertiary);font-size:13px;padding:20px 0">Loading...</div>`;
-
+  el.innerHTML = '<div class="view-header"><div class="view-title">Audit Log</div><div class="view-sub">Every action performed by the platform</div></div><div style="color:var(--text-tertiary);font-size:13px;padding:20px 0">Loading...</div>';
   try {
-    const r = await fetch(\`\${SB_URL}/rest/v1/audit_log?order=created_at.desc&limit=100\`, {
-      headers: { 'apikey': SB_KEY, 'Authorization': \`Bearer \${SB_KEY}\` }
+    const r = await fetch(SB_URL + '/rest/v1/audit_log?order=created_at.desc&limit=100', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
     });
     if (!r.ok) throw new Error('Failed to load');
     const rows = await r.json();
-
-    if (!rows?.length) {
-      el.innerHTML = \`<div class="view-header"><div class="view-title">Audit Log</div><div class="view-sub">Every action performed by the platform</div></div>
-        <div class="coming-soon"><i class="ti ti-clipboard-list"></i><h3>No audit entries yet</h3><p>Actions will appear here after verifying documents</p></div>\`;
+    if (!rows || !rows.length) {
+      el.innerHTML = '<div class="view-header"><div class="view-title">Audit Log</div><div class="view-sub">Every action performed by the platform</div></div><div class="coming-soon"><i class="ti ti-clipboard-list"></i><h3>No audit entries yet</h3><p>Actions will appear here after verifying documents</p></div>';
       return;
     }
-
-    el.innerHTML = \`
-      <div class="view-header">
-        <div class="view-title">Audit Log</div>
-        <div class="view-sub">\${rows.length} entries · Every agent action logged</div>
-      </div>
-      <div class="panel">
-        <table class="files-table">
-          <thead><tr><th>Timestamp</th><th>Action</th><th>Detail</th></tr></thead>
-          <tbody>
-            \${rows.map(row => \`
-              <tr>
-                <td style="font-size:12px;color:var(--text-tertiary);white-space:nowrap">\${new Date(row.created_at).toLocaleString('en-CA')}</td>
-                <td><span class="status-pill sp-complete" style="font-size:11px">\${row.action || '—'}</span></td>
-                <td style="font-size:12.5px;color:var(--text-secondary)">\${row.detail || '—'}</td>
-              </tr>
-            \`).join('')}
-          </tbody>
-        </table>
-      </div>
-    \`;
+    let tableRows = '';
+    rows.forEach(function(row) {
+      tableRows += '<tr><td style="font-size:12px;color:var(--text-tertiary);white-space:nowrap">' + new Date(row.created_at).toLocaleString('en-CA') + '</td><td><span class="status-pill sp-complete" style="font-size:11px">' + (row.action || '—') + '</span></td><td style="font-size:12.5px;color:var(--text-secondary)">' + (row.detail || '—') + '</td></tr>';
+    });
+    el.innerHTML = '<div class="view-header"><div class="view-title">Audit Log</div><div class="view-sub">' + rows.length + ' entries</div></div><div class="panel"><table class="files-table"><thead><tr><th>Timestamp</th><th>Action</th><th>Detail</th></tr></thead><tbody>' + tableRows + '</tbody></table></div>';
   } catch(e) {
-    el.innerHTML = \`<div class="view-header"><div class="view-title">Audit Log</div></div><p style="color:var(--text-tertiary);font-size:13px">Could not load audit log.</p>\`;
+    el.innerHTML = '<div class="view-header"><div class="view-title">Audit Log</div></div><p style="color:var(--text-tertiary);font-size:13px">Could not load audit log.</p>';
   }
 }
-
 checkSession();
 renderDash();
 </script>
