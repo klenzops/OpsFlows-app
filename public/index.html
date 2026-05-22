@@ -225,6 +225,55 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 
 /* TOAST */
 .toast { position: fixed; bottom: 24px; right: 24px; background: var(--accent); color: white; padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; z-index: 999; display: none; box-shadow: var(--shadow-md); letter-spacing: -.01em; }
+
+/* TRANSACTION FILES VIEW */
+.view { display: none; }
+.view.active { display: block; }
+.view-header { margin-bottom: 24px; }
+.view-title { font-size: 20px; font-weight: 600; letter-spacing: -.4px; margin-bottom: 4px; }
+.view-sub { font-size: 13px; color: var(--text-tertiary); }
+.search-bar { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 8px 12px; width: 280px; }
+.search-bar input { border: none; outline: none; font-size: 13px; font-family: inherit; background: transparent; color: var(--text-primary); width: 100%; }
+.search-bar i { color: var(--text-tertiary); font-size: 14px; flex-shrink: 0; }
+.files-view-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.filter-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border-light); background: var(--surface); color: var(--text-secondary); transition: all .12s; }
+.filter-pill.active { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+.files-grid { display: flex; flex-direction: column; gap: 8px; }
+.file-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.file-card:hover { border-color: #d4d4d0; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.file-card-left { display: flex; flex-direction: column; gap: 4px; }
+.file-card-address { font-size: 14px; font-weight: 600; letter-spacing: -.1px; color: var(--text-primary); }
+.file-card-meta { font-size: 12px; color: var(--text-tertiary); display: flex; align-items: center; gap: 8px; }
+.file-card-right { display: flex; align-items: center; gap: 16px; }
+.file-card-broker { font-size: 13px; color: var(--text-secondary); }
+.file-card-expiry { font-size: 12px; color: var(--text-tertiary); }
+.file-card-expiry.soon { color: var(--orange); font-weight: 500; }
+/* FILE DETAIL VIEW */
+.back-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); cursor: pointer; margin-bottom: 20px; padding: 6px 0; }
+.back-btn:hover { color: var(--text-primary); }
+.file-detail-header { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 20px; display: flex; align-items: flex-start; justify-content: space-between; }
+.file-detail-title { font-size: 18px; font-weight: 600; letter-spacing: -.3px; margin-bottom: 6px; }
+.file-detail-meta { display: flex; gap: 16px; flex-wrap: wrap; }
+.file-detail-tag { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
+.docs-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.doc-row { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: border-color .15s; }
+.doc-row:hover { border-color: #d4d4d0; }
+.doc-row-left { display: flex; align-items: center; gap: 12px; }
+.doc-row-icon { width: 36px; height: 36px; background: var(--bg); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--text-tertiary); flex-shrink: 0; }
+.doc-row-name { font-size: 13.5px; font-weight: 500; color: var(--text-primary); letter-spacing: -.1px; }
+.doc-row-date { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+.doc-row-right { display: flex; align-items: center; gap: 12px; }
+.add-doc-zone { background: var(--bg); border: 1.5px dashed var(--border-light); border-radius: var(--radius-md); padding: 28px; text-align: center; cursor: pointer; transition: all .2s; }
+.add-doc-zone:hover { border-color: var(--blue); background: #f8faff; }
+.add-doc-zone i { font-size: 24px; color: var(--text-tertiary); margin-bottom: 8px; display: block; }
+.add-doc-zone p { font-size: 13px; color: var(--text-secondary); }
+.add-doc-zone span { font-size: 12px; color: var(--text-tertiary); }
+/* COMING SOON */
+.coming-soon { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 40px; text-align: center; }
+.coming-soon i { font-size: 40px; color: var(--text-tertiary); margin-bottom: 16px; }
+.coming-soon h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; letter-spacing: -.2px; }
+.coming-soon p { font-size: 13px; color: var(--text-secondary); }
+
 </style>
 </head>
 <body>
@@ -280,10 +329,10 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
     <nav class="nav">
       <div class="nav-section">
         <div class="nav-section-label">Workspace</div>
-        <div class="nav-item active"><i class="ti ti-layout-dashboard"></i>Overview<span class="nav-badge nb-green">Live</span></div>
-        <div class="nav-item"><i class="ti ti-file-description"></i>Transaction Files<span class="nav-badge nb-red" id="files-badge">0</span></div>
-        <div class="nav-item"><i class="ti ti-robot"></i>Agents</div>
-        <div class="nav-item"><i class="ti ti-clipboard-list"></i>Audit Log</div>
+        <div class="nav-item active" id="nav-overview" onclick="navTo('overview')"><i class="ti ti-layout-dashboard"></i>Overview<span class="nav-badge nb-green">Live</span></div>
+        <div class="nav-item" id="nav-files" onclick="navTo('files')"><i class="ti ti-file-description"></i>Transaction Files<span class="nav-badge nb-red" id="files-badge">0</span></div>
+        <div class="nav-item" id="nav-agents" onclick="navTo('agents')"><i class="ti ti-robot"></i>Agents</div>
+        <div class="nav-item" id="nav-audit" onclick="navTo('audit')"><i class="ti ti-clipboard-list"></i>Audit Log</div>
       </div>
       <div class="nav-section">
         <div class="nav-section-label">Reports</div>
@@ -311,7 +360,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   <div class="main">
     <div class="topbar">
       <div class="topbar-left">
-        <div class="topbar-title">Compliance Overview</div>
+        <div class="topbar-title" id="topbar-title">Compliance Overview</div>
         <div class="topbar-sub" id="topbar-sub">May 2026 · <span id="active-count">0</span> active files · Synced just now</div>
       </div>
       <div class="topbar-right">
@@ -321,7 +370,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       </div>
     </div>
 
-    <div class="content">
+    <div class="content" id="main-content"><div class="view active" id="view-overview">
       <div class="stat-grid">
         <div class="stat-card"><div class="stat-accent" style="background:var(--green)"></div><div class="stat-label">Files Complete</div><div class="stat-value" id="s-complete">0</div><div class="stat-sub sub-green">+0 this week</div></div>
         <div class="stat-card"><div class="stat-accent" style="background:var(--orange)"></div><div class="stat-label">Awaiting Docs</div><div class="stat-value" id="s-awaiting">0</div><div class="stat-sub sub-orange">0 past deadline</div></div>
@@ -403,7 +452,24 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
           <div id="proc-steps"></div>
         </div>
       </div>
+    </div><!-- end view-overview -->
+
+    <!-- TRANSACTION FILES VIEW -->
+    <div class="view" id="view-files">
+      <div id="txn-files-list-view"></div>
+      <div id="txn-file-detail-view" style="display:none"></div>
     </div>
+
+    <!-- AGENTS VIEW -->
+    <div class="view" id="view-agents">
+      <div class="coming-soon"><i class="ti ti-robot"></i><h3>Agents</h3><p>Monitor, Verify and Audit agents — coming soon.</p></div>
+    </div>
+
+    <!-- AUDIT LOG VIEW -->
+    <div class="view" id="view-audit">
+      <div id="audit-log-content"></div>
+    </div>
+
   </div>
 </div>
 
@@ -801,6 +867,315 @@ function exportData() {
   S.files.forEach(f => rows.push([f.txn_number, f.property_address, f.broker_name, f.file_type, f.status, f.score + '%', f.created_at?.slice(0, 10)]));
   const csv = rows.map(r => r.map(c => '"' + (c || '').toString().replace(/"/g, '""') + '"').join(',')).join('\n');
   const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'opsflows_export.csv'; a.click();
+}
+
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+const VIEWS = ['overview', 'files', 'agents', 'audit'];
+
+function navTo(view) {
+  // Update nav items
+  VIEWS.forEach(v => {
+    const el = document.getElementById('nav-' + v);
+    if (el) el.classList.toggle('active', v === view);
+  });
+  // Show/hide views
+  VIEWS.forEach(v => {
+    const el = document.getElementById('view-' + v);
+    if (el) el.classList.toggle('active', v === view);
+  });
+  // Update topbar
+  const titles = {
+    overview: 'Compliance Overview',
+    files: 'Transaction Files',
+    agents: 'Agents',
+    audit: 'Audit Log'
+  };
+  const el = document.getElementById('topbar-title');
+  if (el) el.textContent = titles[view] || '';
+
+  // Show/hide topbar buttons
+  const newFileBtn = document.querySelector('.btn.btn-dark');
+  if (newFileBtn) newFileBtn.style.display = view === 'overview' ? '' : 'none';
+
+  S.currentView = view;
+  if (view === 'files') renderFilesView();
+  if (view === 'audit') renderAuditLog();
+}
+
+// ============================================================
+// TRANSACTION FILES VIEW
+// ============================================================
+function renderFilesView(filter) {
+  const listEl = document.getElementById('txn-files-list-view');
+  const detailEl = document.getElementById('txn-file-detail-view');
+  listEl.style.display = '';
+  detailEl.style.display = 'none';
+
+  const search = (document.getElementById('files-search')?.value || '').toLowerCase();
+  let files = S.files;
+  if (filter === 'action') files = files.filter(f => f.status === 'missing' || f.status === 'flagged');
+  if (search) files = files.filter(f =>
+    (f.property_address || '').toLowerCase().includes(search) ||
+    (f.broker_name || '').toLowerCase().includes(search) ||
+    (f.txn_number || '').toLowerCase().includes(search)
+  );
+
+  const needAction = S.files.filter(f => f.status === 'missing' || f.status === 'flagged').length;
+
+  listEl.innerHTML = `
+    <div class="view-header">
+      <div class="view-title">Transaction Files</div>
+      <div class="view-sub">${S.files.length} active files · Click to view documents</div>
+    </div>
+    <div class="files-view-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="search-bar">
+          <i class="ti ti-search"></i>
+          <input type="text" id="files-search" placeholder="Search by address or broker..." oninput="renderFilesView()" value="${search}">
+        </div>
+        ${needAction > 0 ? `<div class="filter-pill ${filter === 'action' ? 'active' : ''}" onclick="renderFilesView(${filter === 'action' ? '' : "'action'"})"><i class="ti ti-alert-circle"></i>${needAction} require action</div>` : ''}
+      </div>
+      <div style="font-size:13px;color:var(--text-tertiary)">${files.length} file${files.length !== 1 ? 's' : ''}</div>
+    </div>
+    ${files.length === 0 ? `
+      <div class="coming-soon">
+        <i class="ti ti-folder-off"></i>
+        <h3>No files found</h3>
+        <p>${search ? 'Try a different search term' : 'Upload a document from the Overview to create your first transaction file'}</p>
+      </div>
+    ` : `
+      <div class="files-grid">
+        ${files.map((f, i) => {
+          const sp = { complete: 'sp-complete', missing: 'sp-missing', flagged: 'sp-flagged', pending: 'sp-pending' }[f.status] || 'sp-pending';
+          const sl = { complete: 'Complete', missing: 'Missing docs', flagged: 'Flagged', pending: 'Pending' }[f.status] || f.status;
+          const sc = f.score >= 90 ? 'score-hi' : f.score >= 70 ? 'score-mid' : 'score-lo';
+          const contractEnd = f.report?.full_extraction?.['Contract End Date'] || f.extraction?.['Contract End Date'] || null;
+          return `<div class="file-card" onclick="openFileDetail(${S.files.indexOf(f)})">
+            <div class="file-card-left">
+              <div class="file-card-address">${f.property_address}</div>
+              <div class="file-card-meta">
+                <span>${f.txn_number || '—'}</span>
+                <span>·</span>
+                <span>${f.file_type || 'EBCS'}</span>
+                ${contractEnd ? `<span>·</span><span>Expires: ${contractEnd}</span>` : ''}
+              </div>
+            </div>
+            <div class="file-card-right">
+              <div class="file-card-broker">${f.broker_name || '—'}</div>
+              <span class="status-pill ${sp}">${sl}</span>
+              <span class="score ${sc}" style="min-width:36px;text-align:right">${f.score}%</span>
+              <i class="ti ti-chevron-right" style="color:var(--text-tertiary);font-size:14px"></i>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    `}
+  `;
+}
+
+function openFileDetail(fileIdx) {
+  const f = S.files[fileIdx];
+  const listEl = document.getElementById('txn-files-list-view');
+  const detailEl = document.getElementById('txn-file-detail-view');
+  listEl.style.display = 'none';
+  detailEl.style.display = '';
+
+  const sp = { complete: 'sp-complete', missing: 'sp-missing', flagged: 'sp-flagged', pending: 'sp-pending' }[f.status] || 'sp-pending';
+  const sl = { complete: 'Complete', missing: 'Missing docs', flagged: 'Flagged', pending: 'Pending' }[f.status] || f.status;
+  const contractEnd = f.report?.full_extraction?.['Contract End Date'] || f.extraction?.['Contract End Date'] || null;
+  const cadastral = f.cadastral_number || f.report?.cadastral_number || '—';
+  const dsNum = f.report?.check_results?.find(r => r.rule === 'Declaration Seller (DS) Number')?.value || '—';
+
+  detailEl.innerHTML = `
+    <div class="back-btn" onclick="renderFilesView()">
+      <i class="ti ti-arrow-left"></i> Back to Transaction Files
+    </div>
+    <div class="file-detail-header">
+      <div>
+        <div class="file-detail-title">${f.property_address}</div>
+        <div class="file-detail-meta">
+          <span class="file-detail-tag"><i class="ti ti-hash"></i>${f.txn_number || '—'}</span>
+          <span class="file-detail-tag"><i class="ti ti-user"></i>${f.broker_name || '—'}</span>
+          ${cadastral !== '—' ? `<span class="file-detail-tag"><i class="ti ti-map-pin"></i>Cadastral: ${cadastral}</span>` : ''}
+          ${contractEnd ? `<span class="file-detail-tag"><i class="ti ti-calendar"></i>Expires: ${contractEnd}</span>` : ''}
+          ${dsNum !== '—' ? `<span class="file-detail-tag"><i class="ti ti-file-text"></i>DS: ${dsNum}</span>` : ''}
+        </div>
+      </div>
+      <span class="status-pill ${sp}">${sl}</span>
+    </div>
+
+    <div style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px">Documents in this file</div>
+    <div class="docs-list" id="docs-list-${fileIdx}">
+      <div class="doc-row" onclick="openReport(S.files[${fileIdx}])">
+        <div class="doc-row-left">
+          <div class="doc-row-icon"><i class="ti ti-file-text"></i></div>
+          <div>
+            <div class="doc-row-name">${f.file_type || 'EBCS'} — ${f.filename || 'Document'}</div>
+            <div class="doc-row-date">Verified ${new Date(f.created_at).toLocaleDateString('en-CA')} at ${new Date(f.created_at).toLocaleTimeString('en-CA', {hour:'2-digit',minute:'2-digit'})}</div>
+          </div>
+        </div>
+        <div class="doc-row-right">
+          <span class="score ${f.score >= 90 ? 'score-hi' : f.score >= 70 ? 'score-mid' : 'score-lo'}">${f.score}%</span>
+          <span class="status-pill ${sp}" style="font-size:11px">${sl}</span>
+          <i class="ti ti-chevron-right" style="color:var(--text-tertiary);font-size:14px"></i>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;margin-top:24px">Add document to this file</div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Document type</div>
+      <div class="doc-types" id="detail-doc-types">
+        <button class="doc-type active" onclick="selDocDetail(this,'EBCS')">EBCS</button>
+        <button class="doc-type" onclick="selDocDetail(this,'Brokerage Contract')">Brokerage Contract</button>
+        <button class="doc-type" onclick="selDocDetail(this,'Deed of Sale')">Deed of Sale</button>
+        <button class="doc-type" onclick="selDocDetail(this,'Seller Declaration')">Seller Declaration</button>
+        <button class="doc-type" onclick="selDocDetail(this,'Municipal Taxes')">Municipal Taxes</button>
+        <button class="doc-type" onclick="selDocDetail(this,'Certificate of Location')">Cert. of Location</button>
+      </div>
+    </div>
+    <div class="add-doc-zone" onclick="document.getElementById('detail-file-input-${fileIdx}').click()"
+      ondragover="event.preventDefault();this.style.borderColor='var(--blue)'"
+      ondragleave="this.style.borderColor=''"
+      ondrop="handleDetailDrop(event, ${fileIdx})">
+      <i class="ti ti-cloud-upload"></i>
+      <p>Click to upload or drag & drop</p>
+      <span>PDF, PNG, JPG — max 20MB</span>
+    </div>
+    <input type="file" id="detail-file-input-${fileIdx}" style="display:none" accept=".pdf,.png,.jpg,.jpeg" onchange="handleDetailFile(this.files[0], ${fileIdx})">
+    <div class="processing" id="detail-proc-${fileIdx}" style="margin-top:12px">
+      <div class="proc-filename" id="detail-proc-name-${fileIdx}"></div>
+      <div id="detail-proc-steps-${fileIdx}"></div>
+    </div>
+  `;
+
+  S.currentFileIdx = fileIdx;
+}
+
+function selDocDetail(btn, type) {
+  document.querySelectorAll('#detail-doc-types .doc-type').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  S.docType = type;
+}
+
+function handleDetailDrop(e, fileIdx) {
+  e.preventDefault();
+  const f = e.dataTransfer.files[0];
+  if (f) handleDetailFile(f, fileIdx);
+}
+
+async function handleDetailFile(file, fileIdx) {
+  if (!file) return;
+  const proc = document.getElementById('detail-proc-' + fileIdx);
+  const procName = document.getElementById('detail-proc-name-' + fileIdx);
+  const procSteps = document.getElementById('detail-proc-steps-' + fileIdx);
+  proc.style.display = 'block';
+  procName.textContent = '📄 ' + file.name;
+
+  const setDetailSteps = (active, done) => {
+    const labels = ['Uploading to Reducto…', 'Extracting document fields…', 'Verifying compliance…', 'Saving to file…'];
+    procSteps.innerHTML = labels.map((l, i) => {
+      let cls = 'ps-wait', ic = 'ti-circle';
+      if (i < done) { cls = 'ps-done'; ic = 'ti-circle-check'; }
+      else if (i === active) { cls = 'ps-active'; ic = 'ti-loader'; }
+      return `<div class="proc-step ${cls}"><i class="ti ${ic}"></i>${l}</div>`;
+    }).join('');
+  };
+
+  try {
+    setDetailSteps(0, 0); await sleep(200);
+    const fd = new FormData(); fd.append('file', file);
+    const r = await fetch('/api/reducto', { method: 'POST', headers: { 'x-doc-type': S.docType }, body: fd });
+    if (!r.ok) throw new Error(await r.text());
+    const result = await r.json();
+    if (result.error) throw new Error(result.error);
+    setDetailSteps(1, 1); await sleep(200);
+    setDetailSteps(2, 2); await sleep(200);
+    setDetailSteps(3, 3); await sleep(200);
+
+    const report = result.report;
+    const extraction = result.extraction;
+    const parentFile = S.files[fileIdx];
+
+    // Create new doc entry linked to this file
+    const newDoc = {
+      id: 'local-' + Date.now(),
+      txn_number: parentFile.txn_number,
+      property_address: parentFile.property_address,
+      broker_name: parentFile.broker_name,
+      seller_name: report.seller_name || parentFile.seller_name,
+      contract_number: parentFile.contract_number,
+      cadastral_number: parentFile.cadastral_number,
+      file_type: S.docType,
+      status: report.verdict === 'COMPLETE' ? 'complete' : report.verdict === 'FLAGGED' ? 'flagged' : 'missing',
+      score: report.score || 0,
+      report, extraction, filename: file.name, file_id: result.file_id,
+      created_at: new Date().toISOString(),
+      parent_file_id: parentFile.sb_id || parentFile.id
+    };
+
+    // Add to S.files and save
+    S.files.unshift(newDoc);
+    S.checks += report.checks_run || 1;
+    await saveFile(newDoc, extraction);
+
+    proc.style.display = 'none';
+    renderDash();
+    toast('✓ Document verified and added to file');
+    openFileDetail(fileIdx + 1); // re-render detail with new doc at top
+    openReport(newDoc);
+  } catch(e) {
+    proc.style.display = 'none';
+    alert('Error: ' + e.message);
+  }
+}
+
+// ============================================================
+// AUDIT LOG VIEW
+// ============================================================
+async function renderAuditLog() {
+  const el = document.getElementById('audit-log-content');
+  el.innerHTML = `<div class="view-header"><div class="view-title">Audit Log</div><div class="view-sub">Every action performed by the platform — timestamped</div></div><div style="color:var(--text-tertiary);font-size:13px;padding:20px 0">Loading...</div>`;
+
+  try {
+    const r = await fetch(\`\${SB_URL}/rest/v1/audit_log?order=created_at.desc&limit=100\`, {
+      headers: { 'apikey': SB_KEY, 'Authorization': \`Bearer \${SB_KEY}\` }
+    });
+    if (!r.ok) throw new Error('Failed to load');
+    const rows = await r.json();
+
+    if (!rows?.length) {
+      el.innerHTML = \`<div class="view-header"><div class="view-title">Audit Log</div><div class="view-sub">Every action performed by the platform</div></div>
+        <div class="coming-soon"><i class="ti ti-clipboard-list"></i><h3>No audit entries yet</h3><p>Actions will appear here after verifying documents</p></div>\`;
+      return;
+    }
+
+    el.innerHTML = \`
+      <div class="view-header">
+        <div class="view-title">Audit Log</div>
+        <div class="view-sub">\${rows.length} entries · Every agent action logged</div>
+      </div>
+      <div class="panel">
+        <table class="files-table">
+          <thead><tr><th>Timestamp</th><th>Action</th><th>Detail</th></tr></thead>
+          <tbody>
+            \${rows.map(row => \`
+              <tr>
+                <td style="font-size:12px;color:var(--text-tertiary);white-space:nowrap">\${new Date(row.created_at).toLocaleString('en-CA')}</td>
+                <td><span class="status-pill sp-complete" style="font-size:11px">\${row.action || '—'}</span></td>
+                <td style="font-size:12.5px;color:var(--text-secondary)">\${row.detail || '—'}</td>
+              </tr>
+            \`).join('')}
+          </tbody>
+        </table>
+      </div>
+    \`;
+  } catch(e) {
+    el.innerHTML = \`<div class="view-header"><div class="view-title">Audit Log</div></div><p style="color:var(--text-tertiary);font-size:13px">Could not load audit log.</p>\`;
+  }
 }
 
 checkSession();
