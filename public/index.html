@@ -178,7 +178,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .agent-bar-fill { height: 100%; border-radius: 2px; }
 
 /* UPLOAD SECTION */
-.upload-card { background: var(--surface); border: 0.5px solid var(--border-light); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 32px; }
+.upload-card { background: var(--surface); border: 0.5px solid var(--border-light); border-radius: var(--radius-lg); padding: 28px 32px 28px 28px; margin-bottom: 32px; }
 .upload-card-title { font-size: 14px; font-weight: 600; letter-spacing: -.25px; margin-bottom: 4px; }
 .upload-card-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
 .doc-types { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -230,7 +230,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 /* TRANSACTION FILES VIEW */
 .view { display: none; }
 .view.active { display: block; }
-#view-files, #view-agents, #view-audit { padding: 28px 32px; }
+#view-files, #view-agents, #view-audit { padding: 28px 32px 28px 28px; }
 .view-header { margin-bottom: 24px; }
 .view-title { font-size: 20px; font-weight: 600; letter-spacing: -.4px; margin-bottom: 4px; }
 .view-sub { font-size: 13px; color: var(--text-tertiary); }
@@ -295,8 +295,8 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 28px 32px;
-  max-width: 900px;
+  padding: 28px 32px 28px 28px;
+  max-width: 980px;
 }
 
 /* KPI STRIP — small summary tiles, never stretch */
@@ -321,7 +321,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 /* CENTER GRID */
 .ov-center {
   display: grid;
-  grid-template-columns: 1fr 160px;
+  grid-template-columns: 1fr 152px;
   gap: 8px;
 }
 
@@ -353,7 +353,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   background: var(--surface);
   border: 0.5px solid var(--border-light);
   border-radius: var(--radius-md);
-  padding: 12px 12px;
+  padding: 11px 11px;
 }
 .ov-mini-title { font-size: 10px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .09em; text-transform: uppercase; margin-bottom: 9px; }
 .ov-action-item { display: flex; align-items: center; gap: 7px; padding: 5px 6px; border-radius: 4px; cursor: pointer; margin-bottom: 3px; }
@@ -559,7 +559,14 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
           </div>
           <div class="ov-table-wrap">
             <table class="ov-table">
-              <thead><tr><th>Property Address</th><th>Broker</th><th>Status</th><th>Expires</th><th style="text-align:right">Score</th></tr></thead>
+              <colgroup>
+  <col style="width:34%">
+  <col style="width:18%">
+  <col style="width:20%">
+  <col style="width:18%">
+  <col style="width:10%">
+</colgroup>
+<thead><tr><th>Property Address</th><th>Broker</th><th>Status</th><th>Expires</th><th style="text-align:right">Score</th></tr></thead>
               <tbody id="files-tbody">
                 <tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-tertiary);font-size:12.5px">
                   <i class="ti ti-file-off" style="font-size:22px;display:block;margin-bottom:8px"></i>
