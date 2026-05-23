@@ -95,7 +95,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .sign-out { margin-left: auto; font-size: 13px; color: var(--text-tertiary); }
 
 /* MAIN */
-.main { flex: 1; overflow: auto; display: flex; flex-direction: column; }
+.main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
 .topbar { background: var(--surface); border-bottom: 0.5px solid var(--border-light); padding: 0 32px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
 .topbar-left { display: flex; flex-direction: column; }
 .topbar-title { font-size: 14px; font-weight: 600; letter-spacing: -.2px; color: var(--text-primary); }
@@ -111,7 +111,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
 
 /* CONTENT */
-.content { padding: 32px 32px 48px; flex: 1; }
+.content { padding: 0; flex: 1; overflow: hidden; display: flex; flex-direction: column; }
 
 /* STAT CARDS */
 .stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 32px; }
@@ -284,25 +284,28 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 
 /* Canvas — overview fills the main area, no topbar */
 #view-overview {
-  display: block;
-  padding: 0;
+  display: flex;
+  flex-direction: column;
   height: 100%;
   overflow: hidden;
+  padding: 0;
 }
 
-/* Composition — left-anchored, bounded, single unified block */
+/* Composition — fills full height, flex column */
 .ov-composition {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 28px 32px 28px 28px;
-  max-width: 1020px;
+  padding: 20px 24px;
+  height: 100%;
+  overflow: hidden;
 }
 
 /* KPI STRIP — small summary tiles, never stretch */
 .ov-kpi {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 .ov-kpi-card {
   background: var(--surface);
@@ -331,6 +334,8 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   border: 0.5px solid var(--border-light);
   border-radius: var(--radius-md);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 .ov-panel-head {
   display: flex;
@@ -400,6 +405,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   padding-bottom: 14px;
   border-bottom: 0.5px solid #e4e4de;
   margin-bottom: 0;
+  flex-shrink: 0;
 }
 .ov-header-title {
   font-size: 16px;
@@ -426,25 +432,43 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   flex-direction: column;
   gap: 10px;
   padding: 20px 24px;
-  width: 100%;
-  max-width: 1100px;
+  height: 100%;
+  overflow: hidden;
 }
-.ov-table-panel { flex-shrink: 0; }
+/* Table panel grows to fill available space */
+.ov-table-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ov-table-panel .ov-table-wrap {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+/* Bottom row — fixed height, never grows */
 .ov-bottom {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  flex-shrink: 0;
+  height: 200px;
 }
 .ov-chart-panel, .ov-agents-panel {
   background: var(--surface);
   border: 0.5px solid var(--border-light);
   border-radius: var(--radius-md);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 /* Chart */
 .ov-chart-wrap {
-  padding: 12px 16px 14px;
-  height: 160px;
+  padding: 10px 16px 12px;
+  flex: 1;
+  min-height: 0;
   position: relative;
 }
 .ov-chart-wrap canvas { width: 100% !important; height: 100% !important; }
