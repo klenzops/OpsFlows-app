@@ -76,19 +76,19 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .sidebar-logo span { font-size: 15px; font-weight: 600; letter-spacing: -.3px; }
 .sidebar-workspace { padding: 6px 12px; margin-top: 8px; background: var(--bg); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; justify-content: space-between; }
 .sidebar-ws-name { font-weight: 500; color: var(--text-primary); font-size: 12.5px; }
-.nav { flex: 1; padding: 8px 8px; overflow-y: auto; }
+.nav { flex: 1; padding: 10px 8px; overflow-y: auto; scrollbar-width: none; }
 .nav-section { margin-bottom: 24px; }
-.nav-section-label { font-size: 10px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .1em; text-transform: uppercase; padding: 0 9px; margin-bottom: 3px; }
-.nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 9px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 400; cursor: pointer; color: var(--text-secondary); transition: background .12s, color .12s; letter-spacing: -.015em; }
-.nav-item:hover { background: var(--bg); color: var(--text-primary); }
-.nav-item.active { background: var(--bg); color: var(--text-primary); font-weight: 500; }
+.nav-section-label { font-size: 10px; font-weight: 600; color: #555553; letter-spacing: .1em; text-transform: uppercase; padding: 0 9px; margin-bottom: 3px; }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 9px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 400; cursor: pointer; color: #888885; transition: background .12s, color .12s; letter-spacing: -.015em; }
+.nav-item:hover { background: #ffffff0f; color: #e8e8e6; }
+.nav-item.active { background: #ffffff15; color: #f0f0ee; font-weight: 500; }
 .nav-item i { font-size: 15px; flex-shrink: 0; }
 .nav-badge { margin-left: auto; font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 10px; }
-.nb-green { background: var(--green-bg); color: var(--green-text); }
-.nb-red { background: var(--red-bg); color: var(--red); }
+.nb-green { background: #16a34a22; color: #4ade80; }
+.nb-red { background: #b91c1c22; color: #f87171; }
 .sidebar-footer { padding: 10px 8px; border-top: 1px solid var(--border-light); }
 .user-row { display: flex; align-items: center; gap: 9px; padding: 8px 9px; border-radius: var(--radius-sm); cursor: pointer; }
-.user-row:hover { background: var(--bg); }
+.user-row:hover { background: #ffffff0f; }
 .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: #e4e4e7; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--text-secondary); flex-shrink: 0; }
 .user-name { font-size: 12.5px; font-weight: 500; color: var(--text-primary); }
 .user-email { font-size: 11.5px; color: var(--text-tertiary); }
@@ -96,7 +96,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 
 /* MAIN */
 .main { flex: 1; overflow: auto; display: flex; flex-direction: column; }
-.topbar { background: var(--surface); border-bottom: 0.5px solid var(--border-light); padding: 0 32px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+.topbar { background: #ffffff; border-bottom: 0.5px solid #eeeeea; padding: 0 32px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
 .topbar-left { display: flex; flex-direction: column; }
 .topbar-title { font-size: 14px; font-weight: 600; letter-spacing: -.2px; color: var(--text-primary); }
 .topbar-sub { font-size: 11.5px; color: var(--text-tertiary); letter-spacing: -.01em; margin-top: 1px; }
@@ -288,6 +288,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   padding: 0;
   height: 100%;
   overflow: hidden;
+  background: #f8f8f6;
 }
 
 /* Composition — left-anchored, bounded, single unified block */
@@ -305,13 +306,14 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   gap: 8px;
 }
 .ov-kpi-card {
-  background: var(--surface);
-  border: 0.5px solid var(--border-light);
+  background: #ffffff;
+  border: 0.5px solid #e8e8e4;
   border-radius: var(--radius-md);
   padding: 13px 18px 12px;
   min-width: 148px;
   transition: border-color .15s;
   flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 .ov-kpi-card.critical { border-color: var(--red); }
 .ov-kpi-label { font-size: 10px; font-weight: 600; color: #9a9a95; letter-spacing: .09em; text-transform: uppercase; margin-bottom: 8px; }
@@ -327,10 +329,11 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 
 /* MAIN TABLE PANEL */
 .ov-panel {
-  background: var(--surface);
-  border: 0.5px solid var(--border-light);
+  background: #ffffff;
+  border: 0.5px solid #e8e8e4;
   border-radius: var(--radius-md);
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 .ov-panel-head {
   display: flex;
@@ -343,18 +346,19 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .ov-panel-title { font-size: 10px; font-weight: 600; color: #9a9a95; letter-spacing: .09em; text-transform: uppercase; }
 .ov-table-wrap { overflow: hidden; }
 .ov-table { width: 100%; border-collapse: collapse; }
-.ov-table th { font-size: 10px; font-weight: 600; color: #9a9a95; letter-spacing: .07em; text-transform: uppercase; padding: 8px 14px; text-align: left; border-bottom: 0.5px solid var(--border-light); background: var(--surface); }
+.ov-table th { font-size: 10px; font-weight: 600; color: #9a9a95; letter-spacing: .07em; text-transform: uppercase; padding: 8px 14px; text-align: left; border-bottom: 0.5px solid #eeeeea; background: #ffffff; }
 .ov-table td { padding: 10px 14px; font-size: 12px; border-bottom: 0.5px solid var(--border-light); color: var(--text-primary); }
 .ov-table tr:last-child td { border-bottom: none; }
-.ov-table tr.row:hover td { background: #f7f7f4; cursor: pointer; transition: background .1s; }
+.ov-table tr.row:hover td { background: #f9f9f7; cursor: pointer; transition: background .1s; }
 
 /* RIGHT COLUMN — two compact widgets stacked */
 .ov-right { display: flex; flex-direction: column; gap: 8px; }
 .ov-mini-panel {
-  background: var(--surface);
-  border: 0.5px solid var(--border-light);
+  background: #ffffff;
+  border: 0.5px solid #e8e8e4;
   border-radius: var(--radius-md);
   padding: 11px 11px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 .ov-mini-title { font-size: 10px; font-weight: 600; color: #9a9a95; letter-spacing: .09em; text-transform: uppercase; margin-bottom: 9px; }
 .ov-action-item { display: flex; align-items: center; gap: 7px; padding: 5px 6px; border-radius: 4px; cursor: pointer; margin-bottom: 3px; }
@@ -366,10 +370,11 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 /* AGENTS ROW — three tight modules */
 .ov-agents { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .ov-agent {
-  background: var(--surface);
-  border: 0.5px solid var(--border-light);
+  background: #ffffff;
+  border: 0.5px solid #e8e8e4;
   border-radius: var(--radius-md);
   padding: 8px 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 .ov-agent.offline { opacity: .38; }
 .ov-agent-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
@@ -418,6 +423,17 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   align-items: center;
   gap: 6px;
 }
+
+
+/* SIDEBAR NOTIFICATION WIDGET */
+.sb-notif { margin: 0 8px 8px; background: #1a1a19; border: 1px solid #2a2a28; border-radius: 10px; padding: 12px; }
+.sb-notif-tag { display: inline-flex; align-items: center; gap: 4px; background: #16a34a22; color: #4ade80; font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 20px; letter-spacing: .04em; margin-bottom: 8px; }
+.sb-notif-title { font-size: 12.5px; font-weight: 600; color: #e8e8e6; letter-spacing: -.1px; margin-bottom: 4px; }
+.sb-notif-sub { font-size: 11px; color: #666663; line-height: 1.4; margin-bottom: 10px; }
+.sb-notif-btn { display: inline-flex; align-items: center; gap: 5px; background: #2a2a28; color: #c8c8c5; font-size: 11.5px; font-weight: 500; padding: 5px 10px; border-radius: 6px; cursor: pointer; border: none; font-family: inherit; transition: background .12s; }
+.sb-notif-btn:hover { background: #333331; }
+.sb-notif-close { float: right; color: #444442; cursor: pointer; font-size: 14px; margin-top: -2px; }
+.sb-notif-close:hover { color: #888885; }
 
 </style>
 </head>
@@ -471,6 +487,18 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
         <span>OpsFlows</span>
       </div>
     </div>
+
+    <!-- LINK INTEGRATION ROW -->
+    <div style="padding:8px 14px;border-bottom:1px solid #222221">
+      <div style="font-size:10px;font-weight:600;color:#444442;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">Integrations</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <div style="width:22px;height:22px;background:#ffffff10;border:1px solid #ffffff15;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px">⚡</div>
+        <div style="width:22px;height:22px;background:#ffffff10;border:1px solid #ffffff15;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px">📋</div>
+        <div style="width:22px;height:22px;background:#ffffff10;border:1px solid #ffffff15;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px">📧</div>
+        <div style="margin-left:auto;font-size:10px;color:#444442;cursor:pointer">+ Connect</div>
+      </div>
+    </div>
+
     <nav class="nav">
       <div class="nav-section">
         <div class="nav-section-label">Workspace</div>
@@ -490,6 +518,17 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
         <div class="nav-item"><i class="ti ti-users"></i>Brokers</div>
       </div>
     </nav>
+    <!-- NOTIFICATION WIDGET -->
+    <div class="sb-notif" id="sb-notif">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <span class="sb-notif-tag">NEW</span>
+        <span class="sb-notif-close" onclick="document.getElementById('sb-notif').style.display='none'">&times;</span>
+      </div>
+      <div class="sb-notif-title">OACIQ Updates</div>
+      <div class="sb-notif-sub">New compliance rules effective Q3 2026. Review your templates.</div>
+      <button class="sb-notif-btn"><i class="ti ti-arrow-right" style="font-size:11px"></i>Learn more</button>
+    </div>
+
     <div class="sidebar-footer">
       <div class="user-row" onclick="handleSignOut()">
         <div class="user-avatar" id="user-avatar">—</div>
