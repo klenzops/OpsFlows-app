@@ -228,8 +228,8 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .toast { position: fixed; bottom: 24px; right: 24px; background: var(--accent); color: white; padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; z-index: 999; display: none; box-shadow: var(--shadow-md); letter-spacing: -.01em; }
 
 /* TRANSACTION FILES VIEW */
-.view { display: none; position: absolute; inset: 0; overflow: hidden; }
-.view.active { display: flex; flex-direction: column; }
+.view { display: none !important; position: absolute; inset: 0; overflow: hidden; }
+.view.active { display: flex !important; flex-direction: column; }
 
 .view-header { margin-bottom: 24px; }
 .view-title { font-size: 20px; font-weight: 600; letter-spacing: -.4px; margin-bottom: 4px; }
@@ -1402,18 +1402,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       <button class="modal-close" onclick="closeOverlay('upload-overlay')"><i class="ti ti-x"></i></button>
     </div>
     <div class="upload-popup-body">
-      <!-- Doc type selector -->
-      <div class="upload-popup-section">
-        <div class="upload-popup-label">Document type</div>
-        <div class="doc-types">
-          <button class="doc-type active" onclick="selDoc(this,'EBCS')">EBCS</button>
-          <button class="doc-type" onclick="selDoc(this,'Brokerage Contract')">Brokerage Contract</button>
-          <button class="doc-type" onclick="selDoc(this,'Deed of Sale')">Deed of Sale</button>
-          <button class="doc-type" onclick="selDoc(this,'Seller Declaration')">Seller Declaration</button>
-          <button class="doc-type" onclick="selDoc(this,'Municipal Taxes')">Municipal Taxes</button>
-          <button class="doc-type" onclick="selDoc(this,'Certificate of Location')">Cert. of Location</button>
-        </div>
-      </div>
+
       <!-- Drop zone -->
       <div class="upload-popup-drop" id="popup-drop-zone"
         onclick="document.getElementById('popup-file-input').click()"
@@ -1566,49 +1555,12 @@ function onDrop(e) {
 
 async function onFile(file) {
   if (!file) return;
-  document.getElementById('proc').style.display = 'block';
-  document.getElementById('proc-name').textContent = '📄 ' + file.name;
-  try { await pipeline(file); }
-  catch(e) {
-    document.getElementById('proc').style.display = 'none';
-    alert('Error: ' + e.message);
-    console.error(e);
-  }
+  await onPopupFile(file);
 }
 
-function setSteps(active, done) {
-  const labels = ['Uploading to Reducto…', 'Extracting document fields…', 'Claude verifying compliance…', 'Saving to dashboard…'];
-  document.getElementById('proc-steps').innerHTML = labels.map((l, i) => {
-    let cls = 'ps-wait', ic = 'ti-circle';
-    if (i < done) { cls = 'ps-done'; ic = 'ti-circle-check'; }
-    else if (i === active) { cls = 'ps-active'; ic = 'ti-loader'; }
-    return `<div class="proc-step ${cls}"><i class="ti ${ic}"></i>${l}</div>`;
-  }).join('');
-}
+// setSteps removed — upload handled by popup
 
-async function pipeline(file) {
-  setSteps(0, 0); await sleep(200);
-  let result;
-  try {
-    const fd = new FormData(); fd.append('file', file);
-    const r = await fetch('/api/reducto', { method: 'POST', headers: { 'x-doc-type': S.docType }, body: fd });
-    if (!r.ok) { const t = await r.text(); throw new Error(r.status + ' — ' + t.slice(0,300)); }
-    result = await r.json();
-    if (result.error) throw new Error(result.error);
-  } catch(e) { throw new Error('Reducto: ' + e.message); }
-  setSteps(1, 1); await sleep(200);
-  setSteps(2, 2); await sleep(200);
-  setSteps(3, 3); await sleep(200);
-  const report = result.report;
-  const extraction = result.extraction;
-  const f = buildFile(extraction, report, file.name, result.file_id);
-  S.files.unshift(f);
-  S.checks += report.checks_run || 1;
-  await saveFile(f, extraction);
-  document.getElementById('proc').style.display = 'none';
-  renderDash(); openReport(f);
-  toast('✓ Verified and saved');
-}
+// pipeline removed — upload handled by onPopupFile
 
 function buildFile(extraction, report, filename, fileId) {
   const now = new Date();
@@ -2130,7 +2082,7 @@ async function onPopupFile(file) {
   try {
     setStepsPopup(0, 0); await sleep(200);
     const fd = new FormData(); fd.append('file', file);
-    const r = await fetch('/api/reducto', { method: 'POST', headers: { 'x-doc-type': S.docType }, body: fd });
+    const r = await fetch('/api/reducto', { method: 'POST', headers: { 'x-doc-type': 'EBCS' }, body: fd });
     if (!r.ok) { const t = await r.text(); throw new Error(r.status + ' — ' + t.slice(0,300)); }
     const result = await r.json();
     if (result.error) throw new Error(result.error);
