@@ -1489,7 +1489,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
           <div class="pg-agent-icon"><i class="ti ti-clipboard-list"></i><span>Audit</span></div>
         </div>
         <div class="pg-empty-title">Agents — Coming Soon</div>
-        <div class="pg-empty-sub">AI-powered agents that monitor, verify, and audit your compliance files automatically.</div>
+        <div class="pg-empty-sub">AI-powered agents that monitor, verify, and audit your compliance automatically.</div>
       </div>
     </div>
 
@@ -1971,8 +1971,9 @@ function renderDash() {
   document.getElementById('active-count').textContent = S.files.length;
   const tac = document.getElementById('topbar-active-count'); if(tac) tac.textContent = S.files.length;
   document.getElementById('files-badge').textContent = S.files.length;
-  const vc = getVerifyCount(); document.getElementById('ag-v').textContent = vc;
-  const agMeta = document.getElementById('ag-v-meta'); if(agMeta) agMeta.textContent = vc + ' checks completed';
+  const totalChecks = S.files.reduce(function(sum, f) { return sum + (f.report ? (f.report.checks_run || 0) : 0); }, 0);
+  document.getElementById('ag-v').textContent = totalChecks;
+  const agMeta = document.getElementById('ag-v-meta'); if(agMeta) agMeta.textContent = totalChecks + ' checks completed';
 
   // KPI card states
   const flaggedCard = document.getElementById('flagged-card');
@@ -2016,7 +2017,7 @@ function renderDash() {
 
   drawDonut(complete, pending, missing + flagged);
   renderTable();
-  setTimeout(() => drawTxnChart(currentPeriod), 50);
+  setTimeout(() => { drawTxnChart(currentPeriod); initChartHover(); }, 50);
 }
 
 function drawDonut(c, p, m) {
@@ -2084,12 +2085,7 @@ function openReport(f) {
   let b = '';
   if (!r) { b = '<p style="color:var(--text-tertiary);font-size:13px">No verification report available yet.</p>'; }
   else {
-    const vc = r.verdict === 'COMPLETE' ? 'v-ok' : r.verdict === 'FLAGGED' ? 'v-fail' : 'v-warn';
-    const vi = r.verdict === 'COMPLETE' ? 'ti-circle-check' : r.verdict === 'FLAGGED' ? 'ti-alert-triangle' : 'ti-alert-circle';
-    b += `<div class="verdict ${vc}"><i class="ti ${vi}"></i>${r.verdict} — Score: ${r.score}% — ${r.checks_run} checks run</div>`;
-    b += `<div class="section"><div class="section-title">Summary</div><p class="summary-text">${r.summary || '—'}</p></div>`;
-
-    // Anchor fields
+    // Anchor fields first
     b += `<div class="section"><div class="section-title">Anchor Fields</div><div class="field-grid">`;
     [{ l: 'Property Address', v: r.property_address }, { l: 'Broker', v: r.broker_name }, { l: 'Seller', v: r.seller_name }, { l: 'Contract #', v: r.contract_number }, { l: 'Cadastral #', v: r.cadastral_number }].forEach(a => {
       const ok = a.v && a.v !== 'null';
@@ -2112,6 +2108,27 @@ function openReport(f) {
       b += '</div>';
     }
 
+    // Send to broker (before audit trail)
+    if (r.broker_email_body) {
+      const encodedEmail2 = encodeURIComponent(r.broker_email_body);
+      const encodedSubject2 = encodeURIComponent('OpsFlows Compliance Review — ' + (r.contract_number || 'EBCS'));
+      const brokerEmail2 = r.broker_email || '';
+      b += '<div class="section" style="border-top:1px solid var(--border-light);padding-top:16px;margin-top:4px">' +
+        '<div class="section-title">Send to Broker</div>' +
+        '<div style="background:var(--bg);border-radius:var(--radius-md);padding:14px;margin-bottom:12px;font-size:13px;white-space:pre-line;color:var(--text-secondary);line-height:1.6">' + r.broker_email_body + '</div>' +
+        '<a href="mailto:' + brokerEmail2 + '?subject=' + encodedSubject2 + '&body=' + encodedEmail2 + '" style="display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:white;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;text-decoration:none;letter-spacing:-.01em"><i class="ti ti-mail"></i> Send Email to Broker</a>' +
+        '</div>';
+    }
+    // Complete email (100% only, before audit trail)
+    if (r && r.verdict === 'COMPLETE' && r.score === 100) {
+      const mailto2 = buildCompleteEmail(f);
+      b += '<div class="section" style="border-top:1px solid var(--border-light);padding-top:16px;margin-top:4px">' +
+        '<div class="section-title" style="color:var(--green-text)">✓ File Complete</div>' +
+        '<div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px">This file has passed all compliance checks. You may notify the broker.</div>' +
+        '<a href="' + mailto2 + '" style="display:inline-flex;align-items:center;gap:6px;background:var(--green-text);color:white;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;text-decoration:none"><i class="ti ti-mail"></i>Send Completion Email to Broker</a>' +
+        '</div>';
+    }
+
     // Audit trail table
     if (r.check_results?.length) {
       b += `<div class="section"><div class="section-title">Verification Audit Trail</div>`;
@@ -2125,28 +2142,6 @@ function openReport(f) {
       b += '</table></div>';
     }
 
-    // Send to broker button
-    if (r.broker_email_body) {
-      const encodedEmail = encodeURIComponent(r.broker_email_body);
-      const encodedSubject = encodeURIComponent(`OpsFlows Compliance Review — ${r.contract_number || 'EBCS'}`);
-      const brokerEmail = r.broker_email || '';
-      b += `<div class="section" style="border-top:1px solid var(--border-light);padding-top:20px;margin-top:4px">
-        <div class="section-title">Send to Broker</div>
-        <div style="background:var(--bg);border-radius:var(--radius-md);padding:14px;margin-bottom:12px;font-size:13px;white-space:pre-line;color:var(--text-secondary);line-height:1.6">${r.broker_email_body}</div>
-        <a href="mailto:${brokerEmail}?subject=${encodedSubject}&body=${encodedEmail}" style="display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:white;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;text-decoration:none;letter-spacing:-.01em">
-          <i class="ti ti-mail"></i> Send Email to Broker
-        </a>
-      </div>`;
-    }
-  }
-  // Add persistent complete email button if COMPLETE
-  if (r && r.verdict === 'COMPLETE' && r.score === 100) {
-    const mailto = buildCompleteEmail(f);
-    b += '<div class="section" style="border-top:1px solid var(--border-light);padding-top:16px;margin-top:4px">' +
-      '<div class="section-title" style="color:var(--green-text)">✓ File Complete</div>' +
-      '<div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px">This file has passed all compliance checks. You may notify the broker.</div>' +
-      '<a href="' + mailto + '" style="display:inline-flex;align-items:center;gap:6px;background:var(--green-text);color:white;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;text-decoration:none"><i class="ti ti-mail"></i>Send Completion Email to Broker</a>' +
-      '</div>';
   }
   document.getElementById('m-body').innerHTML = b;
   document.getElementById('report-overlay').classList.add('open');
@@ -2271,6 +2266,10 @@ function _drawChart(canvas, labels, values) {
   labels.forEach((l,i) => { ctx.fillText(l, pts[i].x, h-6); });
   ctx.textAlign='right';
   for (let i=0;i<=2;i++) { const v=Math.round(max*(1-i/2)); const y=pad.top+(ch/2)*i+3; ctx.fillText(v,pad.left-4,y); }
+  // Store pts for hover
+  canvas._chartPts = pts;
+  canvas._chartLabels = labels;
+  canvas._chartValues = values;
 }
 
 function drawTxnChart(period) {
@@ -2417,7 +2416,35 @@ async function onPopupFile(file) {
   proc.style.display = 'block';
   procName.textContent = '📄 ' + file.name;
 
+  // Rotating verifying messages
+  let _verifyMsgIdx = 0;
+  const _verifyMsgs = ['Verifying…', 'This will take a few seconds…', 'Just a few more seconds…', 'Verifying…', 'Almost there…'];
+  let _verifyInterval = null;
+  function _startVerifyRotation() {
+    _verifyMsgIdx = 0;
+    if (_verifyInterval) clearInterval(_verifyInterval);
+    _verifyInterval = setInterval(function() {
+      _verifyMsgIdx = (_verifyMsgIdx + 1) % _verifyMsgs.length;
+      const el = document.getElementById('verify-rotating-msg');
+      if (el) el.textContent = _verifyMsgs[_verifyMsgIdx];
+    }, 2200);
+  }
+  function _stopVerifyRotation() {
+    if (_verifyInterval) { clearInterval(_verifyInterval); _verifyInterval = null; }
+  }
+
   const setStepsPopup = (active, done) => {
+    if (active === 2 && done < 3) {
+      // Verifying step — show rotating message
+      _startVerifyRotation();
+      procSteps.innerHTML =
+        '<div class="proc-step ps-done"><i class="ti ti-circle-check"></i>Uploading to Reducto…</div>' +
+        '<div class="proc-step ps-done"><i class="ti ti-circle-check"></i>Extracting document fields…</div>' +
+        '<div class="proc-step ps-active"><i class="ti ti-loader"></i><span id="verify-rotating-msg">' + _verifyMsgs[0] + '</span></div>' +
+        '<div class="proc-step ps-wait"><i class="ti ti-circle"></i>Saving to dashboard…</div>';
+      return;
+    }
+    _stopVerifyRotation();
     const labels = ['Uploading to Reducto…', 'Extracting document fields…', 'Verifying compliance…', 'Saving to dashboard…'];
     procSteps.innerHTML = labels.map((l, i) => {
       let cls = 'ps-wait', ic = 'ti-circle';
@@ -2918,23 +2945,44 @@ function buildCompleteEmail(f) {
 
 // ── EDIT BROKER ───────────────────────────────────────────────
 function editBroker(idx) {
-  const brokers = getBrokers();
-  const b = brokers[idx];
+  // Get merged broker list same way renderBrokers does
+  const manual = getBrokers();
+  const fromFiles = {};
+  S.files.forEach(function(f) {
+    if (!f.broker_name || f.broker_name === '—') return;
+    if (!fromFiles[f.broker_name]) {
+      fromFiles[f.broker_name] = { name: f.broker_name, licence: f.broker_licence || '—', email: f.broker_email && f.broker_email !== '—' ? f.broker_email : '—', files: 0, scores: [], source: 'file' };
+    }
+  });
+  const merged = [...manual];
+  Object.values(fromFiles).forEach(function(fb) { if (!merged.find(function(m) { return m.name === fb.name; })) merged.push(fb); });
+  const b = merged[idx];
   if (!b) return;
   document.getElementById('edit-broker-idx').value = idx;
   document.getElementById('edit-broker-name').value = b.name || '';
-  document.getElementById('edit-broker-licence').value = b.licence || '';
-  document.getElementById('edit-broker-email').value = b.email || '';
+  document.getElementById('edit-broker-licence').value = b.licence !== '—' ? b.licence : '';
+  document.getElementById('edit-broker-email').value = b.email !== '—' ? b.email : '';
+  // Store source so saveEditBroker knows where to save
+  document.getElementById('edit-broker-idx').dataset.source = b.source || 'file';
   document.getElementById('edit-broker-overlay').classList.add('open');
 }
 
 function saveEditBroker() {
   const idx = parseInt(document.getElementById('edit-broker-idx').value);
+  const name = document.getElementById('edit-broker-name').value.trim();
+  const licence = document.getElementById('edit-broker-licence').value.trim();
+  const email = document.getElementById('edit-broker-email').value.trim();
+  if (!name) { toast('Name is required'); return; }
+  // Always save to manual brokers list (overrides file-sourced data)
   const brokers = getBrokers();
-  if (!brokers[idx]) return;
-  brokers[idx].name = document.getElementById('edit-broker-name').value.trim() || brokers[idx].name;
-  brokers[idx].licence = document.getElementById('edit-broker-licence').value.trim() || brokers[idx].licence;
-  brokers[idx].email = document.getElementById('edit-broker-email').value.trim() || brokers[idx].email;
+  const existing = brokers.findIndex(function(b) { return b.name === document.getElementById('edit-broker-name').defaultValue || b.name === name; });
+  if (existing >= 0) {
+    brokers[existing].name = name;
+    brokers[existing].licence = licence || brokers[existing].licence;
+    brokers[existing].email = email || brokers[existing].email;
+  } else {
+    brokers.push({ name, licence: licence || '—', email: email || '—', files: 0, scores: [], source: 'manual' });
+  }
   saveBrokers(brokers);
   closeOverlay('edit-broker-overlay');
   renderBrokers();
@@ -2995,8 +3043,58 @@ function toggleUserMenu(e) {
   }, 0);
 }
 
+
+// ── CHART HOVER TOOLTIP ───────────────────────────────────────
+function initChartHover() {
+  const canvas = document.getElementById('txn-chart');
+  if (!canvas || canvas._hoverInit) return;
+  canvas._hoverInit = true;
+
+  let tooltip = document.getElementById('chart-tooltip');
+  if (!tooltip) {
+    tooltip = document.createElement('div');
+    tooltip.id = 'chart-tooltip';
+    tooltip.style.cssText = 'position:fixed;background:#111110;color:#f0f0ee;font-size:11.5px;font-weight:500;padding:5px 10px;border-radius:6px;pointer-events:none;display:none;z-index:500;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.3)';
+    document.body.appendChild(tooltip);
+  }
+
+  canvas.addEventListener('mousemove', function(e) {
+    if (!canvas._chartPts || !canvas._chartPts.length) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const cx = mx * scaleX;
+    const cy = my * scaleY;
+
+    let closest = null, minDist = 20;
+    canvas._chartPts.forEach(function(p, i) {
+      const dist = Math.sqrt(Math.pow(cx - p.x, 2) + Math.pow(cy - p.y, 2));
+      if (dist < minDist) { minDist = dist; closest = i; }
+    });
+
+    if (closest !== null) {
+      const label = canvas._chartLabels[closest];
+      const val = canvas._chartValues[closest];
+      tooltip.textContent = label + ' — ' + val + ' file' + (val !== 1 ? 's' : '');
+      tooltip.style.display = 'block';
+      tooltip.style.left = (e.clientX + 12) + 'px';
+      tooltip.style.top = (e.clientY - 28) + 'px';
+    } else {
+      tooltip.style.display = 'none';
+    }
+  });
+
+  canvas.addEventListener('mouseleave', function() {
+    const tooltip = document.getElementById('chart-tooltip');
+    if (tooltip) tooltip.style.display = 'none';
+  });
+}
+
 checkSession();
 renderDash();
+setTimeout(initChartHover, 500);
 const _tb = document.getElementById('main-topbar'); if (_tb) _tb.style.display = 'none';
 </script>
 </body>
