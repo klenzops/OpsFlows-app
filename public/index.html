@@ -228,7 +228,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .toast { position: fixed; bottom: 24px; right: 24px; background: var(--accent); color: white; padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; z-index: 999; display: none; box-shadow: var(--shadow-md); letter-spacing: -.01em; }
 
 /* TRANSACTION FILES VIEW */
-.view { display: none !important; position: absolute; inset: 0; overflow: hidden; }
+.view { display: none; position: absolute; inset: 0; overflow: hidden; }
 .view.active { display: flex !important; flex-direction: column; }
 
 .view-header { margin-bottom: 24px; }
@@ -1484,7 +1484,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       </div>
     </div>
 
-    <div class="view" id="view-agents" style="display:none;flex-direction:column">
+    <div class="view" id="view-agents">
       <div class="page-header"><div><div class="page-title">Agents</div></div></div>
       <div class="page-body"><div class="pg-empty" style="height:80%">
         <div class="pg-agents-icons">
@@ -1497,7 +1497,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       </div>
     </div>
 
-    <div class="view" id="view-audit" style="display:none;flex-direction:column">
+    <div class="view" id="view-audit">
       <div class="page-header">
         <div><div class="page-title">Audit Log</div><div class="page-sub" id="audit-sub">Every action performed by the platform</div></div>
       </div>
@@ -1514,7 +1514,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
         <button class="pg-btn" id="pg-next" onclick="auditChangePage(1)"><i class="ti ti-chevron-right"></i></button>
       </div>
     </div>
-    <div class="view" id="view-analytics" style="display:none;flex-direction:column">
+    <div class="view" id="view-analytics">
       <div class="page-header"><div><div class="page-title">Analytics</div><div class="page-sub">Compliance reporting overview</div></div></div>
       <div class="page-body" style="padding:0"><div class="analytics-page">
         <div class="analytics-hero">
@@ -1548,7 +1548,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
         </div>
       </div></div>
     </div>
-    <div class="view" id="view-brokers" style="display:none;flex-direction:column">
+    <div class="view" id="view-brokers">
       <div class="page-header">
         <div><div class="page-title">Brokers</div><div class="page-sub" id="brokers-count">Populated from uploaded files</div></div>
         <div class="page-header-right"><button class="btn btn-dark" onclick="document.getElementById('add-broker-overlay').classList.add('open')"><i class="ti ti-plus"></i>Add Broker</button></div>
@@ -1559,7 +1559,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       </div>
     </div>
 
-    <div class="view" id="view-help" style="display:none;flex-direction:column">
+    <div class="view" id="view-help">
       <div class="page-header">
         <div><div class="page-title">Help Center</div><div class="page-sub">We answer within 2 hours</div></div>
       </div>
@@ -1590,7 +1590,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
         </div>
       </div>
     </div>
-    <div class="view" id="view-settings" style="display:none;flex-direction:column">
+    <div class="view" id="view-settings">
       <div class="page-header">
         <div><div class="page-title">Settings</div><div class="page-sub">Account and platform preferences</div></div>
       </div>
@@ -1667,7 +1667,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
         <i class="ti ti-alert-circle" style="font-size:28px;color:var(--red);flex-shrink:0;margin-top:2px"></i>
         <div>
           <div style="font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:8px">Are you sure?</div>
-          <div id="delete-main-msg" style="font-size:13.5px;color:var(--text-secondary);line-height:1.9">This will remove the file from your dashboard immediately.<br>You have <strong style="color:var(--text-primary)">7 days</strong> to contact OpsFlows support to reverse this action.<br>After 7 days, the file and all associated documents are <strong style="color:var(--text-primary)">permanently deleted</strong> and cannot be recovered.</div>
+          <div id="delete-main-msg" style="font-size:13.5px;color:var(--text-secondary);line-height:2.0;white-space:nowrap">This will remove the document from your dashboard immediately.<br>You have <strong style="color:var(--text-primary)">7 days</strong> to contact OpsFlows support to reverse this action.<br>After 7 days, documents are <strong style="color:var(--text-primary)">permanently deleted</strong> and cannot be recovered.</div>
           <div id="delete-file-info" style="font-size:12.5px;color:var(--text-tertiary);margin-top:10px;padding:8px 12px;background:var(--bg);border-radius:var(--radius-sm)"></div>
         </div>
       </div>
@@ -2124,7 +2124,7 @@ function openReport(f) {
     }
   }
   // Add persistent complete email button if COMPLETE
-  if (r && r.verdict === 'COMPLETE') {
+  if (r && r.verdict === 'COMPLETE' && r.score === 100) {
     const mailto = buildCompleteEmail(f);
     b += '<div class="section" style="border-top:1px solid var(--border-light);padding-top:16px;margin-top:4px">' +
       '<div class="section-title" style="color:var(--green-text)">✓ File Complete</div>' +
@@ -2136,11 +2136,62 @@ function openReport(f) {
   document.getElementById('report-overlay').classList.add('open');
 }
 
-function exportData() {
+function exportData(format) {
+  if (!format) { showExportMenu(); return; }
   const rows = [['TXN#','Address','Broker','Type','Status','Score','Date']];
-  S.files.forEach(f => rows.push([f.txn_number, f.property_address, f.broker_name, f.file_type, f.status, f.score + '%', f.created_at?.slice(0, 10)]));
-  const csv = rows.map(r => r.map(c => '"' + (c || '').toString().replace(/"/g, '""') + '"').join(',')).join('\n');
-  const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'opsflows_export.csv'; a.click();
+  S.files.forEach(function(f) { rows.push([f.txn_number, f.property_address, f.broker_name, f.file_type, f.status, f.score + '%', (f.created_at || '').slice(0, 10)]); });
+  if (format === 'csv') {
+    const csv = rows.map(function(r) { return r.map(function(c) { return '"' + (c || '').toString().replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+    const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'opsflows_export.csv'; a.click();
+  } else if (format === 'pdf') {
+    exportPDF(rows);
+  }
+  const menu = document.getElementById('export-menu');
+  if (menu) menu.remove();
+}
+
+function showExportMenu() {
+  const existing = document.getElementById('export-menu');
+  if (existing) { existing.remove(); return; }
+  const menu = document.createElement('div');
+  menu.id = 'export-menu';
+  menu.style.cssText = 'position:fixed;top:52px;right:24px;background:var(--surface);border:0.5px solid var(--border-light);border-radius:var(--radius-md);box-shadow:var(--shadow-md);z-index:300;overflow:hidden;min-width:160px';
+  var itemStyle = 'display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13px;cursor:pointer;border-radius:5px;color:var(--text-primary)';
+  var wrap = document.createElement('div');
+  wrap.style.padding = '4px';
+  var csvItem = document.createElement('div');
+  csvItem.style.cssText = itemStyle;
+  csvItem.innerHTML = '<i class="ti ti-file-spreadsheet" style="font-size:15px;color:var(--text-tertiary)"></i> Export as CSV';
+  csvItem.onmouseover = function() { csvItem.style.background = 'var(--bg)'; };
+  csvItem.onmouseout = function() { csvItem.style.background = ''; };
+  csvItem.onclick = function() { exportData('csv'); };
+  var pdfItem = document.createElement('div');
+  pdfItem.style.cssText = itemStyle;
+  pdfItem.innerHTML = '<i class="ti ti-file-type-pdf" style="font-size:15px;color:var(--text-tertiary)"></i> Export as PDF';
+  pdfItem.onmouseover = function() { pdfItem.style.background = 'var(--bg)'; };
+  pdfItem.onmouseout = function() { pdfItem.style.background = ''; };
+  pdfItem.onclick = function() { exportData('pdf'); };
+  wrap.appendChild(csvItem);
+  wrap.appendChild(pdfItem);
+  menu.appendChild(wrap);
+  document.body.appendChild(menu);
+  setTimeout(function() { document.addEventListener('click', function closeMenu(e) { if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', closeMenu); } }); }, 0);
+}
+
+function exportPDF(rows) {
+  // Simple print-to-PDF using browser print
+  const win = window.open('', '_blank');
+  if (!win) { toast('Allow popups to export PDF'); return; }
+  const html = '<html><head><title>OpsFlows Export</title><style>body{font-family:Inter,sans-serif;font-size:12px;padding:32px;color:#111}h2{font-size:18px;font-weight:600;margin-bottom:20px}table{width:100%;border-collapse:collapse}th{font-size:10px;font-weight:600;color:#888;letter-spacing:.06em;text-transform:uppercase;padding:8px 12px;border-bottom:1px solid #eee;text-align:left}td{padding:10px 12px;border-bottom:1px solid #f0f0ee;font-size:12px}@media print{body{padding:16px}}</style></head><body>' +
+    '<h2>OpsFlows — Compliance Export</h2>' +
+    '<p style="font-size:11px;color:#888;margin-bottom:16px">Generated ' + new Date().toLocaleDateString('en-CA') + ' · ' + (S.files.length) + ' files</p>' +
+    '<table><thead><tr>' + rows[0].map(function(h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead><tbody>' +
+    rows.slice(1).map(function(r) { return '<tr>' + r.map(function(c) { return '<td>' + (c || '—') + '</td>'; }).join('') + '</tr>'; }).join('') +
+    '</tbody></table></body></html>';
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(function() { win.print(); }, 400);
 }
 
 
