@@ -1521,15 +1521,15 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
     <div class="view" id="view-help">
       <div class="help-page">
         <div class="help-form-col">
-          <div style="font-size:22px;font-weight:600;letter-spacing:-.4px;margin-bottom:6px">Get in touch</div>
-          <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:28px">Share your feedback, request support, or describe your situation — we respond quickly.</div>
+          <div style="font-size:18px;font-weight:600;letter-spacing:-.35px;margin-bottom:6px">Get in touch</div>
+          <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:24px">Share your feedback and request support. We answer within 2 hours.</div>
           <div style="margin-bottom:16px">
             <label for="help-subject" style="display:block;font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px">Subject</label>
-            <input id="help-subject" type="text" placeholder="e.g. Issue with verification report, Feature request..." style="width:100%;padding:10px 14px;border:0.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:13.5px;font-family:inherit;color:var(--text-primary);background:var(--surface);outline:none;transition:border-color .15s" onfocus="this.style.borderColor='#a1a1aa'" onblur="this.style.borderColor=''">
+            <input id="help-subject" type="text" placeholder="E.g. Issue with verification report…" style="width:100%;padding:10px 14px;border:0.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:13.5px;font-family:inherit;color:var(--text-primary);background:var(--surface);outline:none;transition:border-color .15s" onfocus="this.style.borderColor='#a1a1aa'" onblur="this.style.borderColor=''">
           </div>
           <div style="margin-bottom:20px">
             <label for="help-message" style="display:block;font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px">Message</label>
-            <textarea id="help-message" rows="6" placeholder="Feel free to give feedback, request support, or explain your situation in detail so we can act right away..." style="width:100%;padding:10px 14px;border:0.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:13.5px;font-family:inherit;color:var(--text-primary);background:var(--surface);outline:none;resize:vertical;transition:border-color .15s;line-height:1.6" onfocus="this.style.borderColor='#a1a1aa'" onblur="this.style.borderColor=''"></textarea>
+            <textarea id="help-message" rows="6" placeholder="Please provide as much detail as possible so we can act right away…" style="width:100%;padding:10px 14px;border:0.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:13.5px;font-family:inherit;color:var(--text-primary);background:var(--surface);outline:none;resize:vertical;transition:border-color .15s;line-height:1.6" onfocus="this.style.borderColor='#a1a1aa'" onblur="this.style.borderColor=''"></textarea>
           </div>
           <button class="btn btn-dark" onclick="submitHelpForm()" style="width:100%;justify-content:center;padding:11px"><i class="ti ti-send"></i>Send Message</button>
         </div>
@@ -2059,7 +2059,7 @@ function openReport(f) {
     }
   }
   // Add persistent complete email button if COMPLETE
-  if (r && r.verdict === 'COMPLETE') {
+  if (r && r.verdict === 'COMPLETE' && r.score === 100) {
     const mailto = buildCompleteEmail(f);
     b += '<div class="section" style="border-top:1px solid var(--border-light);padding-top:16px;margin-top:4px">' +
       '<div class="section-title" style="color:var(--green-text)">✓ File Complete</div>' +
@@ -2492,8 +2492,19 @@ function updateDocSelection() {
 function confirmDeleteDoc(docIdx) {
   _deleteIdx = docIdx;
   const f = S.files[docIdx];
+  // Update popup title
+  const titleEl = document.querySelector('#delete-overlay .modal-title');
+  if (titleEl) titleEl.innerHTML = '<i class="ti ti-alert-triangle" style="margin-right:6px"></i>Delete Document';
+  // Update message
+  const msgEl = document.querySelector('#delete-overlay .upload-popup-body div[style*="line-height"]');
+  if (msgEl) {
+    msgEl.innerHTML =
+      'This will remove the document from your dashboard immediately.<br>' +
+      'You have <strong style="color:var(--text-primary)">7 days</strong> to contact OpsFlows support to reverse this action.<br>' +
+      'After 7 days, documents are <strong style="color:var(--text-primary)">permanently deleted</strong> and cannot be recovered.';
+  }
   const el = document.getElementById('delete-file-info');
-  if (el) el.textContent = 'Document: ' + (f.file_type || 'EBCS') + ' — ' + (f.filename || 'Document');
+  if (el) el.textContent = (f.file_type || 'EBCS') + ' — ' + (f.filename || 'Document');
   document.getElementById('delete-overlay').classList.add('open');
 }
 
