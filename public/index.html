@@ -1643,6 +1643,58 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
     </div>
   </div>
 </div>
+
+<!-- Edit Broker Popup -->
+<div class="overlay" id="edit-broker-overlay" onclick="if(event.target===this)closeOverlay('edit-broker-overlay')">
+  <div class="upload-popup" style="width:440px">
+    <div class="upload-popup-head">
+      <div>
+        <div class="modal-title">Edit Broker</div>
+        <div class="modal-sub">Update broker information</div>
+      </div>
+      <button class="modal-close" onclick="closeOverlay('edit-broker-overlay')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="upload-popup-body">
+      <input type="hidden" id="edit-broker-idx">
+      <div class="field"><label for="edit-broker-name" style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">Full Name</label>
+        <input id="edit-broker-name" type="text" style="width:100%;padding:9px 12px;border:1px solid #e4e4e1;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;color:var(--text-primary)">
+      </div>
+      <div class="field"><label for="edit-broker-licence" style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">OACIQ Licence Number</label>
+        <input id="edit-broker-licence" type="text" style="width:100%;padding:9px 12px;border:1px solid #e4e4e1;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;color:var(--text-primary)">
+      </div>
+      <div class="field"><label for="edit-broker-email" style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">Email</label>
+        <input id="edit-broker-email" type="email" style="width:100%;padding:9px 12px;border:1px solid #e4e4e1;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;color:var(--text-primary)">
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" onclick="closeOverlay('edit-broker-overlay')">Cancel</button>
+        <button class="btn btn-dark" onclick="saveEditBroker()"><i class="ti ti-check"></i>Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit File Address Popup -->
+<div class="overlay" id="edit-address-overlay" onclick="if(event.target===this)closeOverlay('edit-address-overlay')">
+  <div class="upload-popup" style="width:440px">
+    <div class="upload-popup-head">
+      <div>
+        <div class="modal-title">Edit Property Address</div>
+        <div class="modal-sub">Update the address for this transaction file</div>
+      </div>
+      <button class="modal-close" onclick="closeOverlay('edit-address-overlay')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="upload-popup-body">
+      <input type="hidden" id="edit-address-idx">
+      <div class="field"><label for="edit-address-val" style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">Property Address</label>
+        <input id="edit-address-val" type="text" style="width:100%;padding:9px 12px;border:1px solid #e4e4e1;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;color:var(--text-primary)">
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" onclick="closeOverlay('edit-address-overlay')">Cancel</button>
+        <button class="btn btn-dark" onclick="saveEditAddress()"><i class="ti ti-check"></i>Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Report Modal -->
 <div class="overlay" id="report-overlay">
   <div class="modal">
@@ -1799,6 +1851,8 @@ function buildFile(extraction, report, filename, fileId) {
     txn_number: report.contract_number || ('TXN-' + now.getFullYear() + '-' + String(S.files.length + 1).padStart(4, '0')),
     property_address: report.property_address || extraction?.['Property Address'] || 'Unknown Address',
     broker_name: report.broker_name || extraction?.['Name of Agency or Broker']?.[0]?.Representative || '—',
+    broker_licence: extraction?.['Name of Agency or Broker']?.[0]?.['Licence Number'] || report?.check_results?.find(r => r.rule === 'Broker Licence Number')?.value || '—',
+    broker_email: extraction?.['Name of Agency or Broker']?.[0]?.Email || report?.broker_email || '—',
     seller_name: report.seller_name || extraction?.['Sellers']?.[0]?.['Full Name'] || null,
     contract_number: report.contract_number || extraction?.['Brokerage contract number'] || null,
     cadastral_number: report.cadastral_number || extraction?.['Cadastral Number'] || null,
@@ -2474,7 +2528,7 @@ function openTxfDetail(idx) {
       '<span id="doc-sel-count" style="font-size:12.5px;color:white;font-weight:500;margin-right:4px">0 selected</span>' +
       '<button class="doc-bulk-btn" onclick="openReport(S.files[window._currentDetailIdx])"><i class="ti ti-file-text"></i>View Report</button>' +
       '<button class="doc-bulk-btn" onclick="exportData()"><i class="ti ti-download"></i>Export</button>' +
-      '<button class="doc-bulk-btn" onclick="window.open(buildCompleteEmail(S.files[window._currentDetailIdx]))"><i class="ti ti-mail"></i>Email</button>' +
+      '<button class="doc-bulk-btn" id="bulk-email-btn" onclick="bulkEmailIfComplete()"><i class="ti ti-mail"></i>Email</button>' +
       '<button class="doc-bulk-btn danger" onclick="confirmDelete(window._currentDetailIdx)"><i class="ti ti-trash"></i>Delete</button>' +
     '</div>' +
     '<div class="txf-docs-label">Documents in this file</div>' +
@@ -2721,8 +2775,9 @@ function renderBrokers(alpha) {
     if (!fromFiles[f.broker_name]) {
       fromFiles[f.broker_name] = {
         name: f.broker_name,
-        licence: f.report?.check_results?.find(r => r.rule === 'Broker Licence Number')?.value || '—',
-        email: '—', files: 0, scores: [], source: 'file'
+        licence: f.broker_licence || f.report?.check_results?.find(r => r.rule === 'Broker Licence Number')?.value || '—',
+        email: f.broker_email && f.broker_email !== '—' ? f.broker_email : '—',
+        files: 0, scores: [], source: 'file'
       };
     }
     fromFiles[f.broker_name].files++;
@@ -2772,7 +2827,10 @@ function renderBrokers(alpha) {
         '<td style="color:var(--text-secondary)">' + (b.email || '—') + '</td>' +
         '<td style="color:var(--text-secondary)">' + (b.files || 0) + '</td>' +
         '<td style="text-align:right">' + (avg ? '<span class="score ' + sc + '">' + avg + '%</span>' : '—') + '</td>' +
-        '<td style="text-align:center"><button class="del-btn" onclick="confirmDeleteBroker(' + globalIdx + ')" title="Delete broker"><i class="ti ti-trash"></i></button></td>' +
+        '<td style="text-align:center;white-space:nowrap">' +
+          '<button class="del-btn" onclick="editBroker(' + globalIdx + ')" title="Edit broker" style="margin-right:2px"><i class="ti ti-pencil"></i></button>' +
+          '<button class="del-btn" onclick="confirmDeleteBroker(' + globalIdx + ')" title="Delete broker"><i class="ti ti-trash"></i></button>' +
+        '</td>' +
       '</tr>';
     }).join('') + '</tbody></table>';
 }
@@ -2828,6 +2886,63 @@ function buildCompleteEmail(f) {
   const body = 'Hi ' + brokerName + ',\n\nI am pleased to inform you that your compliance file for the property at ' + address + ' (Contract: ' + contract + ') has been fully verified and is compliant with OACIQ requirements.\n\nAll required fields and documents have been reviewed and passed. No further action is required at this time.\n\nHave a great day,\nOpsFlows Compliance';
   const subject = 'OpsFlows — File Complete & Compliant: ' + address;
   return 'mailto:' + brokerEmail + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+}
+
+
+// ── EDIT BROKER ───────────────────────────────────────────────
+function editBroker(idx) {
+  const brokers = getBrokers();
+  const b = brokers[idx];
+  if (!b) return;
+  document.getElementById('edit-broker-idx').value = idx;
+  document.getElementById('edit-broker-name').value = b.name || '';
+  document.getElementById('edit-broker-licence').value = b.licence || '';
+  document.getElementById('edit-broker-email').value = b.email || '';
+  document.getElementById('edit-broker-overlay').classList.add('open');
+}
+
+function saveEditBroker() {
+  const idx = parseInt(document.getElementById('edit-broker-idx').value);
+  const brokers = getBrokers();
+  if (!brokers[idx]) return;
+  brokers[idx].name = document.getElementById('edit-broker-name').value.trim() || brokers[idx].name;
+  brokers[idx].licence = document.getElementById('edit-broker-licence').value.trim() || brokers[idx].licence;
+  brokers[idx].email = document.getElementById('edit-broker-email').value.trim() || brokers[idx].email;
+  saveBrokers(brokers);
+  closeOverlay('edit-broker-overlay');
+  renderBrokers();
+  toast('Broker updated');
+}
+
+// ── EDIT FILE ADDRESS ─────────────────────────────────────────
+function editFileAddress(idx) {
+  const f = S.files[idx];
+  if (!f) return;
+  document.getElementById('edit-address-idx').value = idx;
+  document.getElementById('edit-address-val').value = f.property_address || '';
+  document.getElementById('edit-address-overlay').classList.add('open');
+}
+
+function saveEditAddress() {
+  const idx = parseInt(document.getElementById('edit-address-idx').value);
+  const newAddr = document.getElementById('edit-address-val').value.trim();
+  if (!newAddr || !S.files[idx]) return;
+  S.files[idx].property_address = newAddr;
+  closeOverlay('edit-address-overlay');
+  renderDash();
+  renderFilesView();
+  toast('Address updated');
+}
+
+
+function bulkEmailIfComplete() {
+  const f = window._currentDetailIdx !== undefined ? S.files[window._currentDetailIdx] : null;
+  if (!f) return;
+  if (f.score < 100) {
+    toast('Email only available when file score is 100%');
+    return;
+  }
+  window.open(buildCompleteEmail(f));
 }
 
 checkSession();
