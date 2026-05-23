@@ -1186,6 +1186,40 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .doc-bulk-btn.danger:hover { background: rgba(185,28,28,.9); }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 
+
+/* ── UNIFIED PAGE HEADER ─────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 20px 24px 14px;
+  border-bottom: 0.5px solid #e4e4de;
+  flex-shrink: 0;
+  background: var(--surface);
+}
+.page-title { font-size: 16px; font-weight: 600; letter-spacing: -.35px; color: var(--text-primary); margin-bottom: 2px; }
+.page-sub { font-size: 11.5px; color: var(--text-tertiary); }
+.page-header-right { display: flex; align-items: center; gap: 8px; }
+.page-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+/* Settings */
+.settings-section-label { font-size: 10px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .09em; text-transform: uppercase; margin-bottom: 4px; padding: 0 2px; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--surface); border: 0.5px solid var(--border-light); border-radius: var(--radius-md); transition: border-color .12s; }
+.settings-row:hover { border-color: #d4d4d0; }
+.settings-row-title { font-size: 13.5px; font-weight: 500; color: var(--text-primary); letter-spacing: -.1px; margin-bottom: 2px; }
+.settings-row-sub { font-size: 12px; color: var(--text-tertiary); }
+
+/* Audit pagination */
+.audit-pagination { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px 0; flex-shrink: 0; border-top: 0.5px solid var(--border-light); background: var(--surface); }
+.pg-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 0.5px solid var(--border-light); border-radius: var(--radius-sm); background: var(--surface); font-size: 12.5px; font-weight: 500; color: var(--text-secondary); cursor: pointer; font-family: inherit; transition: all .12s; }
+.pg-btn:hover { background: var(--bg); color: var(--text-primary); }
+.pg-btn.pg-active { background: var(--accent); color: white; border-color: var(--accent); }
+.pg-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+/* Help page */
+.help-wrap { display: grid; grid-template-columns: 1fr 200px; gap: 40px; padding: 28px 24px; max-width: 760px; }
+.help-contact-block { padding-top: 4px; border-left: 0.5px solid var(--border-light); padding-left: 32px; }
+
 </style>
 </head>
 <body>
@@ -1262,7 +1296,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 
     <!-- BOTTOM: SETTINGS + HELP -->
     <div class="sb-bottom">
-      <div class="nav-item" onclick="showConfig()"><i class="ti ti-settings"></i>Settings</div>
+      <div class="nav-item" id="nav-settings" onclick="navTo('settings')"><i class="ti ti-settings"></i>Settings</div>
       <div class="nav-item" id="nav-help" onclick="navTo('help')"><i class="ti ti-help-circle"></i>Help Center</div>
     </div>
 
@@ -1435,17 +1469,13 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 
     <!-- TRANSACTION FILES VIEW -->
     <div class="view" id="view-files">
-      <div class="txf-page">
-        <div class="txf-topbar">
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="search-wrap">
-              <div class="search-bar" style="width:280px">
-                <i class="ti ti-search"></i>
-                <input type="text" id="files-search" placeholder="Search by address or broker..." oninput="renderFilesView();renderSearchDropdown(this.value)" onblur="closeSearchDd()">
-              </div>
-            </div>
+      <div class="txf-page" style="display:flex;flex-direction:column;height:100%">
+        <div class="page-header">
+          <div><div class="page-title">Transaction Files</div><div class="page-sub" id="txf-sub">0 files</div></div>
+          <div class="page-header-right">
+            <div class="search-wrap"><div class="search-bar"><i class="ti ti-search"></i><input type="text" id="files-search" placeholder="Search by address or broker..." oninput="renderFilesView();renderSearchDropdown(this.value)" onblur="closeSearchDd()"></div></div>
+            <button class="btn btn-dark" onclick="openUploadPopup()"><i class="ti ti-plus"></i>New File</button>
           </div>
-          <button class="btn btn-dark" onclick="openUploadPopup()"><i class="ti ti-plus"></i>New File</button>
         </div>
         <div class="txf-body" id="txf-body">
           <div id="txf-list"></div>
@@ -1454,8 +1484,9 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       </div>
     </div>
 
-    <div class="view" id="view-agents">
-      <div class="pg-empty">
+    <div class="view" id="view-agents" style="display:none;flex-direction:column">
+      <div class="page-header"><div><div class="page-title">Agents</div></div></div>
+      <div class="page-body"><div class="pg-empty" style="height:80%">
         <div class="pg-agents-icons">
           <div class="pg-agent-icon"><i class="ti ti-eye"></i><span>Monitor</span></div>
           <div class="pg-agent-icon"><i class="ti ti-shield-check"></i><span>Verify</span></div>
@@ -1466,17 +1497,26 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       </div>
     </div>
 
-    <div class="view" id="view-audit">
-      <div id="audit-log-content" style="height:100%;overflow-y:auto;padding:20px 24px">
-        <div class="pg-empty">
-          <i class="ti ti-server" style="font-size:48px;color:var(--text-tertiary);margin-bottom:16px"></i>
-          <div class="pg-empty-title">Audit Log — Coming Soon</div>
-          <div class="pg-empty-sub">Every agent action, verification run, and email sent will be logged here with full timestamps and traceability.</div>
+    <div class="view" id="view-audit" style="display:none;flex-direction:column">
+      <div class="page-header">
+        <div><div class="page-title">Audit Log</div><div class="page-sub" id="audit-sub">Every action performed by the platform</div></div>
+      </div>
+      <div class="page-body" id="audit-log-content">
+        <div class="pg-empty" style="height:80%">
+          <i class="ti ti-server" style="font-size:40px;color:var(--text-tertiary);margin-bottom:14px"></i>
+          <div class="pg-empty-title">No entries yet</div>
+          <div class="pg-empty-sub">Actions will appear here after verifying documents.</div>
         </div>
       </div>
+      <div class="audit-pagination" id="audit-pagination" style="display:none">
+        <button class="pg-btn" id="pg-prev" onclick="auditChangePage(-1)"><i class="ti ti-chevron-left"></i></button>
+        <div id="pg-nums" style="display:flex;gap:4px"></div>
+        <button class="pg-btn" id="pg-next" onclick="auditChangePage(1)"><i class="ti ti-chevron-right"></i></button>
+      </div>
     </div>
-    <div class="view" id="view-analytics">
-      <div class="analytics-page">
+    <div class="view" id="view-analytics" style="display:none;flex-direction:column">
+      <div class="page-header"><div><div class="page-title">Analytics</div><div class="page-sub">Compliance reporting overview</div></div></div>
+      <div class="page-body" style="padding:0"><div class="analytics-page">
         <div class="analytics-hero">
           <div class="analytics-hero-text">
             <div class="analytics-tag">Coming Soon</div>
@@ -1506,34 +1546,38 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
           <div class="analytics-metric"><div class="analytics-metric-val">317</div><div class="analytics-metric-lbl">Checks run this month</div></div>
           <div class="analytics-metric"><div class="analytics-metric-val">12</div><div class="analytics-metric-lbl">Issues resolved</div></div>
         </div>
-      </div>
+      </div></div>
     </div>
-    <div class="view" id="view-brokers">
-      <div class="pg-brokers">
-        <div class="pg-brokers-header">
-          <div class="topbar-sub" id="brokers-count">Populated from uploaded files</div>
-          <button class="btn btn-dark" onclick="document.getElementById('add-broker-overlay').classList.add('open')"><i class="ti ti-plus"></i>Add Broker</button>
-        </div>
+    <div class="view" id="view-brokers" style="display:none;flex-direction:column">
+      <div class="page-header">
+        <div><div class="page-title">Brokers</div><div class="page-sub" id="brokers-count">Populated from uploaded files</div></div>
+        <div class="page-header-right"><button class="btn btn-dark" onclick="document.getElementById('add-broker-overlay').classList.add('open')"><i class="ti ti-plus"></i>Add Broker</button></div>
+      </div>
+      <div class="page-body">
+
         <div id="brokers-list"></div>
       </div>
     </div>
 
-    <div class="view" id="view-help">
-      <div class="help-page">
+    <div class="view" id="view-help" style="display:none;flex-direction:column">
+      <div class="page-header">
+        <div><div class="page-title">Help Center</div><div class="page-sub">We answer within 2 hours</div></div>
+      </div>
+      <div class="page-body"><div class="help-wrap">
         <div class="help-form-col">
-          <div style="font-size:22px;font-weight:600;letter-spacing:-.4px;margin-bottom:6px">Get in touch</div>
-          <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:28px">Share your feedback, request support, or describe your situation — we respond quickly.</div>
+          <div style="font-size:15px;font-weight:600;letter-spacing:-.3px;margin-bottom:4px">Get in touch</div>
+          <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:22px">Share your feedback and request support. We answer within 2 hours.</div>
           <div style="margin-bottom:16px">
             <label for="help-subject" style="display:block;font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px">Subject</label>
             <input id="help-subject" type="text" placeholder="e.g. Issue with verification report, Feature request..." style="width:100%;padding:10px 14px;border:0.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:13.5px;font-family:inherit;color:var(--text-primary);background:var(--surface);outline:none;transition:border-color .15s" onfocus="this.style.borderColor='#a1a1aa'" onblur="this.style.borderColor=''">
           </div>
           <div style="margin-bottom:20px">
             <label for="help-message" style="display:block;font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px">Message</label>
-            <textarea id="help-message" rows="6" placeholder="Feel free to give feedback, request support, or explain your situation in detail so we can act right away..." style="width:100%;padding:10px 14px;border:0.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:13.5px;font-family:inherit;color:var(--text-primary);background:var(--surface);outline:none;resize:vertical;transition:border-color .15s;line-height:1.6" onfocus="this.style.borderColor='#a1a1aa'" onblur="this.style.borderColor=''"></textarea>
+            <textarea id="help-message" rows="6" placeholder="Please provide as much detail as possible so we can act right away…" style="width:100%;padding:10px 14px;border:0.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:13.5px;font-family:inherit;color:var(--text-primary);background:var(--surface);outline:none;resize:vertical;transition:border-color .15s;line-height:1.6" onfocus="this.style.borderColor='#a1a1aa'" onblur="this.style.borderColor=''"></textarea>
           </div>
           <button class="btn btn-dark" onclick="submitHelpForm()" style="width:100%;justify-content:center;padding:11px"><i class="ti ti-send"></i>Send Message</button>
         </div>
-        <div class="help-contact-col">
+        <div class="help-contact-block">
           <div style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px">Direct Contact</div>
           <div style="margin-bottom:20px">
             <div style="font-size:11.5px;color:var(--text-tertiary);margin-bottom:4px">Email</div>
@@ -1543,6 +1587,31 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
             <div style="font-size:11.5px;color:var(--text-tertiary);margin-bottom:4px">Phone <span style="font-size:11px">(emergencies only)</span></div>
             <a href="tel:5145692519" style="font-size:14px;font-weight:500;color:var(--text-primary);text-decoration:none">(514) 569-2519</a>
           </div>
+        </div>
+      </div>
+    </div>
+    <div class="view" id="view-settings" style="display:none;flex-direction:column">
+      <div class="page-header">
+        <div><div class="page-title">Settings</div><div class="page-sub">Account and platform preferences</div></div>
+      </div>
+      <div class="page-body">
+        <div style="max-width:580px;display:flex;flex-direction:column;gap:8px">
+          <div class="settings-section-label">Account</div>
+          <div class="settings-row"><div><div class="settings-row-title">Full Name</div><div class="settings-row-sub" id="settings-name">—</div></div><button class="btn" onclick="toast('Coming soon')">Edit</button></div>
+          <div class="settings-row"><div><div class="settings-row-title">Email Address</div><div class="settings-row-sub" id="settings-email">—</div></div><button class="btn" onclick="toast('Coming soon')">Edit</button></div>
+          <div class="settings-row"><div><div class="settings-row-title">Password</div><div class="settings-row-sub">Change your account password</div></div><button class="btn" onclick="toast('Coming soon')">Change</button></div>
+          <div class="settings-section-label" style="margin-top:12px">Compliance</div>
+          <div class="settings-row"><div><div class="settings-row-title">OACIQ Verification Engine</div><div class="settings-row-sub">17 rules · Updated to current OACIQ standards</div></div><span class="status-pill sp-complete" style="font-size:11px">Active</span></div>
+          <div class="settings-row"><div><div class="settings-row-title">Document Classification</div><div class="settings-row-sub">Automatically detected from document content</div></div><span class="status-pill sp-complete" style="font-size:11px">Active</span></div>
+          <div class="settings-row"><div><div class="settings-row-title">7-Day File Recovery</div><div class="settings-row-sub">Deleted files recoverable within 7 days via support</div></div><span class="status-pill sp-complete" style="font-size:11px">Enabled</span></div>
+          <div class="settings-section-label" style="margin-top:12px">Notifications</div>
+          <div class="settings-row"><div><div class="settings-row-title">Email on File Complete</div><div class="settings-row-sub">Notify broker when file passes all compliance checks</div></div><label class="ov-toggle"><input type="checkbox" checked onchange="toast('Saved')"><span class="ov-toggle-track"></span></label></div>
+          <div class="settings-row"><div><div class="settings-row-title">Alert on Critical Issues</div><div class="settings-row-sub">Notify when a file has critical compliance failures</div></div><label class="ov-toggle"><input type="checkbox" checked onchange="toast('Saved')"><span class="ov-toggle-track"></span></label></div>
+          <div class="settings-section-label" style="margin-top:12px">Data & Privacy</div>
+          <div class="settings-row"><div><div class="settings-row-title">Data Residency</div><div class="settings-row-sub">All data stored in Canada (ca-central-1) — Law 25 compliant</div></div><span class="status-pill sp-complete" style="font-size:11px">Canada</span></div>
+          <div class="settings-row"><div><div class="settings-row-title">Document Storage</div><div class="settings-row-sub">Original PDFs are never stored — only extracted field data</div></div><span class="status-pill sp-complete" style="font-size:11px">Secure</span></div>
+          <div class="settings-section-label" style="margin-top:12px">Account Actions</div>
+          <div class="settings-row" style="border-color:#fee2e2"><div><div class="settings-row-title" style="color:var(--red)">Sign Out</div><div class="settings-row-sub">Sign out of your OpsFlows account</div></div><button class="btn" style="color:var(--red);border-color:#fca5a5" onclick="handleSignOut()">Sign Out</button></div>
         </div>
       </div>
     </div>
@@ -1598,11 +1667,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
         <i class="ti ti-alert-circle" style="font-size:28px;color:var(--red);flex-shrink:0;margin-top:2px"></i>
         <div>
           <div style="font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:8px">Are you sure?</div>
-          <div style="font-size:13.5px;color:var(--text-secondary);line-height:1.7">
-            This will remove the file from your dashboard immediately.<br>
-            You have <strong style="color:var(--text-primary)">7 days</strong> to contact OpsFlows support to reverse this action.<br>
-            After 7 days, the file and all associated documents are <strong style="color:var(--text-primary)">permanently deleted</strong> and cannot be recovered.
-          </div>
+          <div id="delete-main-msg" style="font-size:13.5px;color:var(--text-secondary);line-height:1.9">This will remove the file from your dashboard immediately.<br>You have <strong style="color:var(--text-primary)">7 days</strong> to contact OpsFlows support to reverse this action.<br>After 7 days, the file and all associated documents are <strong style="color:var(--text-primary)">permanently deleted</strong> and cannot be recovered.</div>
           <div id="delete-file-info" style="font-size:12.5px;color:var(--text-tertiary);margin-top:10px;padding:8px 12px;background:var(--bg);border-radius:var(--radius-sm)"></div>
         </div>
       </div>
@@ -2082,7 +2147,7 @@ function exportData() {
 // ============================================================
 // NAVIGATION
 // ============================================================
-const VIEWS = ['overview', 'files', 'agents', 'audit', 'analytics', 'brokers', 'help'];
+const VIEWS = ['overview', 'files', 'agents', 'audit', 'analytics', 'brokers', 'help', 'settings'];
 
 function navTo(view) {
   // Update nav items
@@ -2103,7 +2168,8 @@ function navTo(view) {
     audit: 'Audit Log',
     analytics: 'Analytics',
     brokers: 'Brokers',
-    help: 'Help Center'
+    help: 'Help Center',
+    settings: 'Settings'
   };
   const el = document.getElementById('topbar-title');
   if (el) el.textContent = titles[view] || '';
@@ -2119,7 +2185,8 @@ function navTo(view) {
   if (view === 'audit') renderAuditLog();
   if (view === 'analytics') drawAnalyticsDonut();
   if (view === 'brokers') renderBrokers();
-  if (view === 'help') {} // static view
+  if (view === 'files') { const el=document.getElementById('txf-sub'); if(el) el.textContent=S.files.length+' file'+(S.files.length!==1?'s':''); }
+  if (view === 'settings') { const sn=document.getElementById('settings-name'); const se=document.getElementById('settings-email'); if(sn&&S.user){sn.textContent=S.user.user_metadata?.full_name||S.user.email?.split('@')[0]||'—'; se.textContent=S.user.email||'—';} }
 }
 
 // ============================================================
@@ -2137,7 +2204,7 @@ function navTo(view) {
 // ============================================================
 async function renderAuditLog() {
   const el = document.getElementById('audit-log-content');
-  el.innerHTML = '<div class="view-header"><div class="view-title">Audit Log</div><div class="view-sub">Every action performed by the platform</div></div><div style="color:var(--text-tertiary);font-size:13px;padding:20px 0">Loading...</div>';
+  el.innerHTML = '<div style="color:var(--text-tertiary);font-size:13px;padding:8px 0">Loading…</div>';
   try {
     const r = await fetch(SB_URL + '/rest/v1/audit_log?order=created_at.desc&limit=100', {
       headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
@@ -2145,16 +2212,18 @@ async function renderAuditLog() {
     if (!r.ok) throw new Error('Failed to load');
     const rows = await r.json();
     if (!rows || !rows.length) {
-      el.innerHTML = '<div class="view-header"><div class="view-title">Audit Log</div><div class="view-sub">Every action performed by the platform</div></div><div class="coming-soon"><i class="ti ti-clipboard-list"></i><h3>No audit entries yet</h3><p>Actions will appear here after verifying documents</p></div>';
+      el.innerHTML = '<div class="pg-empty" style="height:60%"><i class="ti ti-clipboard-list" style="font-size:36px;color:var(--text-tertiary);margin-bottom:12px"></i><div class="pg-empty-title">No entries yet</div><div class="pg-empty-sub">Actions appear here after verifying documents.</div></div>';
       return;
     }
     let tableRows = '';
     rows.forEach(function(row) {
       tableRows += '<tr><td style="font-size:12px;color:var(--text-tertiary);white-space:nowrap">' + new Date(row.created_at).toLocaleString('en-CA') + '</td><td><span class="status-pill sp-complete" style="font-size:11px">' + (row.action || '—') + '</span></td><td style="font-size:12.5px;color:var(--text-secondary)">' + (row.detail || '—') + '</td></tr>';
     });
-    el.innerHTML = '<div class="view-header"><div class="view-title">Audit Log</div><div class="view-sub">' + rows.length + ' entries</div></div><div class="panel"><table class="files-table"><thead><tr><th>Timestamp</th><th>Action</th><th>Detail</th></tr></thead><tbody>' + tableRows + '</tbody></table></div>';
+    const _as=document.getElementById('audit-sub'); if(_as) _as.textContent=rows.length+' entr'+(rows.length===1?'y':'ies');
+    el.innerHTML='<div class="panel"><table class="files-table" style="width:100%"><thead><tr><th>Timestamp</th><th>Action</th><th>Detail</th></tr></thead><tbody>'+tableRows+'</tbody></table></div>';
+    const _pg=document.getElementById('audit-pagination'); if(_pg&&rows.length>20){_pg.style.display='flex'; buildAuditPagination(rows.length);}
   } catch(e) {
-    el.innerHTML = '<div class="view-header"><div class="view-title">Audit Log</div></div><p style="color:var(--text-tertiary);font-size:13px">Could not load audit log.</p>';
+    el.innerHTML = '<p style="color:var(--text-tertiary);font-size:13px">Could not load audit log.</p>';
   }
 }
 
@@ -2579,7 +2648,11 @@ function confirmDelete(idx) {
   _deleteIdx = idx;
   const f = S.files[idx];
   const el = document.getElementById('delete-file-info');
-  if (el) el.textContent = 'File: ' + (f.property_address || '—') + ' · ' + (f.txn_number || '');
+  if (el) el.textContent = (f.property_address || '—') + (f.txn_number ? ' · ' + f.txn_number : '');
+  const titleEl = document.querySelector('#delete-overlay .modal-title');
+  if (titleEl) titleEl.innerHTML = '<i class="ti ti-alert-triangle" style="margin-right:6px"></i>Delete File';
+  const msgEl = document.getElementById('delete-main-msg');
+  if (msgEl) msgEl.innerHTML = 'This will remove the file from your dashboard immediately.<br>You have <strong>7 days</strong> to contact OpsFlows support to reverse this action.<br>After 7 days, the file and all associated documents are <strong>permanently deleted</strong> and cannot be recovered.';
   document.getElementById('delete-overlay').classList.add('open');
 }
 function executeDelete() {
@@ -2817,6 +2890,60 @@ function buildCompleteEmail(f) {
   const body = 'Hi ' + brokerName + ',\n\nI am pleased to inform you that your compliance file for the property at ' + address + ' (Contract: ' + contract + ') has been fully verified and is compliant with OACIQ requirements.\n\nAll required fields and documents have been reviewed and passed. No further action is required at this time.\n\nHave a great day,\nOpsFlows Compliance';
   const subject = 'OpsFlows — File Complete & Compliant: ' + address;
   return 'mailto:' + brokerEmail + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+}
+
+
+// ── AUDIT PAGINATION ─────────────────────────────────────────
+let _auditPage = 1;
+const AUDIT_PER_PAGE = 20;
+
+function buildAuditPagination(total) {
+  const pages = Math.ceil(total / AUDIT_PER_PAGE);
+  const el = document.getElementById('pg-nums');
+  if (!el) return;
+  let html = '';
+  for (let i = 1; i <= Math.min(pages, 10); i++) {
+    html += '<button class="pg-btn' + (i === _auditPage ? ' pg-active' : '') + '" onclick="goAuditPage(' + i + ')">' + i + '</button>';
+  }
+  el.innerHTML = html;
+  const prev = document.getElementById('pg-prev');
+  const next = document.getElementById('pg-next');
+  if (prev) prev.disabled = _auditPage <= 1;
+  if (next) next.disabled = _auditPage >= pages;
+}
+
+function auditChangePage(dir) {
+  _auditPage += dir;
+  renderAuditLog();
+}
+
+function goAuditPage(n) {
+  _auditPage = n;
+  renderAuditLog();
+}
+
+// ── CONFIRM DELETE DOC (separate from file delete) ────────────
+function confirmDeleteDoc(docIdx) {
+  _deleteIdx = docIdx;
+  const f = S.files[docIdx];
+  const infoEl = document.getElementById('delete-file-info');
+  if (infoEl) infoEl.textContent = (f.file_type || 'EBCS') + ' — ' + (f.filename || 'Document');
+  // Update popup title and message for document
+  const titleEl = document.querySelector('#delete-overlay .modal-title');
+  if (titleEl) titleEl.innerHTML = '<i class="ti ti-alert-circle" style="margin-right:6px;color:var(--red)"></i>Delete Document';
+  const msgEl = document.getElementById('delete-main-msg');
+  if (msgEl) msgEl.innerHTML = 'This will remove the document from your dashboard immediately.<br>You have <strong>7 days</strong> to contact OpsFlows support to reverse this action.<br>After 7 days, documents are <strong>permanently deleted</strong> and cannot be recovered.';
+  document.getElementById('delete-overlay').classList.add('open');
+}
+
+// ── SUBMIT HELP FORM ─────────────────────────────────────────
+function submitHelpForm() {
+  const subject = document.getElementById('help-subject') ? document.getElementById('help-subject').value.trim() : '';
+  const message = document.getElementById('help-message') ? document.getElementById('help-message').value.trim() : '';
+  if (!subject || !message) { toast('Please fill in both fields'); return; }
+  const body = 'Subject: ' + subject + '\n\n' + message;
+  window.open('mailto:lena@opsflows.ca?subject=' + encodeURIComponent('[OpsFlows Support] ' + subject) + '&body=' + encodeURIComponent(body));
+  toast('Opening your email client…');
 }
 
 checkSession();
