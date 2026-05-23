@@ -1585,6 +1585,11 @@ let currentPeriod = '7d';
 let _deleteIdx = null;
 let _deleteBrokerIdx = null;
 let _brokerAlpha = 'all';
+const chartData = {
+  '7d':  { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], values: [2,3,1,4,3,2,5] },
+  '30d': { labels: ['W1','W2','W3','W4'], values: [8,12,7,14] },
+  '3m':  { labels: ['Jan','Feb','Mar'], values: [18,24,31] }
+};
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function toast(msg) {
@@ -2046,8 +2051,6 @@ function navTo(view) {
 
 
 
-async 
-
 // ============================================================
 // AUDIT LOG VIEW
 // ============================================================
@@ -2075,11 +2078,7 @@ async function renderAuditLog() {
 }
 
 // ── TRANSACTION VOLUME CHART ──────────────────────────────────
-const chartData = {
-  '7d':  { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], values: [2,3,1,4,3,2,5] },
-  '30d': { labels: ['W1','W2','W3','W4'], values: [8,12,7,14] },
-  '3m':  { labels: ['Jan','Feb','Mar'], values: [18,24,31] }
-};
+
 
 function _drawChart(canvas, labels, values) {
   // Shared draw logic — called with real or mock data
