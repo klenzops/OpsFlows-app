@@ -230,7 +230,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 /* TRANSACTION FILES VIEW */
 .view { display: none; }
 .view.active { display: block; }
-#view-files, #view-agents, #view-audit { padding: 28px 32px 28px 28px; }
+
 .view-header { margin-bottom: 24px; }
 .view-title { font-size: 20px; font-weight: 600; letter-spacing: -.4px; margin-bottom: 4px; }
 .view-sub { font-size: 13px; color: var(--text-tertiary); }
@@ -719,6 +719,27 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .upload-popup-drop.drag {
   border-color: var(--blue);
   background: #f4f8ff;
+}
+
+
+.txn-files-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+#view-files, #view-agents, #view-audit {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+}
+#view-files .files-grid {
+  flex: 1;
+  overflow-y: auto;
 }
 
 </style>
@@ -1543,55 +1564,46 @@ function renderFilesView(filter) {
 
   const needAction = S.files.filter(f => f.status === 'missing' || f.status === 'flagged').length;
 
-  listEl.innerHTML = `
-    <div class="view-header">
-      <div class="view-title">Transaction Files</div>
-      <div class="view-sub">${S.files.length} active files · Click to view documents</div>
-    </div>
-    <div class="files-view-header">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div class="search-bar">
-          <i class="ti ti-search"></i>
-          <input type="text" id="files-search" placeholder="Search by address or broker..." oninput="renderFilesView()" value="${search}">
-        </div>
-        ${needAction > 0 ? `<div class="filter-pill ${filter === 'action' ? 'active' : ''}" onclick="renderFilesView(${filter === 'action' ? '' : "'action'"})"><i class="ti ti-alert-circle"></i>${needAction} require action</div>` : ''}
-      </div>
-      <div style="font-size:13px;color:var(--text-tertiary)">${files.length} file${files.length !== 1 ? 's' : ''}</div>
-    </div>
-    ${files.length === 0 ? `
-      <div class="coming-soon">
-        <i class="ti ti-folder-off"></i>
-        <h3>No files found</h3>
-        <p>${search ? 'Try a different search term' : 'Upload a document from the Overview to create your first transaction file'}</p>
-      </div>
-    ` : `
-      <div class="files-grid">
-        ${files.map((f, i) => {
+  listEl.innerHTML =
+    '<div class="txn-files-toolbar">' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<div class="search-bar">' +
+          '<i class="ti ti-search"></i>' +
+          '<input type="text" id="files-search" placeholder="Search by address or broker..." oninput="renderFilesView()" value="' + search + '">' +
+        '</div>' +
+        (needAction > 0 ? '<div class="filter-pill ' + (filter === 'action' ? 'active' : '') + '" onclick="renderFilesView(' + (filter === 'action' ? '' : "'action'") + ')"><i class="ti ti-alert-circle"></i>' + needAction + ' require action</div>' : '') +
+      '</div>' +
+      '<button class="btn btn-dark" onclick="openUploadPopup()"><i class="ti ti-plus"></i>New File</button>' +
+    '</div>' +
+    (files.length === 0 ?
+      '<div class="coming-soon"><i class="ti ti-folder-off"></i><h3>No files yet</h3></div>'
+    :
+      '<div class="files-grid">' +
+        files.map(function(f, i) {
           const sp = { complete: 'sp-complete', missing: 'sp-missing', flagged: 'sp-flagged', pending: 'sp-pending' }[f.status] || 'sp-pending';
           const sl = { complete: 'Complete', missing: 'Missing docs', flagged: 'Flagged', pending: 'Pending' }[f.status] || f.status;
           const sc = f.score >= 90 ? 'score-hi' : f.score >= 70 ? 'score-mid' : 'score-lo';
-          const contractEnd = f.report?.full_extraction?.['Contract End Date'] || f.extraction?.['Contract End Date'] || null;
-          return `<div class="file-card" onclick="openFileDetail(${S.files.indexOf(f)})">
-            <div class="file-card-left">
-              <div class="file-card-address">${f.property_address}</div>
-              <div class="file-card-meta">
-                <span>${f.txn_number || '—'}</span>
-                <span>·</span>
-                <span>${f.file_type || 'EBCS'}</span>
-                ${contractEnd ? `<span>·</span><span>Expires: ${contractEnd}</span>` : ''}
-              </div>
-            </div>
-            <div class="file-card-right">
-              <div class="file-card-broker">${f.broker_name || '—'}</div>
-              <span class="status-pill ${sp}">${sl}</span>
-              <span class="score ${sc}" style="min-width:36px;text-align:right">${f.score}%</span>
-              <i class="ti ti-chevron-right" style="color:var(--text-tertiary);font-size:14px"></i>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
-    `}
-  `;
+          const contractEnd = (f.report && f.report.full_extraction && f.report.full_extraction['Contract End Date']) || (f.extraction && f.extraction['Contract End Date']) || null;
+          return '<div class="file-card" onclick="openFileDetail(' + S.files.indexOf(f) + ')">' +
+            '<div class="file-card-left">' +
+              '<div class="file-card-address">' + f.property_address + '</div>' +
+              '<div class="file-card-meta">' +
+                '<span>' + (f.txn_number || '—') + '</span>' +
+                '<span>·</span>' +
+                '<span>' + (f.file_type || 'EBCS') + '</span>' +
+                (contractEnd ? '<span>·</span><span>Expires: ' + contractEnd + '</span>' : '') +
+              '</div>' +
+            '</div>' +
+            '<div class="file-card-right">' +
+              '<div class="file-card-broker">' + (f.broker_name || '—') + '</div>' +
+              '<span class="status-pill ' + sp + '">' + sl + '</span>' +
+              '<span class="score ' + sc + '" style="min-width:36px;text-align:right">' + f.score + '%</span>' +
+              '<i class="ti ti-chevron-right" style="color:var(--text-tertiary);font-size:14px"></i>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
+      '</div>'
+    );
 }
 
 function openFileDetail(fileIdx) {
