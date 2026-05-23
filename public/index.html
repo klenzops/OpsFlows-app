@@ -111,7 +111,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
 
 /* CONTENT */
-.content { padding: 0; flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.content { padding: 0; flex: 1; overflow: hidden; position: relative; }
 
 /* STAT CARDS */
 .stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 32px; }
@@ -228,7 +228,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .toast { position: fixed; bottom: 24px; right: 24px; background: var(--accent); color: white; padding: 10px 16px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; z-index: 999; display: none; box-shadow: var(--shadow-md); letter-spacing: -.01em; }
 
 /* TRANSACTION FILES VIEW */
-.view { display: none; }
+.view { display: none; position: absolute; inset: 0; overflow: hidden; }
 .view.active { display: flex; flex-direction: column; }
 
 .view-header { margin-bottom: 24px; }
@@ -286,7 +286,6 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 #view-overview {
   display: flex;
   flex-direction: column;
-  height: 100%;
   overflow: hidden;
   padding: 0;
 }
@@ -723,7 +722,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 
 
 
-#view-files, #view-agents, #view-audit { height: 100%; overflow: hidden; }
+#view-files, #view-agents, #view-audit { background: var(--bg); }
 .files-list-wrap { flex: 1; overflow-y: auto; padding: 0 24px 24px; }
 
 
@@ -840,7 +839,8 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       </div>
     </div>
 
-    <div class="content" id="main-content"><div class="view active" id="view-overview">
+    <div class="content" id="main-content">
+    <div class="view active" id="view-overview">
 
       <div class="ov-composition">
 
