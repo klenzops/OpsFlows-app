@@ -1126,6 +1126,66 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 /* Field margin */
 .field { margin-bottom: 14px; }
 
+
+/* Help page */
+.help-page {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 48px;
+  padding: 32px 40px;
+  max-width: 860px;
+  height: 100%;
+}
+.help-form-col { display: flex; flex-direction: column; }
+.help-contact-col {
+  padding-top: 44px;
+  border-left: 0.5px solid var(--border-light);
+  padding-left: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Document select checkbox */
+.doc-checkbox {
+  width: 15px; height: 15px; cursor: pointer; accent-color: var(--accent);
+  flex-shrink: 0;
+}
+.doc-select-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  background: var(--bg);
+  border: 0.5px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+.doc-select-bar .btn { padding: 5px 10px; font-size: 12px; }
+.doc-bulk-actions {
+  display: none !important;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: var(--accent);
+  border-radius: var(--radius-sm);
+  animation: fadeIn .15s ease;
+}
+.doc-bulk-actions[style*='flex'] { display: flex !important; }
+.doc-bulk-actions span { font-size: 12.5px; color: white; font-weight: 500; margin-right: 4px; }
+.doc-bulk-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: 500;
+  cursor: pointer; border: none; font-family: inherit;
+  background: rgba(255,255,255,.15); color: white; transition: background .12s;
+}
+.doc-bulk-btn:hover { background: rgba(255,255,255,.25); }
+.doc-bulk-btn.danger { background: rgba(185,28,28,.7); }
+.doc-bulk-btn.danger:hover { background: rgba(185,28,28,.9); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
 </style>
 </head>
 <body>
@@ -1209,7 +1269,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   </div>
 
   <div class="main">
-    <div class="topbar">
+    <div class="topbar" id="main-topbar" style="display:none">
       <div class="topbar-left">
         <div class="topbar-title" id="topbar-title">Compliance Overview</div>
         <div class="topbar-sub" id="topbar-sub">May 2026 · <span id="topbar-active-count">0</span> active files · Synced just now</div>
@@ -1451,10 +1511,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
     <div class="view" id="view-brokers">
       <div class="pg-brokers">
         <div class="pg-brokers-header">
-          <div>
-            <div class="topbar-title">Brokers</div>
-            <div class="topbar-sub" id="brokers-count">Populated from uploaded files</div>
-          </div>
+          <div class="topbar-sub" id="brokers-count">Populated from uploaded files</div>
           <button class="btn btn-dark" onclick="document.getElementById('add-broker-overlay').classList.add('open')"><i class="ti ti-plus"></i>Add Broker</button>
         </div>
         <div id="brokers-list"></div>
@@ -1462,13 +1519,30 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
     </div>
 
     <div class="view" id="view-help">
-      <div class="pg-empty">
-        <i class="ti ti-headset" style="font-size:52px;color:var(--text-tertiary);margin-bottom:20px"></i>
-        <div class="pg-empty-title" style="margin-bottom:8px">Need assistance?</div>
-        <div class="pg-empty-sub" style="max-width:340px;line-height:1.8">
-          Please prioritize email for all support requests.<br><br>
-          <a href="mailto:lena@opsflows.ca" style="color:var(--blue);font-weight:500;text-decoration:none">lena@opsflows.ca</a><br>
-          <span style="font-size:12px;color:var(--text-tertiary)">For emergencies only:</span> <a href="tel:5145692519" style="color:var(--text-primary);font-weight:500;text-decoration:none">514 569 2519</a>
+      <div class="help-page">
+        <div class="help-form-col">
+          <div style="font-size:22px;font-weight:600;letter-spacing:-.4px;margin-bottom:6px">Get in touch</div>
+          <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:28px">Share your feedback, request support, or describe your situation — we respond quickly.</div>
+          <div style="margin-bottom:16px">
+            <label for="help-subject" style="display:block;font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px">Subject</label>
+            <input id="help-subject" type="text" placeholder="e.g. Issue with verification report, Feature request..." style="width:100%;padding:10px 14px;border:0.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:13.5px;font-family:inherit;color:var(--text-primary);background:var(--surface);outline:none;transition:border-color .15s" onfocus="this.style.borderColor='#a1a1aa'" onblur="this.style.borderColor=''">
+          </div>
+          <div style="margin-bottom:20px">
+            <label for="help-message" style="display:block;font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px">Message</label>
+            <textarea id="help-message" rows="6" placeholder="Feel free to give feedback, request support, or explain your situation in detail so we can act right away..." style="width:100%;padding:10px 14px;border:0.5px solid var(--border-light);border-radius:var(--radius-sm);font-size:13.5px;font-family:inherit;color:var(--text-primary);background:var(--surface);outline:none;resize:vertical;transition:border-color .15s;line-height:1.6" onfocus="this.style.borderColor='#a1a1aa'" onblur="this.style.borderColor=''"></textarea>
+          </div>
+          <button class="btn btn-dark" onclick="submitHelpForm()" style="width:100%;justify-content:center;padding:11px"><i class="ti ti-send"></i>Send Message</button>
+        </div>
+        <div class="help-contact-col">
+          <div style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px">Direct Contact</div>
+          <div style="margin-bottom:20px">
+            <div style="font-size:11.5px;color:var(--text-tertiary);margin-bottom:4px">Email</div>
+            <a href="mailto:lena@opsflows.ca" style="font-size:14px;font-weight:500;color:var(--text-primary);text-decoration:none">lena@opsflows.ca</a>
+          </div>
+          <div>
+            <div style="font-size:11.5px;color:var(--text-tertiary);margin-bottom:4px">Phone <span style="font-size:11px">(emergencies only)</span></div>
+            <a href="tel:5145692519" style="font-size:14px;font-weight:500;color:var(--text-primary);text-decoration:none">(514) 569-2519</a>
+          </div>
         </div>
       </div>
     </div>
@@ -1519,16 +1593,23 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       </div>
       <button class="modal-close" onclick="closeOverlay('delete-overlay')"><i class="ti ti-x"></i></button>
     </div>
-    <div class="upload-popup-body">
-      <div style="background:var(--red-bg);border-radius:var(--radius-md);padding:14px 16px;font-size:13px;color:#7f1d1d;line-height:1.6">
-        <strong>Are you sure you want to delete this file?</strong><br>
-        The file will be removed from your dashboard immediately. You have <strong>7 days</strong> to contact OpsFlows support to reverse this action. After 7 days, the file and all associated documents will be permanently deleted and cannot be recovered.
+    <div class="upload-popup-body" style="padding:28px 28px 24px">
+      <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:20px">
+        <i class="ti ti-alert-circle" style="font-size:28px;color:var(--red);flex-shrink:0;margin-top:2px"></i>
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:8px">Are you sure?</div>
+          <div style="font-size:13.5px;color:var(--text-secondary);line-height:1.7">
+            This will remove the file from your dashboard immediately.<br>
+            You have <strong style="color:var(--text-primary)">7 days</strong> to contact OpsFlows support to reverse this action.<br>
+            After 7 days, the file and all associated documents are <strong style="color:var(--text-primary)">permanently deleted</strong> and cannot be recovered.
+          </div>
+          <div id="delete-file-info" style="font-size:12.5px;color:var(--text-tertiary);margin-top:10px;padding:8px 12px;background:var(--bg);border-radius:var(--radius-sm)"></div>
+        </div>
       </div>
-      <div id="delete-file-info" style="font-size:13px;color:var(--text-secondary);padding:4px 0"></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+      <div style="display:flex;gap:8px;justify-content:flex-end">
         <button class="btn" onclick="closeOverlay('delete-overlay')">Cancel</button>
         <button class="btn" style="background:var(--red);color:white;border-color:var(--red)" onclick="executeDelete()">
-          <i class="ti ti-trash"></i>Delete File
+          <i class="ti ti-trash"></i>Delete
         </button>
       </div>
     </div>
@@ -2032,7 +2113,7 @@ function navTo(view) {
   if (newFileBtn) newFileBtn.style.display = '';
 
   S.currentView = view;
-  const tb = document.querySelector('.topbar');
+  const tb = document.getElementById('main-topbar');
   if (tb) tb.style.display = view === 'overview' ? 'none' : '';
   if (view === 'files') renderFilesView();
   if (view === 'audit') renderAuditLog();
@@ -2350,27 +2431,28 @@ function openTxfDetail(idx) {
   const detailEl = document.getElementById('txf-detail');
   listEl.style.display = 'none';
   detailEl.style.display = '';
+  window._currentDetailIdx = idx;
 
-  const sp = { complete: 'sp-complete', missing: 'sp-missing', flagged: 'sp-flagged', pending: 'sp-pending' }[f.status] || 'sp-pending';
-  const sl = { complete: 'Complete', missing: 'Missing docs', flagged: 'Flagged', pending: 'Pending' }[f.status] || f.status;
+  const sp = { complete:'sp-complete', missing:'sp-missing', flagged:'sp-flagged', pending:'sp-pending' }[f.status] || 'sp-pending';
+  const sl = { complete:'Complete', missing:'Missing docs', flagged:'Flagged', pending:'Pending' }[f.status] || f.status;
   const sc = f.score >= 90 ? 'score-hi' : f.score >= 70 ? 'score-mid' : 'score-lo';
 
-  // Build docs list — each file is one document for now
-  const docsHtml = '<div class="txf-doc-row" onclick="openReport(S.files[' + idx + '])">' +
-    '<div class="txf-doc-left">' +
-      '<div class="txf-doc-icon"><i class="ti ti-file-text"></i></div>' +
-      '<div>' +
-        '<div class="txf-doc-name">' + (f.file_type || 'EBCS') + ' — ' + (f.filename || 'Document') + '</div>' +
-        '<div class="txf-doc-date">Verified ' + new Date(f.created_at).toLocaleDateString('en-CA') + ' at ' + new Date(f.created_at).toLocaleTimeString('en-CA', {hour:'2-digit',minute:'2-digit'}) + '</div>' +
+  const docRow =
+    '<div class="txf-doc-row">' +
+      '<div class="txf-doc-left">' +
+        '<input type="checkbox" class="doc-checkbox" id="doc-cb-0" onchange="updateDocSelection()" title="Select">' +
+        '<div class="txf-doc-icon"><i class="ti ti-file-text"></i></div>' +
+        '<div style="cursor:pointer" onclick="openReport(S.files[' + idx + '])">' +
+          '<div class="txf-doc-name">' + (f.file_type || 'EBCS') + ' — ' + (f.filename || 'Document') + '</div>' +
+          '<div class="txf-doc-date">Verified ' + new Date(f.created_at).toLocaleDateString('en-CA') + ' at ' + new Date(f.created_at).toLocaleTimeString('en-CA', {hour:'2-digit',minute:'2-digit'}) + '</div>' +
+        '</div>' +
       '</div>' +
-    '</div>' +
-    '<div style="display:flex;align-items:center;gap:10px">' +
-      '<span class="score ' + sc + '" style="font-size:13px">' + f.score + '%</span>' +
-      '<span class="status-pill ' + sp + '" style="font-size:10.5px">' + sl + '</span>' +
-      '<i class="ti ti-chevron-right" style="color:var(--text-tertiary);font-size:13px"></i>' +
-      '<button class="del-btn" onclick="event.stopPropagation();confirmDelete(' + S.files.indexOf(f) + ')" title="Delete"><i class="ti ti-trash"></i></button>' +
-    '</div>' +
-  '</div>';
+      '<div style="display:flex;align-items:center;gap:10px">' +
+        '<span class="score ' + sc + '" style="font-size:13px">' + f.score + '%</span>' +
+        '<span class="status-pill ' + sp + '" style="font-size:10.5px">' + sl + '</span>' +
+        '<button class="del-btn" onclick="confirmDeleteDoc(' + idx + ')" title="Delete document"><i class="ti ti-trash"></i></button>' +
+      '</div>' +
+    '</div>';
 
   detailEl.innerHTML =
     '<div class="txf-detail-back" onclick="renderFilesView()"><i class="ti ti-arrow-left"></i> Transaction Files</div>' +
@@ -2383,10 +2465,45 @@ function openTxfDetail(idx) {
           (f.cadastral_number ? '<span class="txf-detail-tag"><i class="ti ti-map-pin"></i>Cadastral: ' + f.cadastral_number + '</span>' : '') +
         '</div>' +
       '</div>' +
-      '<span class="status-pill ' + sp + '">' + sl + '</span>' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<span class="status-pill ' + sp + '">' + sl + '</span>' +
+        '<button class="del-btn" onclick="confirmDelete(' + idx + ')" title="Delete file" style="font-size:15px"><i class="ti ti-trash"></i></button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="doc-bulk-actions" id="doc-bulk-bar">' +
+      '<span id="doc-sel-count" style="font-size:12.5px;color:white;font-weight:500;margin-right:4px">0 selected</span>' +
+      '<button class="doc-bulk-btn" onclick="openReport(S.files[window._currentDetailIdx])"><i class="ti ti-file-text"></i>View Report</button>' +
+      '<button class="doc-bulk-btn" onclick="exportData()"><i class="ti ti-download"></i>Export</button>' +
+      '<button class="doc-bulk-btn" onclick="window.open(buildCompleteEmail(S.files[window._currentDetailIdx]))"><i class="ti ti-mail"></i>Email</button>' +
+      '<button class="doc-bulk-btn danger" onclick="confirmDelete(window._currentDetailIdx)"><i class="ti ti-trash"></i>Delete</button>' +
     '</div>' +
     '<div class="txf-docs-label">Documents in this file</div>' +
-    docsHtml;
+    docRow;
+}
+
+function updateDocSelection() {
+  const checked = document.querySelectorAll('.doc-checkbox:checked').length;
+  const bar = document.getElementById('doc-bulk-bar');
+  const countEl = document.getElementById('doc-sel-count');
+  if (bar) { if (checked > 0) { bar.style.display='flex'; } else { bar.style.display='none'; } }
+  if (countEl) countEl.textContent = checked + ' selected';
+}
+
+function confirmDeleteDoc(docIdx) {
+  _deleteIdx = docIdx;
+  const f = S.files[docIdx];
+  const el = document.getElementById('delete-file-info');
+  if (el) el.textContent = 'Document: ' + (f.file_type || 'EBCS') + ' — ' + (f.filename || 'Document');
+  document.getElementById('delete-overlay').classList.add('open');
+}
+
+function submitHelpForm() {
+  const subject = document.getElementById('help-subject') ? document.getElementById('help-subject').value.trim() : '';
+  const message = document.getElementById('help-message') ? document.getElementById('help-message').value.trim() : '';
+  if (!subject || !message) { toast('Please fill in both fields'); return; }
+  const body = 'Subject: ' + subject + '\n\n' + message;
+  window.open('mailto:lena@opsflows.ca?subject=' + encodeURIComponent('[OpsFlows Support] ' + subject) + '&body=' + encodeURIComponent(body));
+  toast('Opening your email client…');
 }
 
 // ── BROKERS VIEW ──────────────────────────────────────────────
@@ -2704,7 +2821,7 @@ function buildCompleteEmail(f) {
 
 checkSession();
 renderDash();
-const _tb = document.querySelector('.topbar'); if (_tb) _tb.style.display = 'none';
+const _tb = document.getElementById('main-topbar'); if (_tb) _tb.style.display = 'none';
 </script>
 </body>
 </html>
