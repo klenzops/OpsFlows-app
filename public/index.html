@@ -1704,6 +1704,7 @@ function renderDash() {
 
   drawDonut(complete, pending, missing + flagged);
   renderTable();
+  setTimeout(() => drawTxnChart(currentPeriod), 50);
 }
 
 function drawDonut(c, p, m) {
@@ -2035,11 +2036,7 @@ function toggleAgent(checkbox, agentName) {
 }
 
 // Draw chart after render
-const _origRenderDash = renderDash;
-function renderDash() {
-  _origRenderDash();
-  setTimeout(() => drawTxnChart(currentPeriod), 50);
-}
+
 
 
 function openUploadPopup() {
