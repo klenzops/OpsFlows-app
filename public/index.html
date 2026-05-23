@@ -1144,12 +1144,11 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
     <div class="topbar">
       <div class="topbar-left">
         <div class="topbar-title" id="topbar-title">Compliance Overview</div>
-        <div class="topbar-sub" id="topbar-sub">May 2026 · <span id="active-count">0</span> active files · Synced just now</div>
+        <div class="topbar-sub" id="topbar-sub">May 2026 · <span id="topbar-active-count">0</span> active files · Synced just now</div>
       </div>
       <div class="topbar-right">
         <div class="live-pill"><div class="live-dot"></div>LIVE</div>
         <button class="btn" onclick="exportData()"><i class="ti ti-download"></i>Export</button>
-        <button class="btn btn-dark" onclick="scrollToUpload()"><i class="ti ti-plus"></i>New File</button>
       </div>
     </div>
 
@@ -1167,7 +1166,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
         <div class="ov-header-right">
           <div class="live-pill"><div class="live-dot"></div>LIVE</div>
           <button class="btn" onclick="exportData()"><i class="ti ti-download"></i>Export</button>
-          <button class="btn btn-dark" onclick="scrollToUpload()"><i class="ti ti-plus"></i>New File</button>
+          <button class="btn btn-dark" onclick="openUploadPopup()"><i class="ti ti-plus"></i>New File</button>
         </div>
       </div>
 
@@ -1302,12 +1301,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 
       </div><!-- end ov-composition -->
 
-      <!-- Hidden upload inputs still needed for Transaction Files view -->
-      <input type="file" id="file-in" style="display:none" accept=".pdf,.png,.jpg,.jpeg" onchange="onFile(this.files[0])">
-      <div class="processing" id="proc" style="display:none">
-        <div class="proc-filename" id="proc-name"></div>
-        <div id="proc-steps"></div>
-      </div>
+
 
     </div><!-- end view-overview -->
 
@@ -1466,7 +1460,7 @@ function toast(msg) {
   setTimeout(() => t.style.display = 'none', 3000);
 }
 function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
-function scrollToUpload() { document.getElementById('upload-card').scrollIntoView({ behavior: 'smooth' }); }
+function scrollToUpload() { openUploadPopup(); }
 
 // --- AUTH ---
 function toggleForm(form) {
@@ -1712,6 +1706,7 @@ function renderDash() {
   document.getElementById('s-awaiting').textContent = missing;
   document.getElementById('s-flagged').textContent = flagged;
   document.getElementById('active-count').textContent = S.files.length;
+  const tac = document.getElementById('topbar-active-count'); if(tac) tac.textContent = S.files.length;
   document.getElementById('files-badge').textContent = S.files.length;
   document.getElementById('ag-v').textContent = S.checks;
 
@@ -1934,221 +1929,14 @@ function navTo(view) {
 // ============================================================
 // TRANSACTION FILES VIEW
 // ============================================================
-function renderFilesView(filter) {
-  const listEl = document.getElementById('txn-files-list-view');
-  const detailEl = document.getElementById('txn-file-detail-view');
-  listEl.style.display = 'flex';
-  listEl.style.flexDirection = 'column';
-  detailEl.style.display = 'none';
 
-  const search = (document.getElementById('files-search')?.value || '').toLowerCase();
-  let files = S.files;
-  if (filter === 'action') files = files.filter(f => f.status === 'missing' || f.status === 'flagged');
-  if (search) files = files.filter(f =>
-    (f.property_address || '').toLowerCase().includes(search) ||
-    (f.broker_name || '').toLowerCase().includes(search) ||
-    (f.txn_number || '').toLowerCase().includes(search)
-  );
-  const needAction = S.files.filter(f => f.status === 'missing' || f.status === 'flagged').length;
 
-  // Cards HTML
-  const cardsHtml = files.length === 0
-    ? '<div class="coming-soon"><i class="ti ti-folder-off"></i><h3>No files yet</h3></div>'
-    : files.map(function(f) {
-        const sp = { complete: 'sp-complete', missing: 'sp-missing', flagged: 'sp-flagged', pending: 'sp-pending' }[f.status] || 'sp-pending';
-        const sl = { complete: 'Complete', missing: 'Missing docs', flagged: 'Flagged', pending: 'Pending' }[f.status] || f.status;
-        const sc = f.score >= 90 ? 'score-hi' : f.score >= 70 ? 'score-mid' : 'score-lo';
-        const contractEnd = (f.extraction && f.extraction['Contract End Date']) || null;
-        return '<div class="file-card" onclick="openFileDetail(' + S.files.indexOf(f) + ')">' +
-          '<div class="file-card-left">' +
-            '<div class="file-card-address">' + (f.property_address || '—') + '</div>' +
-            '<div class="file-card-meta">' +
-              '<span>' + (f.txn_number || '—') + '</span><span>·</span>' +
-              '<span>' + (f.file_type || 'EBCS') + '</span>' +
-              (contractEnd ? '<span>·</span><span>Expires: ' + contractEnd + '</span>' : '') +
-            '</div>' +
-          '</div>' +
-          '<div class="file-card-right">' +
-            '<div class="file-card-broker">' + (f.broker_name || '—') + '</div>' +
-            '<span class="status-pill ' + sp + '">' + sl + '</span>' +
-            '<span class="score ' + sc + '" style="min-width:36px;text-align:right">' + f.score + '%</span>' +
-            '<i class="ti ti-chevron-right" style="color:var(--text-tertiary);font-size:14px"></i>' +
-          '</div>' +
-        '</div>';
-      }).join('');
 
-  listEl.innerHTML =
-    '<div class="txf-toolbar">' +
-      '<div style="display:flex;align-items:center;gap:8px">' +
-        '<div class="search-bar">' +
-          '<i class="ti ti-search"></i>' +
-          '<input type="text" id="files-search" placeholder="Search files..." oninput="renderFilesView()" value="' + search + '">' +
-        '</div>' +
-        (needAction > 0
-          ? '<div class="filter-pill ' + (filter === 'action' ? 'active' : '') + '" onclick="renderFilesView(' + (filter === 'action' ? '' : "'action'") + ')"><i class="ti ti-alert-circle"></i>' + needAction + ' require action</div>'
-          : '') +
-      '</div>' +
-      '<button class="btn btn-dark" onclick="openUploadPopup()"><i class="ti ti-plus"></i>New File</button>' +
-    '</div>' +
-    '<div class="txf-cards">' + cardsHtml + '</div>';
-}
 
-function openFileDetail(fileIdx) {
-  const f = S.files[fileIdx];
-  const listEl = document.getElementById('txn-files-list-view');
-  const detailEl = document.getElementById('txn-file-detail-view');
-  listEl.style.display = 'none';
-  detailEl.style.display = '';
 
-  const sp = { complete: 'sp-complete', missing: 'sp-missing', flagged: 'sp-flagged', pending: 'sp-pending' }[f.status] || 'sp-pending';
-  const sl = { complete: 'Complete', missing: 'Missing docs', flagged: 'Flagged', pending: 'Pending' }[f.status] || f.status;
-  const contractEnd = f.report?.full_extraction?.['Contract End Date'] || f.extraction?.['Contract End Date'] || null;
-  const cadastral = f.cadastral_number || f.report?.cadastral_number || '—';
-  const dsNum = f.report?.check_results?.find(r => r.rule === 'Declaration Seller (DS) Number')?.value || '—';
 
-  detailEl.innerHTML = `
-    <div class="back-btn" onclick="renderFilesView()">
-      <i class="ti ti-arrow-left"></i> Back to Transaction Files
-    </div>
-    <div class="file-detail-header">
-      <div>
-        <div class="file-detail-title">${f.property_address}</div>
-        <div class="file-detail-meta">
-          <span class="file-detail-tag"><i class="ti ti-hash"></i>${f.txn_number || '—'}</span>
-          <span class="file-detail-tag"><i class="ti ti-user"></i>${f.broker_name || '—'}</span>
-          ${cadastral !== '—' ? `<span class="file-detail-tag"><i class="ti ti-map-pin"></i>Cadastral: ${cadastral}</span>` : ''}
-          ${contractEnd ? `<span class="file-detail-tag"><i class="ti ti-calendar"></i>Expires: ${contractEnd}</span>` : ''}
-          ${dsNum !== '—' ? `<span class="file-detail-tag"><i class="ti ti-file-text"></i>DS: ${dsNum}</span>` : ''}
-        </div>
-      </div>
-      <span class="status-pill ${sp}">${sl}</span>
-    </div>
 
-    <div style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px">Documents in this file</div>
-    <div class="docs-list" id="docs-list-${fileIdx}">
-      <div class="doc-row" onclick="openReport(S.files[${fileIdx}])">
-        <div class="doc-row-left">
-          <div class="doc-row-icon"><i class="ti ti-file-text"></i></div>
-          <div>
-            <div class="doc-row-name">${f.file_type || 'EBCS'} — ${f.filename || 'Document'}</div>
-            <div class="doc-row-date">Verified ${new Date(f.created_at).toLocaleDateString('en-CA')} at ${new Date(f.created_at).toLocaleTimeString('en-CA', {hour:'2-digit',minute:'2-digit'})}</div>
-          </div>
-        </div>
-        <div class="doc-row-right">
-          <span class="score ${f.score >= 90 ? 'score-hi' : f.score >= 70 ? 'score-mid' : 'score-lo'}">${f.score}%</span>
-          <span class="status-pill ${sp}" style="font-size:11px">${sl}</span>
-          <i class="ti ti-chevron-right" style="color:var(--text-tertiary);font-size:14px"></i>
-        </div>
-      </div>
-    </div>
-
-    <div style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;margin-top:24px">Add document to this file</div>
-    <div style="margin-bottom:12px">
-      <div style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Document type</div>
-      <div class="doc-types" id="detail-doc-types">
-        <button class="doc-type active" onclick="selDocDetail(this,'EBCS')">EBCS</button>
-        <button class="doc-type" onclick="selDocDetail(this,'Brokerage Contract')">Brokerage Contract</button>
-        <button class="doc-type" onclick="selDocDetail(this,'Deed of Sale')">Deed of Sale</button>
-        <button class="doc-type" onclick="selDocDetail(this,'Seller Declaration')">Seller Declaration</button>
-        <button class="doc-type" onclick="selDocDetail(this,'Municipal Taxes')">Municipal Taxes</button>
-        <button class="doc-type" onclick="selDocDetail(this,'Certificate of Location')">Cert. of Location</button>
-      </div>
-    </div>
-    <div class="add-doc-zone" onclick="document.getElementById('detail-file-input-${fileIdx}').click()"
-      ondragover="event.preventDefault();this.style.borderColor='var(--blue)'"
-      ondragleave="this.style.borderColor=''"
-      ondrop="handleDetailDrop(event, ${fileIdx})">
-      <i class="ti ti-cloud-upload"></i>
-      <p>Click to upload or drag & drop</p>
-      <span>PDF, PNG, JPG — max 20MB</span>
-    </div>
-    <input type="file" id="detail-file-input-${fileIdx}" style="display:none" accept=".pdf,.png,.jpg,.jpeg" onchange="handleDetailFile(this.files[0], ${fileIdx})">
-    <div class="processing" id="detail-proc-${fileIdx}" style="margin-top:12px">
-      <div class="proc-filename" id="detail-proc-name-${fileIdx}"></div>
-      <div id="detail-proc-steps-${fileIdx}"></div>
-    </div>
-  `;
-
-  S.currentFileIdx = fileIdx;
-}
-
-function selDocDetail(btn, type) {
-  document.querySelectorAll('#detail-doc-types .doc-type').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  S.docType = type;
-}
-
-function handleDetailDrop(e, fileIdx) {
-  e.preventDefault();
-  const f = e.dataTransfer.files[0];
-  if (f) handleDetailFile(f, fileIdx);
-}
-
-async function handleDetailFile(file, fileIdx) {
-  if (!file) return;
-  const proc = document.getElementById('detail-proc-' + fileIdx);
-  const procName = document.getElementById('detail-proc-name-' + fileIdx);
-  const procSteps = document.getElementById('detail-proc-steps-' + fileIdx);
-  proc.style.display = 'block';
-  procName.textContent = '📄 ' + file.name;
-
-  const setDetailSteps = (active, done) => {
-    const labels = ['Uploading to Reducto…', 'Extracting document fields…', 'Verifying compliance…', 'Saving to file…'];
-    procSteps.innerHTML = labels.map((l, i) => {
-      let cls = 'ps-wait', ic = 'ti-circle';
-      if (i < done) { cls = 'ps-done'; ic = 'ti-circle-check'; }
-      else if (i === active) { cls = 'ps-active'; ic = 'ti-loader'; }
-      return `<div class="proc-step ${cls}"><i class="ti ${ic}"></i>${l}</div>`;
-    }).join('');
-  };
-
-  try {
-    setDetailSteps(0, 0); await sleep(200);
-    const fd = new FormData(); fd.append('file', file);
-    const r = await fetch('/api/reducto', { method: 'POST', headers: { 'x-doc-type': S.docType }, body: fd });
-    if (!r.ok) throw new Error(await r.text());
-    const result = await r.json();
-    if (result.error) throw new Error(result.error);
-    setDetailSteps(1, 1); await sleep(200);
-    setDetailSteps(2, 2); await sleep(200);
-    setDetailSteps(3, 3); await sleep(200);
-
-    const report = result.report;
-    const extraction = result.extraction;
-    const parentFile = S.files[fileIdx];
-
-    // Create new doc entry linked to this file
-    const newDoc = {
-      id: 'local-' + Date.now(),
-      txn_number: parentFile.txn_number,
-      property_address: parentFile.property_address,
-      broker_name: parentFile.broker_name,
-      seller_name: report.seller_name || parentFile.seller_name,
-      contract_number: parentFile.contract_number,
-      cadastral_number: parentFile.cadastral_number,
-      file_type: S.docType,
-      status: report.verdict === 'COMPLETE' ? 'complete' : report.verdict === 'FLAGGED' ? 'flagged' : 'missing',
-      score: report.score || 0,
-      report, extraction, filename: file.name, file_id: result.file_id,
-      created_at: new Date().toISOString(),
-      parent_file_id: parentFile.sb_id || parentFile.id
-    };
-
-    // Add to S.files and save
-    S.files.unshift(newDoc);
-    S.checks += report.checks_run || 1;
-    await saveFile(newDoc, extraction);
-
-    proc.style.display = 'none';
-    renderDash();
-    toast('✓ Document verified and added to file');
-    openFileDetail(fileIdx + 1); // re-render detail with new doc at top
-    openReport(newDoc);
-  } catch(e) {
-    proc.style.display = 'none';
-    alert('Error: ' + e.message);
-  }
-}
+async 
 
 // ============================================================
 // AUDIT LOG VIEW
