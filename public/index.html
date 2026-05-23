@@ -441,6 +441,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .ov-table-panel .ov-table-wrap {
   flex: 1;
@@ -452,8 +453,8 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  flex-shrink: 0;
-  height: 200px;
+  flex: 1;
+  min-height: 0;
 }
 .ov-chart-panel, .ov-agents-panel {
   background: var(--surface);
