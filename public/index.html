@@ -501,6 +501,21 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
 .sb-user-top .user-name { font-size: 12.5px; font-weight: 500; color: #d0d0ce; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sb-user-top .user-email { font-size: 11px; color: #555553; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+
+.sidebar-user-top {
+  padding: 10px 8px 8px;
+  border-bottom: 1px solid #ffffff0f;
+}
+.sidebar-user-top .user-row {
+  padding: 7px 9px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+}
+.sidebar-user-top .user-row:hover { background: #ffffff0d; }
+
 </style>
 </head>
 <body>
@@ -556,6 +571,16 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
       </div>
     </div>
 
+    <div class="sidebar-user-top">
+      <div class="user-row" onclick="handleSignOut()">
+        <div class="user-avatar" id="user-avatar-top">—</div>
+        <div style="min-width:0;flex:1">
+          <div class="user-name" id="user-name-top">—</div>
+          <div class="user-email" id="user-email-top">—</div>
+        </div>
+        <i class="ti ti-chevron-up-down" style="font-size:12px;color:#444442;flex-shrink:0"></i>
+      </div>
+    </div>
     <nav class="nav">
       <div class="nav-section">
         <div class="nav-item active" id="nav-overview" onclick="navTo('overview')"><i class="ti ti-home"></i>Home<span class="nav-badge nb-green">Live</span></div>
