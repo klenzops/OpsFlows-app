@@ -478,6 +478,14 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
   background: #f6f6f3;
 }
 
+
+.sidebar-bottom {
+  padding: 6px 8px;
+  border-top: 1px solid #ffffff0f;
+}
+/* Remove top padding on nav since no header above it */
+.nav { padding-top: 14px; }
+
 </style>
 </head>
 <body>
@@ -524,28 +532,9 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
 <!-- APP -->
 <div class="app" id="app">
   <div class="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">
-        <div class="sidebar-logo-icon"><svg viewBox="0 0 16 16"><path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z"/></svg></div>
-        <span>OpsFlows</span>
-      </div>
-    </div>
-
-    <!-- LINK INTEGRATION ROW -->
-    <div style="padding:8px 14px;border-bottom:1px solid #222221">
-      <div style="font-size:10px;font-weight:600;color:#444442;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">Integrations</div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <div style="width:22px;height:22px;background:#ffffff10;border:1px solid #ffffff15;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px">⚡</div>
-        <div style="width:22px;height:22px;background:#ffffff10;border:1px solid #ffffff15;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px">📋</div>
-        <div style="width:22px;height:22px;background:#ffffff10;border:1px solid #ffffff15;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px">📧</div>
-        <div style="margin-left:auto;font-size:10px;color:#444442;cursor:pointer">+ Connect</div>
-      </div>
-    </div>
-
     <nav class="nav">
       <div class="nav-section">
-        <div class="nav-section-label">Workspace</div>
-        <div class="nav-item active" id="nav-overview" onclick="navTo('overview')"><i class="ti ti-layout-dashboard"></i>Overview<span class="nav-badge nb-green">Live</span></div>
+        <div class="nav-item active" id="nav-overview" onclick="navTo('overview')"><i class="ti ti-home"></i>Home<span class="nav-badge nb-green">Live</span></div>
         <div class="nav-item" id="nav-files" onclick="navTo('files')"><i class="ti ti-file-description"></i>Transaction Files<span class="nav-badge nb-red" id="files-badge">0</span></div>
         <div class="nav-item" id="nav-agents" onclick="navTo('agents')"><i class="ti ti-robot"></i>Agents</div>
         <div class="nav-item" id="nav-audit" onclick="navTo('audit')"><i class="ti ti-clipboard-list"></i>Audit Log</div>
@@ -553,12 +542,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
       <div class="nav-section">
         <div class="nav-section-label">Reports</div>
         <div class="nav-item"><i class="ti ti-chart-bar"></i>Analytics</div>
-        <div class="nav-item"><i class="ti ti-download"></i>Export</div>
-      </div>
-      <div class="nav-section">
-        <div class="nav-section-label">Settings</div>
-        <div class="nav-item" onclick="showConfig()"><i class="ti ti-settings"></i>Preferences</div>
-        <div class="nav-item"><i class="ti ti-users"></i>Brokers</div>
+        <div class="nav-item" onclick="navTo('brokers')"><i class="ti ti-users"></i>Brokers</div>
       </div>
     </nav>
     <!-- NOTIFICATION WIDGET -->
@@ -572,6 +556,10 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
       <button class="sb-notif-btn"><i class="ti ti-arrow-right" style="font-size:11px"></i>Learn more</button>
     </div>
 
+    <div class="sidebar-bottom">
+      <div class="nav-item" onclick="showConfig()"><i class="ti ti-settings"></i>Settings</div>
+      <div class="nav-item"><i class="ti ti-help-circle"></i>Help Center</div>
+    </div>
     <div class="sidebar-footer">
       <div class="user-row" onclick="handleSignOut()">
         <div class="user-avatar" id="user-avatar">—</div>
@@ -1203,7 +1191,7 @@ function navTo(view) {
   });
   // Update topbar
   const titles = {
-    overview: 'Compliance Overview',
+    overview: 'Home',
     files: 'Transaction Files',
     agents: 'Agents',
     audit: 'Audit Log'
