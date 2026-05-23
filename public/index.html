@@ -1945,7 +1945,7 @@ async function saveFile(f, extraction) {
 
 async function loadFiles() {
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/transaction_files?order=created_at.desc&limit=50`, {
+    const r = await fetch(`${SB_URL}/rest/v1/transaction_files?status=neq.deleted&order=created_at.desc&limit=50`, {
       headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
     });
     if (r.ok) {
@@ -2418,7 +2418,7 @@ async function onPopupFile(file) {
 
   // Rotating verifying messages
   let _verifyMsgIdx = 0;
-  const _verifyMsgs = ['Verifying…', 'This will take a few seconds…', 'Just a few more seconds…', 'Verifying…', 'Almost there…'];
+  const _verifyMsgs = ['Verifying compliance…', 'This will take a few seconds…', 'Just a few more seconds…', 'Verifying compliance…', 'Almost there…'];
   let _verifyInterval = null;
   function _startVerifyRotation() {
     _verifyMsgIdx = 0;
@@ -2434,24 +2434,17 @@ async function onPopupFile(file) {
   }
 
   const setStepsPopup = (active, done) => {
-    if (active === 2 && done < 3) {
-      // Verifying step — show rotating message
+    if (done < 4) {
       _startVerifyRotation();
-      procSteps.innerHTML =
-        '<div class="proc-step ps-done"><i class="ti ti-circle-check"></i>Uploading to Reducto…</div>' +
-        '<div class="proc-step ps-done"><i class="ti ti-circle-check"></i>Extracting document fields…</div>' +
-        '<div class="proc-step ps-active"><i class="ti ti-loader"></i><span id="verify-rotating-msg">' + _verifyMsgs[0] + '</span></div>' +
-        '<div class="proc-step ps-wait"><i class="ti ti-circle"></i>Saving to dashboard…</div>';
-      return;
+    } else {
+      _stopVerifyRotation();
     }
-    _stopVerifyRotation();
-    const labels = ['Uploading to Reducto…', 'Extracting document fields…', 'Verifying compliance…', 'Saving to dashboard…'];
-    procSteps.innerHTML = labels.map((l, i) => {
-      let cls = 'ps-wait', ic = 'ti-circle';
-      if (i < done) { cls = 'ps-done'; ic = 'ti-circle-check'; }
-      else if (i === active) { cls = 'ps-active'; ic = 'ti-loader'; }
-      return '<div class="proc-step ' + cls + '"><i class="ti ' + ic + '"></i>' + l + '</div>';
-    }).join('');
+    // Single label — just show verifying state
+    if (done >= 4) {
+      procSteps.innerHTML = '<div class="proc-step ps-done"><i class="ti ti-circle-check"></i>Verification complete</div>';
+    } else {
+      procSteps.innerHTML = '<div class="proc-step ps-active"><i class="ti ti-loader"></i><span id="verify-rotating-msg">' + _verifyMsgs[_verifyMsgIdx] + '</span></div>';
+    }
   };
 
   try {
@@ -2707,11 +2700,11 @@ function executeDelete() {
   S.files.splice(_deleteIdx, 1);
   // Mark deleted in Supabase (soft delete via status)
   if (f.sb_id) {
+    // Hard delete from Supabase so it never reappears on login
     fetch(SB_URL + '/rest/v1/transaction_files?id=eq.' + f.sb_id, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY },
-      body: JSON.stringify({ status: 'deleted' })
-    }).catch(e => console.warn('Delete mark:', e));
+      method: 'DELETE',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    }).catch(e => console.warn('Delete:', e));
   }
   closeOverlay('delete-overlay');
   _deleteIdx = null;
