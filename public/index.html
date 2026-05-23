@@ -2616,9 +2616,13 @@ function renderBrokers(alpha) {
 
   // Alpha buttons
   const letters = [...new Set(merged.map(b => b.name[0]?.toUpperCase()).filter(Boolean))].sort();
+  function _alphaBtn(val, label) {
+    var cls = 'broker-alpha-btn' + (_brokerAlpha === val ? ' active' : '');
+    return '<button class="' + cls + '" onclick="renderBrokers(\'' + val + '\')">' + label + '</button>';
+  }
   const alphaHtml = '<div class="broker-alpha-filter">' +
-    '<button class="broker-alpha-btn ' + (_brokerAlpha === 'all' ? 'active' : '') + '" onclick="renderBrokers('all')">All</button>' +
-    letters.map(l => '<button class="broker-alpha-btn ' + (_brokerAlpha === l ? 'active' : '') + '" onclick="renderBrokers('' + l + '')">' + l + '</button>').join('') +
+    _alphaBtn('all', 'All') +
+    letters.map(function(l) { return _alphaBtn(l, l); }).join('') +
     '</div>';
 
   if (!brokers.length) {
