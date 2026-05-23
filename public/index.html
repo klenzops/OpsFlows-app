@@ -552,6 +552,103 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .ov-toggle input:checked + .ov-toggle-track::after { transform: translateX(12px); }
 .ov-toggle input:disabled + .ov-toggle-track { opacity: .4; cursor: not-allowed; }
 
+
+/* ── DARK SIDEBAR ─────────────────────────────────────────── */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: #111110;
+  border-right: none;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.sb-user-top {
+  padding: 12px 8px 10px;
+  border-bottom: 1px solid #ffffff0f;
+  flex-shrink: 0;
+}
+.sb-user-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.sb-user-row:hover { background: #ffffff0d; }
+.sb-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #2a2a28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #888885;
+  flex-shrink: 0;
+}
+.sb-user-info { flex: 1; min-width: 0; }
+.sb-user-name {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #d0d0ce;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sb-user-email {
+  font-size: 11px;
+  color: #555553;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar .nav {
+  flex: 1;
+  padding: 10px 8px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.sidebar .nav-section { margin-bottom: 20px; }
+.sidebar .nav-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #363634;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 0 9px;
+  margin-bottom: 3px;
+}
+.sidebar .nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 9px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  color: #666663;
+  transition: background .12s, color .12s;
+  letter-spacing: -.015em;
+}
+.sidebar .nav-item:hover { background: #ffffff0d; color: #d0d0ce; }
+.sidebar .nav-item.active { background: #ffffff12; color: #ebebе9; font-weight: 500; }
+.sidebar .nav-item i { font-size: 15px; flex-shrink: 0; }
+.sidebar .nav-badge { margin-left: auto; font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 10px; }
+.sidebar .nb-green { background: #16a34a22; color: #4ade80; }
+.sidebar .nb-red { background: #b91c1c22; color: #f87171; }
+.sb-bottom {
+  padding: 6px 8px 10px;
+  border-top: 1px solid #ffffff0f;
+  flex-shrink: 0;
+}
+.sb-bottom .nav-item { color: #555553; }
+.sb-bottom .nav-item:hover { background: #ffffff0d; color: #d0d0ce; }
+
 </style>
 </head>
 <body>
@@ -598,16 +695,23 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 <!-- APP -->
 <div class="app" id="app">
   <div class="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">
-        <div class="sidebar-logo-icon"><svg viewBox="0 0 16 16"><path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z"/></svg></div>
-        <span>OpsFlows</span>
+
+    <!-- TOP: USER INFO -->
+    <div class="sb-user-top">
+      <div class="sb-user-row">
+        <div class="sb-avatar" id="user-avatar">—</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name" id="user-name">—</div>
+          <div class="sb-user-email" id="user-email">—</div>
+        </div>
+        <i class="ti ti-selector" style="font-size:13px;color:#444442;flex-shrink:0"></i>
       </div>
     </div>
-    <nav class="nav">
+
+    <!-- NAV -->
+    <nav class="nav" style="flex:1;padding:10px 8px;overflow-y:auto">
       <div class="nav-section">
-        <div class="nav-section-label">Workspace</div>
-        <div class="nav-item active" id="nav-overview" onclick="navTo('overview')"><i class="ti ti-layout-dashboard"></i>Overview<span class="nav-badge nb-green">Live</span></div>
+        <div class="nav-item active" id="nav-overview" onclick="navTo('overview')"><i class="ti ti-home"></i>Home<span class="nav-badge nb-green">Live</span></div>
         <div class="nav-item" id="nav-files" onclick="navTo('files')"><i class="ti ti-file-description"></i>Transaction Files<span class="nav-badge nb-red" id="files-badge">0</span></div>
         <div class="nav-item" id="nav-agents" onclick="navTo('agents')"><i class="ti ti-robot"></i>Agents</div>
         <div class="nav-item" id="nav-audit" onclick="navTo('audit')"><i class="ti ti-clipboard-list"></i>Audit Log</div>
@@ -615,24 +719,16 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       <div class="nav-section">
         <div class="nav-section-label">Reports</div>
         <div class="nav-item"><i class="ti ti-chart-bar"></i>Analytics</div>
-        <div class="nav-item"><i class="ti ti-download"></i>Export</div>
-      </div>
-      <div class="nav-section">
-        <div class="nav-section-label">Settings</div>
-        <div class="nav-item" onclick="showConfig()"><i class="ti ti-settings"></i>Preferences</div>
         <div class="nav-item"><i class="ti ti-users"></i>Brokers</div>
       </div>
     </nav>
-    <div class="sidebar-footer">
-      <div class="user-row" onclick="handleSignOut()">
-        <div class="user-avatar" id="user-avatar">—</div>
-        <div>
-          <div class="user-name" id="user-name">—</div>
-          <div class="user-email" id="user-email">—</div>
-        </div>
-        <i class="ti ti-logout sign-out"></i>
-      </div>
+
+    <!-- BOTTOM: SETTINGS + HELP -->
+    <div class="sb-bottom">
+      <div class="nav-item" onclick="showConfig()"><i class="ti ti-settings"></i>Settings</div>
+      <div class="nav-item"><i class="ti ti-help-circle"></i>Help Center</div>
     </div>
+
   </div>
 
   <div class="main">
@@ -1292,7 +1388,7 @@ function navTo(view) {
   });
   // Update topbar
   const titles = {
-    overview: 'Compliance Overview',
+    overview: 'Home',
     files: 'Transaction Files',
     agents: 'Agents',
     audit: 'Audit Log'
