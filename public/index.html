@@ -1143,8 +1143,8 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
     <div id="login-form">
       <div class="auth-title">Welcome back</div>
       <div class="auth-sub">Sign in to your compliance dashboard</div>
-      <div class="field"><label>Email address</label><input type="email" id="login-email" placeholder="you@brokerage.ca" autocomplete="email"></div>
-      <div class="field"><label>Password</label><input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="field"><label for="login-email">Email address</label><input type="email" id="login-email" placeholder="you@brokerage.ca" autocomplete="email"></div>
+      <div class="field"><label for="login-password">Password</label><input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"></div>
       <button class="auth-btn" id="login-btn" onclick="handleLogin()">Sign in</button>
       <div class="auth-footer">Don't have an account? <a href="#" onclick="toggleForm('signup')">Create one</a></div>
     </div>
@@ -1153,9 +1153,9 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
     <div id="signup-form" style="display:none">
       <div class="auth-title">Create your account</div>
       <div class="auth-sub">Start verifying compliance documents in minutes</div>
-      <div class="field"><label>Full name</label><input type="text" id="signup-name" placeholder="Marie Tremblay"></div>
-      <div class="field"><label>Email address</label><input type="email" id="signup-email" placeholder="you@brokerage.ca"></div>
-      <div class="field"><label>Password</label><input type="password" id="signup-password" placeholder="Min. 8 characters"></div>
+      <div class="field"><label for="signup-name">Full name</label><input type="text" id="signup-name" placeholder="Marie Tremblay"></div>
+      <div class="field"><label for="signup-email">Email address</label><input type="email" id="signup-email" placeholder="you@brokerage.ca"></div>
+      <div class="field"><label for="signup-password">Password</label><input type="password" id="signup-password" placeholder="Min. 8 characters"></div>
       <button class="auth-btn" id="signup-btn" onclick="handleSignup()">Create account</button>
       <div class="auth-footer">Already have an account? <a href="#" onclick="toggleForm('login')">Sign in</a></div>
     </div>
@@ -1407,10 +1407,12 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
     </div>
 
     <div class="view" id="view-audit">
-      <div class="pg-empty">
-        <i class="ti ti-server" style="font-size:48px;color:var(--text-tertiary);margin-bottom:16px"></i>
-        <div class="pg-empty-title">Audit Log — Coming Soon</div>
-        <div class="pg-empty-sub">Every agent action, verification run, and email sent will be logged here with full timestamps and traceability.</div>
+      <div id="audit-log-content" style="height:100%;overflow-y:auto;padding:20px 24px">
+        <div class="pg-empty">
+          <i class="ti ti-server" style="font-size:48px;color:var(--text-tertiary);margin-bottom:16px"></i>
+          <div class="pg-empty-title">Audit Log — Coming Soon</div>
+          <div class="pg-empty-sub">Every agent action, verification run, and email sent will be logged here with full timestamps and traceability.</div>
+        </div>
       </div>
     </div>
     <div class="view" id="view-analytics">
@@ -1544,13 +1546,13 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       <button class="modal-close" onclick="closeOverlay('add-broker-overlay')"><i class="ti ti-x"></i></button>
     </div>
     <div class="upload-popup-body">
-      <div class="field"><label style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">Full Name</label>
+      <div class="field"><label for="new-broker-name" style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">Full Name</label>
         <input id="new-broker-name" type="text" placeholder="Marie Tremblay" style="width:100%;padding:9px 12px;border:1px solid #e4e4e1;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;color:var(--text-primary)">
       </div>
-      <div class="field"><label style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">OACIQ Licence Number</label>
+      <div class="field"><label for="new-broker-licence" style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">OACIQ Licence Number</label>
         <input id="new-broker-licence" type="text" placeholder="H 1234" style="width:100%;padding:9px 12px;border:1px solid #e4e4e1;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;color:var(--text-primary)">
       </div>
-      <div class="field"><label style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">Email</label>
+      <div class="field"><label for="new-broker-email" style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">Email</label>
         <input id="new-broker-email" type="email" placeholder="broker@brokerage.ca" style="width:100%;padding:9px 12px;border:1px solid #e4e4e1;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;color:var(--text-primary)">
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
@@ -1578,6 +1580,11 @@ const SB_URL = 'https://ipufxgeffnldfnztxitw.supabase.co';
 const SB_KEY = 'sb_publishable_LiEQa4VRHPapcv1MprZfnw_Iw4Ft2Qh';
 
 const S = { files: [], checks: 0, docType: 'EBCS', user: null };
+let txnChart = null;
+let currentPeriod = '7d';
+let _deleteIdx = null;
+let _deleteBrokerIdx = null;
+let _brokerAlpha = 'all';
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function toast(msg) {
@@ -2068,7 +2075,6 @@ async function renderAuditLog() {
 }
 
 // ── TRANSACTION VOLUME CHART ──────────────────────────────────
-let txnChart = null;
 const chartData = {
   '7d':  { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], values: [2,3,1,4,3,2,5] },
   '30d': { labels: ['W1','W2','W3','W4'], values: [8,12,7,14] },
@@ -2198,7 +2204,6 @@ function drawTxnChart(period) {
   }
 }
 
-let currentPeriod = '7d';
 function switchPeriod(btn, period) {
   document.querySelectorAll('.ov-period').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -2454,7 +2459,6 @@ function drawAnalyticsDonut() {
 
 
 // ── DELETE FILE ───────────────────────────────────────────────
-let _deleteIdx = null;
 function confirmDelete(idx) {
   _deleteIdx = idx;
   const f = S.files[idx];
@@ -2576,8 +2580,6 @@ function saveBrokers(brokers) {
   localStorage.setItem('opsflows_brokers', JSON.stringify(brokers));
 }
 
-let _brokerAlpha = 'all';
-let _deleteBrokerIdx = null;
 
 function renderBrokers(alpha) {
   if (alpha !== undefined) _brokerAlpha = alpha;
