@@ -1058,6 +1058,74 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .txf-doc-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
 .txf-doc-date { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
 
+
+/* Delete button */
+.del-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: color .12s, background .12s;
+  font-family: inherit;
+}
+.del-btn:hover { color: var(--red); background: var(--red-bg); }
+
+/* Search dropdown */
+.search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 0.5px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+.search-dropdown-item {
+  padding: 9px 14px;
+  font-size: 12.5px;
+  cursor: pointer;
+  border-bottom: 0.5px solid var(--border-light);
+  color: var(--text-primary);
+}
+.search-dropdown-item:last-child { border-bottom: none; }
+.search-dropdown-item:hover { background: var(--bg); }
+.search-dropdown-item span { color: var(--text-tertiary); font-size: 11.5px; }
+.txf-topbar { position: relative; }
+.search-wrap { position: relative; }
+
+/* Broker filter */
+.broker-alpha-filter {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.broker-alpha-btn {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 7px;
+  border-radius: 4px;
+  border: 0.5px solid var(--border-light);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .12s;
+}
+.broker-alpha-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+.broker-alpha-btn:hover:not(.active) { background: var(--bg); }
+
+/* Field margin */
+.field { margin-bottom: 14px; }
+
 </style>
 </head>
 <body>
@@ -1135,7 +1203,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
     <!-- BOTTOM: SETTINGS + HELP -->
     <div class="sb-bottom">
       <div class="nav-item" onclick="showConfig()"><i class="ti ti-settings"></i>Settings</div>
-      <div class="nav-item"><i class="ti ti-help-circle"></i>Help Center</div>
+      <div class="nav-item" id="nav-help" onclick="navTo('help')"><i class="ti ti-help-circle"></i>Help Center</div>
     </div>
 
   </div>
@@ -1190,8 +1258,8 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
               <th>Property Address</th>
               <th>Broker</th>
               <th>Status</th>
-              <th>Expires</th>
-              <th style="text-align:right;padding-right:24px">Score</th>
+              <th>Contract End Date</th>
+              <th style="text-align:right;padding-right:8px">Score</th><th style="width:36px"></th>
             </tr></thead>
             <tbody id="files-tbody">
               <tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-tertiary);font-size:12.5px">
@@ -1310,9 +1378,11 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       <div class="txf-page">
         <div class="txf-topbar">
           <div style="display:flex;align-items:center;gap:8px">
-            <div class="search-bar" style="width:260px">
-              <i class="ti ti-search"></i>
-              <input type="text" id="files-search" placeholder="Search files..." oninput="renderFilesView()">
+            <div class="search-wrap">
+              <div class="search-bar" style="width:280px">
+                <i class="ti ti-search"></i>
+                <input type="text" id="files-search" placeholder="Search by address or broker..." oninput="renderFilesView();renderSearchDropdown(this.value)" onblur="closeSearchDd()">
+              </div>
             </div>
           </div>
           <button class="btn btn-dark" onclick="openUploadPopup()"><i class="ti ti-plus"></i>New File</button>
@@ -1355,6 +1425,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
               <div class="analytics-point"><i class="ti ti-trending-up"></i>Compliance trends over time</div>
               <div class="analytics-point"><i class="ti ti-users"></i>Broker-level performance breakdown</div>
               <div class="analytics-point"><i class="ti ti-file-export"></i>Export OACIQ-ready PDF reports</div>
+              <div class="analytics-point"><i class="ti ti-robot"></i>Agent analytics — runs, success vs. failure rates, and common review flags sent to admins</div>
             </div>
           </div>
           <div class="analytics-chart-mock">
@@ -1382,11 +1453,23 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
             <div class="topbar-title">Brokers</div>
             <div class="topbar-sub" id="brokers-count">Populated from uploaded files</div>
           </div>
+          <button class="btn btn-dark" onclick="document.getElementById('add-broker-overlay').classList.add('open')"><i class="ti ti-plus"></i>Add Broker</button>
         </div>
         <div id="brokers-list"></div>
       </div>
     </div>
 
+    <div class="view" id="view-help">
+      <div class="pg-empty">
+        <i class="ti ti-headset" style="font-size:52px;color:var(--text-tertiary);margin-bottom:20px"></i>
+        <div class="pg-empty-title" style="margin-bottom:8px">Need assistance?</div>
+        <div class="pg-empty-sub" style="max-width:340px;line-height:1.8">
+          Please prioritize email for all support requests.<br><br>
+          <a href="mailto:lena@opsflows.ca" style="color:var(--blue);font-weight:500;text-decoration:none">lena@opsflows.ca</a><br>
+          <span style="font-size:12px;color:var(--text-tertiary)">For emergencies only:</span> <a href="tel:5145692519" style="color:var(--text-primary);font-weight:500;text-decoration:none">514 569 2519</a>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1423,6 +1506,60 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   </div>
 </div>
 
+
+<!-- Delete Confirmation Popup -->
+<div class="overlay" id="delete-overlay" onclick="if(event.target===this)closeOverlay('delete-overlay')">
+  <div class="upload-popup" style="width:440px">
+    <div class="upload-popup-head">
+      <div>
+        <div class="modal-title" style="color:var(--red)"><i class="ti ti-alert-triangle" style="margin-right:6px"></i>Delete File</div>
+        <div class="modal-sub">This action has a 7-day recovery window</div>
+      </div>
+      <button class="modal-close" onclick="closeOverlay('delete-overlay')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="upload-popup-body">
+      <div style="background:var(--red-bg);border-radius:var(--radius-md);padding:14px 16px;font-size:13px;color:#7f1d1d;line-height:1.6">
+        <strong>Are you sure you want to delete this file?</strong><br>
+        The file will be removed from your dashboard immediately. You have <strong>7 days</strong> to contact OpsFlows support to reverse this action. After 7 days, the file and all associated documents will be permanently deleted and cannot be recovered.
+      </div>
+      <div id="delete-file-info" style="font-size:13px;color:var(--text-secondary);padding:4px 0"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+        <button class="btn" onclick="closeOverlay('delete-overlay')">Cancel</button>
+        <button class="btn" style="background:var(--red);color:white;border-color:var(--red)" onclick="executeDelete()">
+          <i class="ti ti-trash"></i>Delete File
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Broker Popup -->
+<div class="overlay" id="add-broker-overlay" onclick="if(event.target===this)closeOverlay('add-broker-overlay')">
+  <div class="upload-popup" style="width:440px">
+    <div class="upload-popup-head">
+      <div>
+        <div class="modal-title">Add Broker</div>
+        <div class="modal-sub">Add a broker to your registry</div>
+      </div>
+      <button class="modal-close" onclick="closeOverlay('add-broker-overlay')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="upload-popup-body">
+      <div class="field"><label style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">Full Name</label>
+        <input id="new-broker-name" type="text" placeholder="Marie Tremblay" style="width:100%;padding:9px 12px;border:1px solid #e4e4e1;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;color:var(--text-primary)">
+      </div>
+      <div class="field"><label style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">OACIQ Licence Number</label>
+        <input id="new-broker-licence" type="text" placeholder="H 1234" style="width:100%;padding:9px 12px;border:1px solid #e4e4e1;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;color:var(--text-primary)">
+      </div>
+      <div class="field"><label style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">Email</label>
+        <input id="new-broker-email" type="email" placeholder="broker@brokerage.ca" style="width:100%;padding:9px 12px;border:1px solid #e4e4e1;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;color:var(--text-primary)">
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" onclick="closeOverlay('add-broker-overlay')">Cancel</button>
+        <button class="btn btn-dark" onclick="saveNewBroker()"><i class="ti ti-plus"></i>Add Broker</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Report Modal -->
 <div class="overlay" id="report-overlay">
   <div class="modal">
@@ -1660,7 +1797,8 @@ function renderDash() {
   document.getElementById('active-count').textContent = S.files.length;
   const tac = document.getElementById('topbar-active-count'); if(tac) tac.textContent = S.files.length;
   document.getElementById('files-badge').textContent = S.files.length;
-  document.getElementById('ag-v').textContent = S.checks;
+  const vc = getVerifyCount(); document.getElementById('ag-v').textContent = vc;
+  const agMeta = document.getElementById('ag-v-meta'); if(agMeta) agMeta.textContent = vc + ' checks completed';
 
   // KPI card states
   const flaggedCard = document.getElementById('flagged-card');
@@ -1759,7 +1897,8 @@ function renderTable() {
       '<td style="font-size:12px;color:var(--text-secondary)">' + (f.broker_name || '—') + '</td>' +
       '<td><span class="status-pill ' + sp + '" style="font-size:10.5px">' + sl + '</span></td>' +
       '<td style="font-size:11.5px;' + (isExpired ? 'color:var(--red)' : isExpiringSoon ? 'color:var(--orange)' : 'color:var(--text-tertiary)') + '">' + expiry + '</td>' +
-      '<td style="text-align:right;padding-right:24px"><span class="score ' + sc + '" style="font-size:12px">' + f.score + '%</span></td>' +
+      '<td style="text-align:right;padding-right:8px"><span class="score ' + sc + '" style="font-size:12px">' + f.score + '%</span></td>' +
+      '<td style="width:36px;text-align:center"><button class="del-btn" onclick="event.stopPropagation();confirmDelete(' + i + ')" title="Delete file"><i class="ti ti-trash"></i></button></td>' +
     '</tr>';
   }).join('');
 }
@@ -1826,6 +1965,15 @@ function openReport(f) {
       </div>`;
     }
   }
+  // Add persistent complete email button if COMPLETE
+  if (r && r.verdict === 'COMPLETE') {
+    const mailto = buildCompleteEmail(f);
+    b += '<div class="section" style="border-top:1px solid var(--border-light);padding-top:16px;margin-top:4px">' +
+      '<div class="section-title" style="color:var(--green-text)">✓ File Complete</div>' +
+      '<div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px">This file has passed all compliance checks. You may notify the broker.</div>' +
+      '<a href="' + mailto + '" style="display:inline-flex;align-items:center;gap:6px;background:var(--green-text);color:white;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;text-decoration:none"><i class="ti ti-mail"></i>Send Completion Email to Broker</a>' +
+      '</div>';
+  }
   document.getElementById('m-body').innerHTML = b;
   document.getElementById('report-overlay').classList.add('open');
 }
@@ -1841,7 +1989,7 @@ function exportData() {
 // ============================================================
 // NAVIGATION
 // ============================================================
-const VIEWS = ['overview', 'files', 'agents', 'audit', 'analytics', 'brokers'];
+const VIEWS = ['overview', 'files', 'agents', 'audit', 'analytics', 'brokers', 'help'];
 
 function navTo(view) {
   // Update nav items
@@ -1861,7 +2009,8 @@ function navTo(view) {
     agents: 'Agents',
     audit: 'Audit Log',
     analytics: 'Analytics',
-    brokers: 'Brokers'
+    brokers: 'Brokers',
+    help: 'Help Center'
   };
   const el = document.getElementById('topbar-title');
   if (el) el.textContent = titles[view] || '';
@@ -1877,6 +2026,7 @@ function navTo(view) {
   if (view === 'audit') renderAuditLog();
   if (view === 'analytics') drawAnalyticsDonut();
   if (view === 'brokers') renderBrokers();
+  if (view === 'help') {} // static view
 }
 
 // ============================================================
@@ -1925,13 +2075,48 @@ const chartData = {
   '3m':  { labels: ['Jan','Feb','Mar'], values: [18,24,31] }
 };
 
+function _drawChart(canvas, labels, values) {
+  // Shared draw logic — called with real or mock data
+  const w = canvas.offsetWidth || 400;
+  const h = canvas.offsetHeight || 140;
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+  const pad = { top: 16, right: 16, bottom: 28, left: 32 };
+  const cw = w - pad.left - pad.right;
+  const ch = h - pad.top - pad.bottom;
+  const max = Math.max(...values) || 1;
+  const step = values.length > 1 ? cw / (values.length - 1) : cw;
+  ctx.strokeStyle = '#f0f0ec'; ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 4; i++) { const y = pad.top + (ch/4)*i; ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(pad.left+cw,y); ctx.stroke(); }
+  const pts = values.map((v, i) => ({ x: pad.left + i * step, y: pad.top + ch - (v / max) * ch }));
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top+ch);
+  grad.addColorStop(0,'rgba(29,78,216,.15)'); grad.addColorStop(1,'rgba(29,78,216,0)');
+  ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) { const cpx=(pts[i-1].x+pts[i].x)/2; ctx.bezierCurveTo(cpx,pts[i-1].y,cpx,pts[i].y,pts[i].x,pts[i].y); }
+  ctx.lineTo(pts[pts.length-1].x, pad.top+ch); ctx.lineTo(pts[0].x, pad.top+ch); ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  ctx.beginPath(); ctx.strokeStyle='#1d4ed8'; ctx.lineWidth=1.5; ctx.lineJoin='round'; ctx.moveTo(pts[0].x,pts[0].y);
+  for (let i = 1; i < pts.length; i++) { const cpx=(pts[i-1].x+pts[i].x)/2; ctx.bezierCurveTo(cpx,pts[i-1].y,cpx,pts[i].y,pts[i].x,pts[i].y); }
+  ctx.stroke();
+  pts.forEach(p => { ctx.beginPath(); ctx.arc(p.x,p.y,3,0,2*Math.PI); ctx.fillStyle='#1d4ed8'; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke(); });
+  ctx.fillStyle='#a8a8a3'; ctx.font='10px Inter,sans-serif'; ctx.textAlign='center';
+  labels.forEach((l,i) => { ctx.fillText(l, pts[i].x, h-6); });
+  ctx.textAlign='right';
+  for (let i=0;i<=2;i++) { const v=Math.round(max*(1-i/2)); const y=pad.top+(ch/2)*i+3; ctx.fillText(v,pad.left-4,y); }
+}
+
 function drawTxnChart(period) {
   const canvas = document.getElementById('txn-chart');
   if (!canvas) return;
   const d = chartData[period] || chartData['7d'];
   const labels = d.labels;
   const values = d.values;
-  // Use real file count for latest period point
+  // Use real data if available
+  const realData = getTxnVolumeData();
+  if (realData && realData.labels.length > 1) {
+    return _drawChart(canvas, realData.labels, realData.values);
+  }
   if (period === '7d') values[values.length - 1] = Math.max(S.files.length, values[values.length-1]);
 
   const w = canvas.offsetWidth || 400;
@@ -2090,6 +2275,7 @@ async function onPopupFile(file) {
     const f2 = buildFile(result.extraction, result.report, file.name, result.file_id);
     S.files.unshift(f2);
     S.checks += result.report.checks_run || 1;
+    incrementVerifyCount();
     await saveFile(f2, result.extraction);
 
     // Reset popup and close
@@ -2178,6 +2364,7 @@ function openTxfDetail(idx) {
       '<span class="score ' + sc + '" style="font-size:13px">' + f.score + '%</span>' +
       '<span class="status-pill ' + sp + '" style="font-size:10.5px">' + sl + '</span>' +
       '<i class="ti ti-chevron-right" style="color:var(--text-tertiary);font-size:13px"></i>' +
+      '<button class="del-btn" onclick="event.stopPropagation();confirmDelete(' + S.files.indexOf(f) + ')" title="Delete"><i class="ti ti-trash"></i></button>' +
     '</div>' +
   '</div>';
 
@@ -2263,6 +2450,251 @@ function drawAnalyticsDonut() {
   ctx.fillText('94%', cx, cy-7);
   ctx.font='400 11px Inter,sans-serif'; ctx.fillStyle='#a8a8a3';
   ctx.fillText('health', cx, cy+10);
+}
+
+
+// ── DELETE FILE ───────────────────────────────────────────────
+let _deleteIdx = null;
+function confirmDelete(idx) {
+  _deleteIdx = idx;
+  const f = S.files[idx];
+  const el = document.getElementById('delete-file-info');
+  if (el) el.textContent = 'File: ' + (f.property_address || '—') + ' · ' + (f.txn_number || '');
+  document.getElementById('delete-overlay').classList.add('open');
+}
+function executeDelete() {
+  if (_deleteIdx === null) return;
+  const f = S.files[_deleteIdx];
+  S.files.splice(_deleteIdx, 1);
+  // Mark deleted in Supabase (soft delete via status)
+  if (f.sb_id) {
+    fetch(SB_URL + '/rest/v1/transaction_files?id=eq.' + f.sb_id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY },
+      body: JSON.stringify({ status: 'deleted' })
+    }).catch(e => console.warn('Delete mark:', e));
+  }
+  closeOverlay('delete-overlay');
+  _deleteIdx = null;
+  renderDash();
+  if (S.currentView === 'files') renderFilesView();
+  toast('File deleted · 7-day recovery window active');
+}
+
+// ── SEARCH WITH DROPDOWN ──────────────────────────────────────
+function renderSearchDropdown(query) {
+  const existing = document.getElementById('search-dd');
+  if (existing) existing.remove();
+  if (!query || query.length < 2) return;
+
+  const matches = S.files.filter(f =>
+    (f.property_address || '').toLowerCase().includes(query.toLowerCase()) ||
+    (f.broker_name || '').toLowerCase().includes(query.toLowerCase())
+  ).slice(0, 6);
+
+  if (!matches.length) return;
+
+  const wrap = document.querySelector('.search-wrap');
+  if (!wrap) return;
+
+  const dd = document.createElement('div');
+  dd.className = 'search-dropdown';
+  dd.id = 'search-dd';
+  dd.innerHTML = matches.map(f =>
+    '<div class="search-dropdown-item" onclick="selectSearchResult(' + S.files.indexOf(f) + ')">' +
+    (f.property_address || '—') +
+    '<br><span>' + (f.broker_name || '') + (f.txn_number ? ' · ' + f.txn_number : '') + '</span>' +
+    '</div>'
+  ).join('');
+  wrap.appendChild(dd);
+}
+
+function selectSearchResult(idx) {
+  const dd = document.getElementById('search-dd');
+  if (dd) dd.remove();
+  const input = document.getElementById('files-search');
+  if (input) input.value = S.files[idx]?.property_address || '';
+  openTxfDetail(idx);
+}
+
+function closeSearchDd() {
+  setTimeout(() => { const dd = document.getElementById('search-dd'); if (dd) dd.remove(); }, 150);
+}
+
+// ── TRANSACTION VOLUME TRACKING ───────────────────────────────
+function getTxnVolumeData() {
+  // Group files by date
+  const byDay = {};
+  S.files.forEach(f => {
+    if (!f.created_at) return;
+    const day = f.created_at.slice(0, 10);
+    if (!byDay[day]) byDay[day] = new Set();
+    byDay[day].add(f.property_address);
+  });
+
+  const days = Object.keys(byDay).sort();
+  if (!days.length) return null;
+
+  // Build cumulative running total
+  const allDays = [];
+  const allVals = [];
+  let cumulative = 0;
+  const addressesSeen = new Set();
+  days.forEach(day => {
+    byDay[day].forEach(addr => { if (!addressesSeen.has(addr)) { addressesSeen.add(addr); cumulative++; } });
+    allDays.push(day.slice(5)); // MM-DD
+    allVals.push(cumulative);
+  });
+
+  return { labels: allDays.slice(-7), values: allVals.slice(-7) };
+}
+
+// ── VERIFY AGENT COUNTER (resets at midnight) ─────────────────
+function getVerifyCount() {
+  const today = new Date().toDateString();
+  const stored = JSON.parse(localStorage.getItem('verify_count') || '{"date":"","count":0}');
+  if (stored.date !== today) {
+    localStorage.setItem('verify_count', JSON.stringify({ date: today, count: 0 }));
+    return 0;
+  }
+  return stored.count;
+}
+function incrementVerifyCount() {
+  const today = new Date().toDateString();
+  const stored = JSON.parse(localStorage.getItem('verify_count') || '{"date":"","count":0}');
+  const count = stored.date === today ? stored.count + 1 : 1;
+  localStorage.setItem('verify_count', JSON.stringify({ date: today, count }));
+  return count;
+}
+
+// ── BROKER MANAGEMENT ─────────────────────────────────────────
+// Brokers stored in localStorage (Supabase table can be added later)
+function getBrokers() {
+  return JSON.parse(localStorage.getItem('opsflows_brokers') || '[]');
+}
+function saveBrokers(brokers) {
+  localStorage.setItem('opsflows_brokers', JSON.stringify(brokers));
+}
+
+let _brokerAlpha = 'all';
+let _deleteBrokerIdx = null;
+
+function renderBrokers(alpha) {
+  if (alpha !== undefined) _brokerAlpha = alpha;
+  const el = document.getElementById('brokers-list');
+  if (!el) return;
+
+  // Merge manual brokers + auto-detected from files
+  const manual = getBrokers();
+  const fromFiles = {};
+  S.files.forEach(f => {
+    if (!f.broker_name || f.broker_name === '—') return;
+    if (!fromFiles[f.broker_name]) {
+      fromFiles[f.broker_name] = {
+        name: f.broker_name,
+        licence: f.report?.check_results?.find(r => r.rule === 'Broker Licence Number')?.value || '—',
+        email: '—', files: 0, scores: [], source: 'file'
+      };
+    }
+    fromFiles[f.broker_name].files++;
+    fromFiles[f.broker_name].scores.push(f.score || 0);
+  });
+
+  // Merge: manual entries take priority
+  const merged = [...manual];
+  Object.values(fromFiles).forEach(fb => {
+    if (!merged.find(m => m.name === fb.name)) merged.push(fb);
+  });
+
+  // Alpha filter
+  let brokers = merged;
+  if (_brokerAlpha !== 'all') brokers = brokers.filter(b => b.name.toUpperCase().startsWith(_brokerAlpha));
+  brokers = brokers.sort((a, b) => a.name.localeCompare(b.name));
+
+  const countEl = document.getElementById('brokers-count');
+  if (countEl) countEl.textContent = merged.length + ' broker' + (merged.length !== 1 ? 's' : '') + ' · Populated from uploaded files';
+
+  // Alpha buttons
+  const letters = [...new Set(merged.map(b => b.name[0]?.toUpperCase()).filter(Boolean))].sort();
+  const alphaHtml = '<div class="broker-alpha-filter">' +
+    '<button class="broker-alpha-btn ' + (_brokerAlpha === 'all' ? 'active' : '') + '" onclick="renderBrokers('all')">All</button>' +
+    letters.map(l => '<button class="broker-alpha-btn ' + (_brokerAlpha === l ? 'active' : '') + '" onclick="renderBrokers('' + l + '')">' + l + '</button>').join('') +
+    '</div>';
+
+  if (!brokers.length) {
+    el.innerHTML = alphaHtml + '<div class="broker-empty"><i class="ti ti-users"></i><p>No brokers match this filter</p></div>';
+    return;
+  }
+
+  el.innerHTML = alphaHtml + '<table class="broker-table"><thead><tr>' +
+    '<th>Full Name</th><th>OACIQ Licence</th><th>Email</th><th>Files</th><th style="text-align:right">Avg Score</th><th style="width:40px"></th>' +
+    '</tr></thead><tbody>' +
+    brokers.map((b, i) => {
+      const avg = b.scores?.length ? Math.round(b.scores.reduce((a,v) => a+v, 0) / b.scores.length) : 0;
+      const sc = avg >= 90 ? 'score-hi' : avg >= 70 ? 'score-mid' : 'score-lo';
+      const globalIdx = merged.indexOf(b);
+      return '<tr>' +
+        '<td style="font-weight:500">' + b.name + '</td>' +
+        '<td style="color:var(--text-secondary)">' + (b.licence || '—') + '</td>' +
+        '<td style="color:var(--text-secondary)">' + (b.email || '—') + '</td>' +
+        '<td style="color:var(--text-secondary)">' + (b.files || 0) + '</td>' +
+        '<td style="text-align:right">' + (avg ? '<span class="score ' + sc + '">' + avg + '%</span>' : '—') + '</td>' +
+        '<td style="text-align:center"><button class="del-btn" onclick="confirmDeleteBroker(' + globalIdx + ')" title="Delete broker"><i class="ti ti-trash"></i></button></td>' +
+      '</tr>';
+    }).join('') + '</tbody></table>';
+}
+
+function saveNewBroker() {
+  const name = document.getElementById('new-broker-name')?.value.trim();
+  const licence = document.getElementById('new-broker-licence')?.value.trim();
+  const email = document.getElementById('new-broker-email')?.value.trim();
+  if (!name) { alert('Full name is required'); return; }
+  const brokers = getBrokers();
+  brokers.push({ name, licence: licence || '—', email: email || '—', files: 0, scores: [], source: 'manual' });
+  saveBrokers(brokers);
+  closeOverlay('add-broker-overlay');
+  document.getElementById('new-broker-name').value = '';
+  document.getElementById('new-broker-licence').value = '';
+  document.getElementById('new-broker-email').value = '';
+  renderBrokers();
+  toast('Broker added');
+}
+
+function confirmDeleteBroker(idx) {
+  _deleteBrokerIdx = idx;
+  // Reuse delete popup
+  const el = document.getElementById('delete-file-info');
+  const merged = getBrokers();
+  if (el && merged[idx]) el.textContent = 'Broker: ' + merged[idx].name;
+  // Swap button action
+  const btn = document.querySelector('#delete-overlay button[onclick="executeDelete()"]');
+  if (btn) btn.setAttribute('onclick', 'executeBrokerDelete()');
+  document.getElementById('delete-overlay').classList.add('open');
+}
+
+function executeBrokerDelete() {
+  if (_deleteBrokerIdx === null) return;
+  const brokers = getBrokers();
+  brokers.splice(_deleteBrokerIdx, 1);
+  saveBrokers(brokers);
+  closeOverlay('delete-overlay');
+  _deleteBrokerIdx = null;
+  // Restore button
+  const btn = document.querySelector('#delete-overlay button[onclick="executeBrokerDelete()"]');
+  if (btn) btn.setAttribute('onclick', 'executeDelete()');
+  renderBrokers();
+  toast('Broker deleted · 7-day recovery window active');
+}
+
+// ── COMPLETE FILE EMAIL ───────────────────────────────────────
+function buildCompleteEmail(f) {
+  const brokerEmail = f.report?.broker_email || '';
+  const brokerName = f.report?.broker_name || f.broker_name || 'there';
+  const address = f.property_address || '—';
+  const contract = f.contract_number || '—';
+  const body = 'Hi ' + brokerName + ',\n\nI am pleased to inform you that your compliance file for the property at ' + address + ' (Contract: ' + contract + ') has been fully verified and is compliant with OACIQ requirements.\n\nAll required fields and documents have been reviewed and passed. No further action is required at this time.\n\nHave a great day,\nOpsFlows Compliance';
+  const subject = 'OpsFlows — File Complete & Compliant: ' + address;
+  return 'mailto:' + brokerEmail + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 }
 
 checkSession();
