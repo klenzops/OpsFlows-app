@@ -674,6 +674,53 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .sb-bottom .nav-item { color: #555553; }
 .sb-bottom .nav-item:hover { background: #ffffff0d; color: #d0d0ce; }
 
+
+/* ── UPLOAD POPUP ─────────────────────────────────────────── */
+.upload-popup {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  width: 520px;
+  max-width: 96vw;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+.upload-popup-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--border-light);
+}
+.upload-popup-body {
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.upload-popup-section { display: flex; flex-direction: column; gap: 8px; }
+.upload-popup-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+.upload-popup-drop {
+  border: 1.5px dashed #e0e0dc;
+  border-radius: var(--radius-md);
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  background: var(--bg);
+}
+.upload-popup-drop:hover,
+.upload-popup-drop.drag {
+  border-color: var(--blue);
+  background: #f4f8ff;
+}
+
 </style>
 </head>
 <body>
@@ -812,7 +859,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
             <tbody id="files-tbody">
               <tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-tertiary);font-size:12.5px">
                 <i class="ti ti-file-off" style="font-size:22px;display:block;margin-bottom:8px"></i>
-                No files yet — add a file from Transaction Files
+                No files yet
               </td></tr>
             </tbody>
           </table>
@@ -942,6 +989,50 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       <div id="audit-log-content"></div>
     </div>
 
+  </div>
+</div>
+
+
+<!-- Upload Popup -->
+<div class="overlay" id="upload-overlay" onclick="closeUploadOnBg(event)">
+  <div class="upload-popup">
+    <div class="upload-popup-head">
+      <div>
+        <div class="modal-title">Upload Document</div>
+        <div class="modal-sub">Select document type and upload for verification</div>
+      </div>
+      <button class="modal-close" onclick="closeOverlay('upload-overlay')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="upload-popup-body">
+      <!-- Doc type selector -->
+      <div class="upload-popup-section">
+        <div class="upload-popup-label">Document type</div>
+        <div class="doc-types">
+          <button class="doc-type active" onclick="selDoc(this,'EBCS')">EBCS</button>
+          <button class="doc-type" onclick="selDoc(this,'Brokerage Contract')">Brokerage Contract</button>
+          <button class="doc-type" onclick="selDoc(this,'Deed of Sale')">Deed of Sale</button>
+          <button class="doc-type" onclick="selDoc(this,'Seller Declaration')">Seller Declaration</button>
+          <button class="doc-type" onclick="selDoc(this,'Municipal Taxes')">Municipal Taxes</button>
+          <button class="doc-type" onclick="selDoc(this,'Certificate of Location')">Cert. of Location</button>
+        </div>
+      </div>
+      <!-- Drop zone -->
+      <div class="upload-popup-drop" id="popup-drop-zone"
+        onclick="document.getElementById('popup-file-input').click()"
+        ondragover="event.preventDefault();this.classList.add('drag')"
+        ondragleave="this.classList.remove('drag')"
+        ondrop="onPopupDrop(event)">
+        <i class="ti ti-cloud-upload" style="font-size:36px;color:var(--text-tertiary);display:block;margin-bottom:12px"></i>
+        <div style="font-size:14px;font-weight:500;color:var(--text-primary);margin-bottom:4px">Click to upload or drag & drop</div>
+        <div style="font-size:12.5px;color:var(--text-tertiary)">PDF, PNG, JPG — max 20MB</div>
+      </div>
+      <input type="file" id="popup-file-input" style="display:none" accept=".pdf,.png,.jpg,.jpeg" onchange="onPopupFile(this.files[0])">
+      <!-- Processing steps inside popup -->
+      <div class="processing" id="popup-proc" style="display:none;margin-top:0">
+        <div class="proc-filename" id="popup-proc-name"></div>
+        <div id="popup-proc-steps"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1292,7 +1383,7 @@ function renderTable() {
   const tbody = document.getElementById('files-tbody');
   if (!tbody) return;
   if (!S.files.length) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-tertiary);font-size:12.5px"><i class="ti ti-file-off" style="font-size:20px;display:block;margin-bottom:8px"></i>No files yet — add from Transaction Files</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-tertiary);font-size:12.5px"><i class="ti ti-file-off" style="font-size:20px;display:block;margin-bottom:8px"></i>No files yet</td></tr>';
     return;
   }
   tbody.innerHTML = S.files.map((f, i) => {
@@ -1809,6 +1900,80 @@ const _origRenderDash = renderDash;
 function renderDash() {
   _origRenderDash();
   setTimeout(() => drawTxnChart(currentPeriod), 50);
+}
+
+
+function openUploadPopup() {
+  document.getElementById('upload-overlay').classList.add('open');
+}
+
+function closeUploadOnBg(e) {
+  if (e.target === document.getElementById('upload-overlay')) {
+    closeOverlay('upload-overlay');
+  }
+}
+
+function onPopupDrop(e) {
+  e.preventDefault();
+  document.getElementById('popup-drop-zone').classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) onPopupFile(f);
+}
+
+async function onPopupFile(file) {
+  if (!file) return;
+  const proc = document.getElementById('popup-proc');
+  const procName = document.getElementById('popup-proc-name');
+  const procSteps = document.getElementById('popup-proc-steps');
+  // Hide drop zone, show processing
+  document.getElementById('popup-drop-zone').style.display = 'none';
+  proc.style.display = 'block';
+  procName.textContent = '📄 ' + file.name;
+
+  const setStepsPopup = (active, done) => {
+    const labels = ['Uploading to Reducto…', 'Extracting document fields…', 'Verifying compliance…', 'Saving to dashboard…'];
+    procSteps.innerHTML = labels.map((l, i) => {
+      let cls = 'ps-wait', ic = 'ti-circle';
+      if (i < done) { cls = 'ps-done'; ic = 'ti-circle-check'; }
+      else if (i === active) { cls = 'ps-active'; ic = 'ti-loader'; }
+      return '<div class="proc-step ' + cls + '"><i class="ti ' + ic + '"></i>' + l + '</div>';
+    }).join('');
+  };
+
+  try {
+    setStepsPopup(0, 0); await sleep(200);
+    const fd = new FormData(); fd.append('file', file);
+    const r = await fetch('/api/reducto', { method: 'POST', headers: { 'x-doc-type': S.docType }, body: fd });
+    if (!r.ok) { const t = await r.text(); throw new Error(r.status + ' — ' + t.slice(0,300)); }
+    const result = await r.json();
+    if (result.error) throw new Error(result.error);
+    setStepsPopup(1, 1); await sleep(200);
+    setStepsPopup(2, 2); await sleep(200);
+    setStepsPopup(3, 3); await sleep(200);
+
+    const f2 = buildFile(result.extraction, result.report, file.name, result.file_id);
+    S.files.unshift(f2);
+    S.checks += result.report.checks_run || 1;
+    await saveFile(f2, result.extraction);
+
+    // Reset popup and close
+    setTimeout(() => {
+      closeOverlay('upload-overlay');
+      document.getElementById('popup-drop-zone').style.display = '';
+      proc.style.display = 'none';
+      procName.textContent = '';
+      procSteps.innerHTML = '';
+      document.getElementById('popup-file-input').value = '';
+    }, 600);
+
+    renderDash();
+    toast('✓ Verified and saved');
+    openReport(f2);
+  } catch(e) {
+    proc.style.display = 'none';
+    document.getElementById('popup-drop-zone').style.display = '';
+    alert('Error: ' + e.message);
+  }
 }
 
 checkSession();
