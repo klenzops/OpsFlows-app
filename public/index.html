@@ -486,6 +486,21 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
 /* Remove top padding on nav since no header above it */
 .nav { padding-top: 14px; }
 
+
+/* USER TOP — identity block at top of sidebar */
+.sb-user-top {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid #ffffff0f;
+  cursor: pointer;
+}
+.sb-user-top:hover { background: #ffffff06; }
+.sb-user-info { flex: 1; min-width: 0; }
+.sb-user-top .user-name { font-size: 12.5px; font-weight: 500; color: #d0d0ce; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-user-top .user-email { font-size: 11px; color: #555553; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 </style>
 </head>
 <body>
@@ -532,6 +547,15 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
 <!-- APP -->
 <div class="app" id="app">
   <div class="sidebar">
+    <!-- USER IDENTITY — top of sidebar -->
+    <div class="sb-user-top">
+      <div class="user-avatar" id="user-avatar">—</div>
+      <div class="sb-user-info">
+        <div class="user-name" id="user-name">—</div>
+        <div class="user-email" id="user-email">—</div>
+      </div>
+    </div>
+
     <nav class="nav">
       <div class="nav-section">
         <div class="nav-item active" id="nav-overview" onclick="navTo('overview')"><i class="ti ti-home"></i>Home<span class="nav-badge nb-green">Live</span></div>
@@ -560,17 +584,8 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
       <div class="nav-item" onclick="showConfig()"><i class="ti ti-settings"></i>Settings</div>
       <div class="nav-item"><i class="ti ti-help-circle"></i>Help Center</div>
     </div>
-    <div class="sidebar-footer">
-      <div class="user-row" onclick="handleSignOut()">
-        <div class="user-avatar" id="user-avatar">—</div>
-        <div>
-          <div class="user-name" id="user-name">—</div>
-          <div class="user-email" id="user-email">—</div>
-        </div>
-        <i class="ti ti-logout sign-out"></i>
-      </div>
-    </div>
-  </div>
+    <div class="sidebar-footer-spacer"></div>
+  </div><!-- end sidebar -->
 
   <div class="main">
     <div class="topbar">
