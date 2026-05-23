@@ -38,7 +38,7 @@
   --shadow-md: 0 4px 12px rgba(0,0,0,.08);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; color: var(--text-primary); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text-primary); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 
 /* AUTH SCREEN */
 .auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); }
@@ -68,35 +68,35 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
 /* APP SHELL */
 .app { display: none; height: 100vh; overflow: hidden; }
 .app.visible { display: flex; }
-.sidebar { width: 220px; min-width: 220px; background: #111110; border-right: none; display: flex; flex-direction: column; padding: 0; }
-.sidebar-header { padding: 16px 14px 12px; border-bottom: 1px solid #ffffff0f; }
+.sidebar { width: 216px; min-width: 216px; background: var(--surface); border-right: 0.5px solid var(--border-light); display: flex; flex-direction: column; padding: 0; }
+.sidebar-header { padding: 18px 16px 14px; border-bottom: 1px solid var(--border-light); }
 .sidebar-logo { display: flex; align-items: center; gap: 9px; }
 .sidebar-logo-icon { width: 26px; height: 26px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
 .sidebar-logo-icon svg { width: 13px; height: 13px; fill: white; }
-.sidebar-logo span { font-size: 15px; font-weight: 600; letter-spacing: -.3px; color: #f0f0ee; }
-.sidebar-workspace { padding: 6px 10px; margin-top: 8px; background: #ffffff0a; border-radius: var(--radius-sm); font-size: 12px; color: #888885; display: flex; align-items: center; justify-content: space-between; }
-.sidebar-ws-name { font-weight: 500; color: #e0e0de; font-size: 12.5px; }
-.nav { flex: 1; padding: 10px 8px; overflow-y: auto; scrollbar-width: none; }
+.sidebar-logo span { font-size: 15px; font-weight: 600; letter-spacing: -.3px; }
+.sidebar-workspace { padding: 6px 12px; margin-top: 8px; background: var(--bg); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; justify-content: space-between; }
+.sidebar-ws-name { font-weight: 500; color: var(--text-primary); font-size: 12.5px; }
+.nav { flex: 1; padding: 8px 8px; overflow-y: auto; }
 .nav-section { margin-bottom: 24px; }
-.nav-section-label { font-size: 10px; font-weight: 600; color: #4a4a48; letter-spacing: .1em; text-transform: uppercase; padding: 0 9px; margin-bottom: 3px; }
-.nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 9px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 400; cursor: pointer; color: #666663; transition: background .12s, color .12s; letter-spacing: -.015em; }
-.nav-item:hover { background: #ffffff0d; color: #d0d0ce; }
-.nav-item.active { background: #ffffff12; color: #ebebе9; font-weight: 500; }
+.nav-section-label { font-size: 10px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .1em; text-transform: uppercase; padding: 0 9px; margin-bottom: 3px; }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 9px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 400; cursor: pointer; color: var(--text-secondary); transition: background .12s, color .12s; letter-spacing: -.015em; }
+.nav-item:hover { background: var(--bg); color: var(--text-primary); }
+.nav-item.active { background: var(--bg); color: var(--text-primary); font-weight: 500; }
 .nav-item i { font-size: 15px; flex-shrink: 0; }
 .nav-badge { margin-left: auto; font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 10px; }
-.nb-green { background: #16a34a22; color: #4ade80; }
-.nb-red { background: #b91c1c22; color: #f87171; }
-.sidebar-footer { padding: 10px 8px; border-top: 1px solid #ffffff0f; }
-.user-row { display: flex; align-items: center; gap: 9px; padding: 7px 9px; border-radius: var(--radius-sm); cursor: pointer; }
-.user-row:hover { background: #ffffff0d; }
-.user-avatar { width: 26px; height: 26px; border-radius: 50%; background: #2a2a28; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #888885; flex-shrink: 0; }
-.user-name { font-size: 12.5px; font-weight: 500; color: #d0d0ce; }
-.user-email { font-size: 11px; color: #555553; }
-.sign-out { margin-left: auto; font-size: 13px; color: #444442; }
+.nb-green { background: var(--green-bg); color: var(--green-text); }
+.nb-red { background: var(--red-bg); color: var(--red); }
+.sidebar-footer { padding: 10px 8px; border-top: 1px solid var(--border-light); }
+.user-row { display: flex; align-items: center; gap: 9px; padding: 8px 9px; border-radius: var(--radius-sm); cursor: pointer; }
+.user-row:hover { background: var(--bg); }
+.user-avatar { width: 28px; height: 28px; border-radius: 50%; background: #e4e4e7; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--text-secondary); flex-shrink: 0; }
+.user-name { font-size: 12.5px; font-weight: 500; color: var(--text-primary); }
+.user-email { font-size: 11.5px; color: var(--text-tertiary); }
+.sign-out { margin-left: auto; font-size: 13px; color: var(--text-tertiary); }
 
 /* MAIN */
-.main { flex: 1; overflow: hidden; display: flex; flex-direction: column; background: #f6f6f3; }
-.topbar { background: #ffffff; border-bottom: 0.5px solid #e8e8e4; padding: 0 32px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+.main { flex: 1; overflow: auto; display: flex; flex-direction: column; }
+.topbar { background: var(--surface); border-bottom: 0.5px solid var(--border-light); padding: 0 32px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
 .topbar-left { display: flex; flex-direction: column; }
 .topbar-title { font-size: 14px; font-weight: 600; letter-spacing: -.2px; color: var(--text-primary); }
 .topbar-sub { font-size: 11.5px; color: var(--text-tertiary); letter-spacing: -.01em; margin-top: 1px; }
@@ -288,7 +288,6 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
   padding: 0;
   height: 100%;
   overflow: hidden;
-  background: #f8f8f6;
 }
 
 /* Composition — left-anchored, bounded, single unified block */
@@ -306,14 +305,13 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
   gap: 8px;
 }
 .ov-kpi-card {
-  background: #ffffff;
-  border: 0.5px solid #e8e8e4;
+  background: var(--surface);
+  border: 0.5px solid var(--border-light);
   border-radius: var(--radius-md);
   padding: 13px 18px 12px;
   min-width: 148px;
   transition: border-color .15s;
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 .ov-kpi-card.critical { border-color: var(--red); }
 .ov-kpi-label { font-size: 10px; font-weight: 600; color: #9a9a95; letter-spacing: .09em; text-transform: uppercase; margin-bottom: 8px; }
@@ -329,11 +327,10 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
 
 /* MAIN TABLE PANEL */
 .ov-panel {
-  background: #ffffff;
-  border: 0.5px solid #e8e8e4;
+  background: var(--surface);
+  border: 0.5px solid var(--border-light);
   border-radius: var(--radius-md);
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 .ov-panel-head {
   display: flex;
@@ -346,19 +343,18 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
 .ov-panel-title { font-size: 10px; font-weight: 600; color: #9a9a95; letter-spacing: .09em; text-transform: uppercase; }
 .ov-table-wrap { overflow: hidden; }
 .ov-table { width: 100%; border-collapse: collapse; }
-.ov-table th { font-size: 10px; font-weight: 600; color: #9a9a95; letter-spacing: .07em; text-transform: uppercase; padding: 8px 14px; text-align: left; border-bottom: 0.5px solid #eeeeea; background: #ffffff; }
+.ov-table th { font-size: 10px; font-weight: 600; color: #9a9a95; letter-spacing: .07em; text-transform: uppercase; padding: 8px 14px; text-align: left; border-bottom: 0.5px solid var(--border-light); background: var(--surface); }
 .ov-table td { padding: 10px 14px; font-size: 12px; border-bottom: 0.5px solid var(--border-light); color: var(--text-primary); }
 .ov-table tr:last-child td { border-bottom: none; }
-.ov-table tr.row:hover td { background: #f9f9f7; cursor: pointer; transition: background .1s; }
+.ov-table tr.row:hover td { background: #f7f7f4; cursor: pointer; transition: background .1s; }
 
 /* RIGHT COLUMN — two compact widgets stacked */
 .ov-right { display: flex; flex-direction: column; gap: 8px; }
 .ov-mini-panel {
-  background: #ffffff;
-  border: 0.5px solid #e8e8e4;
+  background: var(--surface);
+  border: 0.5px solid var(--border-light);
   border-radius: var(--radius-md);
   padding: 11px 11px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 .ov-mini-title { font-size: 10px; font-weight: 600; color: #9a9a95; letter-spacing: .09em; text-transform: uppercase; margin-bottom: 9px; }
 .ov-action-item { display: flex; align-items: center; gap: 7px; padding: 5px 6px; border-radius: 4px; cursor: pointer; margin-bottom: 3px; }
@@ -370,11 +366,10 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
 /* AGENTS ROW — three tight modules */
 .ov-agents { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .ov-agent {
-  background: #ffffff;
-  border: 0.5px solid #e8e8e4;
+  background: var(--surface);
+  border: 0.5px solid var(--border-light);
   border-radius: var(--radius-md);
   padding: 8px 10px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 .ov-agent.offline { opacity: .38; }
 .ov-agent-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
@@ -400,11 +395,11 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
 /* OVERVIEW INTERNAL HEADER — row 0 of composition */
 .ov-header {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  padding: 16px 24px 14px;
-  border-bottom: 0.5px solid #eeeeea;
-  background: #ffffff;
+  padding-bottom: 14px;
+  border-bottom: 0.5px solid #e4e4de;
+  margin-bottom: 0;
 }
 .ov-header-title {
   font-size: 16px;
@@ -425,96 +420,137 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
 }
 
 
-/* SIDEBAR NOTIFICATION WIDGET */
-.sb-notif { margin: 0 8px 8px; background: #1a1a19; border: 1px solid #2a2a28; border-radius: 10px; padding: 12px; }
-.sb-notif-tag { display: inline-flex; align-items: center; gap: 4px; background: #16a34a22; color: #4ade80; font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 20px; letter-spacing: .04em; margin-bottom: 8px; }
-.sb-notif-title { font-size: 12.5px; font-weight: 600; color: #e8e8e6; letter-spacing: -.1px; margin-bottom: 4px; }
-.sb-notif-sub { font-size: 11px; color: #666663; line-height: 1.4; margin-bottom: 10px; }
-.sb-notif-btn { display: inline-flex; align-items: center; gap: 5px; background: #2a2a28; color: #c8c8c5; font-size: 11.5px; font-weight: 500; padding: 5px 10px; border-radius: 6px; cursor: pointer; border: none; font-family: inherit; transition: background .12s; }
-.sb-notif-btn:hover { background: #333331; }
-.sb-notif-close { float: right; color: #444442; cursor: pointer; font-size: 14px; margin-top: -2px; }
-.sb-notif-close:hover { color: #888885; }
-
-
-/* Inner padded area of the overview card */
-.ov-inner {
-  padding: 16px 20px 20px;
+/* ── NEW OVERVIEW LAYOUT ───────────────────────────────────── */
+.ov-composition {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: #fafaf8;
+  padding: 20px 24px;
+  width: 100%;
+  max-width: 1100px;
 }
-
-/* KPI cards inside the card — slightly inset look */
-.ov-kpi-card {
-  background: #ffffff !important;
-  border: 0.5px solid #ebebе7 !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,.03);
+.ov-table-panel { flex-shrink: 0; }
+.ov-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
-
-/* Table panel inside card */
-.ov-panel {
-  background: #ffffff !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,.03);
+.ov-chart-panel, .ov-agents-panel {
+  background: var(--surface);
+  border: 0.5px solid var(--border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
-
-/* Mini panels inside card */
-.ov-mini-panel {
-  background: #ffffff !important;
-  border: 0.5px solid #ebebе7 !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,.03);
+/* Chart */
+.ov-chart-wrap {
+  padding: 12px 16px 14px;
+  height: 160px;
+  position: relative;
 }
-
-/* Agent cards inside card */
-.ov-agent {
-  background: #ffffff !important;
-  border: 0.5px solid #ebebе7 !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,.03);
+.ov-chart-wrap canvas { width: 100% !important; height: 100% !important; }
+/* Period switcher */
+.ov-period-switcher {
+  display: flex;
+  gap: 2px;
+  background: var(--bg);
+  border-radius: 5px;
+  padding: 2px;
 }
-
-/* Other views also get the floating card treatment */
-#view-files, #view-agents, #view-audit {
-  padding: 20px 24px !important;
-  background: #f6f6f3;
+.ov-period {
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .12s;
 }
-
-
-.sidebar-bottom {
-  padding: 6px 8px;
-  border-top: 1px solid #ffffff0f;
+.ov-period.active {
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
 }
-/* Remove top padding on nav since no header above it */
-.nav { padding-top: 14px; }
-
-
-/* USER TOP — identity block at top of sidebar */
-.sb-user-top {
+/* Agents list */
+.ov-agents-list {
+  padding: 6px 0;
+}
+.ov-agent-row {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 14px 14px 10px;
-  border-bottom: 1px solid #ffffff0f;
-  cursor: pointer;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 0.5px solid var(--border-light);
+  transition: background .1s;
 }
-.sb-user-top:hover { background: #ffffff06; }
-.sb-user-info { flex: 1; min-width: 0; }
-.sb-user-top .user-name { font-size: 12.5px; font-weight: 500; color: #d0d0ce; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sb-user-top .user-email { font-size: 11px; color: #555553; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-
-.sidebar-user-top {
-  padding: 10px 8px 8px;
-  border-bottom: 1px solid #ffffff0f;
-}
-.sidebar-user-top .user-row {
-  padding: 7px 9px;
-  border-radius: var(--radius-sm);
+.ov-agent-row:last-child { border-bottom: none; }
+.ov-agent-row:hover { background: var(--bg); }
+.ov-agent-row-left {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
+}
+.ov-agent-dot-sm {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.ov-agent-row-name {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -.01em;
+}
+.ov-agent-row-meta {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 1px;
+}
+.ov-agent-row-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ov-agent-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 24px;
+  text-align: right;
+}
+/* Toggle switch */
+.ov-toggle {
+  position: relative;
+  width: 28px;
+  height: 16px;
   cursor: pointer;
 }
-.sidebar-user-top .user-row:hover { background: #ffffff0d; }
+.ov-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.ov-toggle-track {
+  position: absolute;
+  inset: 0;
+  background: #d4d4d0;
+  border-radius: 20px;
+  transition: background .2s;
+}
+.ov-toggle-track::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: transform .2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+.ov-toggle input:checked + .ov-toggle-track { background: var(--blue); }
+.ov-toggle input:checked + .ov-toggle-track::after { transform: translateX(12px); }
+.ov-toggle input:disabled + .ov-toggle-track { opacity: .4; cursor: not-allowed; }
 
 </style>
 </head>
@@ -562,28 +598,16 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
 <!-- APP -->
 <div class="app" id="app">
   <div class="sidebar">
-    <!-- USER IDENTITY — top of sidebar -->
-    <div class="sb-user-top">
-      <div class="user-avatar" id="user-avatar">—</div>
-      <div class="sb-user-info">
-        <div class="user-name" id="user-name">—</div>
-        <div class="user-email" id="user-email">—</div>
-      </div>
-    </div>
-
-    <div class="sidebar-user-top">
-      <div class="user-row" onclick="handleSignOut()">
-        <div class="user-avatar" id="user-avatar-top">—</div>
-        <div style="min-width:0;flex:1">
-          <div class="user-name" id="user-name-top">—</div>
-          <div class="user-email" id="user-email-top">—</div>
-        </div>
-        <i class="ti ti-chevron-up-down" style="font-size:12px;color:#444442;flex-shrink:0"></i>
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon"><svg viewBox="0 0 16 16"><path d="M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z"/></svg></div>
+        <span>OpsFlows</span>
       </div>
     </div>
     <nav class="nav">
       <div class="nav-section">
-        <div class="nav-item active" id="nav-overview" onclick="navTo('overview')"><i class="ti ti-home"></i>Home<span class="nav-badge nb-green">Live</span></div>
+        <div class="nav-section-label">Workspace</div>
+        <div class="nav-item active" id="nav-overview" onclick="navTo('overview')"><i class="ti ti-layout-dashboard"></i>Overview<span class="nav-badge nb-green">Live</span></div>
         <div class="nav-item" id="nav-files" onclick="navTo('files')"><i class="ti ti-file-description"></i>Transaction Files<span class="nav-badge nb-red" id="files-badge">0</span></div>
         <div class="nav-item" id="nav-agents" onclick="navTo('agents')"><i class="ti ti-robot"></i>Agents</div>
         <div class="nav-item" id="nav-audit" onclick="navTo('audit')"><i class="ti ti-clipboard-list"></i>Audit Log</div>
@@ -591,26 +615,25 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
       <div class="nav-section">
         <div class="nav-section-label">Reports</div>
         <div class="nav-item"><i class="ti ti-chart-bar"></i>Analytics</div>
-        <div class="nav-item" onclick="navTo('brokers')"><i class="ti ti-users"></i>Brokers</div>
+        <div class="nav-item"><i class="ti ti-download"></i>Export</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Settings</div>
+        <div class="nav-item" onclick="showConfig()"><i class="ti ti-settings"></i>Preferences</div>
+        <div class="nav-item"><i class="ti ti-users"></i>Brokers</div>
       </div>
     </nav>
-    <!-- NOTIFICATION WIDGET -->
-    <div class="sb-notif" id="sb-notif">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between">
-        <span class="sb-notif-tag">NEW</span>
-        <span class="sb-notif-close" onclick="document.getElementById('sb-notif').style.display='none'">&times;</span>
+    <div class="sidebar-footer">
+      <div class="user-row" onclick="handleSignOut()">
+        <div class="user-avatar" id="user-avatar">—</div>
+        <div>
+          <div class="user-name" id="user-name">—</div>
+          <div class="user-email" id="user-email">—</div>
+        </div>
+        <i class="ti ti-logout sign-out"></i>
       </div>
-      <div class="sb-notif-title">OACIQ Updates</div>
-      <div class="sb-notif-sub">New compliance rules effective Q3 2026. Review your templates.</div>
-      <button class="sb-notif-btn"><i class="ti ti-arrow-right" style="font-size:11px"></i>Learn more</button>
     </div>
-
-    <div class="sidebar-bottom">
-      <div class="nav-item" onclick="showConfig()"><i class="ti ti-settings"></i>Settings</div>
-      <div class="nav-item"><i class="ti ti-help-circle"></i>Help Center</div>
-    </div>
-    <div class="sidebar-footer-spacer"></div>
-  </div><!-- end sidebar -->
+  </div>
 
   <div class="main">
     <div class="topbar">
@@ -629,7 +652,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
 
       <div class="ov-composition">
 
-      <!-- ROW 0: INTERNAL HEADER — same left edge as everything below -->
+      <!-- HEADER -->
       <div class="ov-header">
         <div class="ov-header-left">
           <div class="ov-header-title" id="ov-agency-name">Compliance Overview</div>
@@ -642,97 +665,135 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #f6f6f3; col
         </div>
       </div>
 
-      <div class="ov-inner">
-      <!-- KPI STRIP -->
-      <div class="ov-kpi">
-        <div class="ov-kpi-card">
-          <div class="ov-kpi-label">Files Complete</div>
-          <div class="ov-kpi-val" id="s-complete">0</div>
-          <div class="ov-kpi-sub sub-green">+0 this week</div>
+      <!-- TOP: FULL-WIDTH TRANSACTION TABLE -->
+      <div class="ov-panel ov-table-panel">
+        <div class="ov-panel-head">
+          <span class="ov-panel-title">Active Transaction Files</span>
+          <span class="action-pill" id="action-pill" style="display:none">0 require action</span>
         </div>
-        <div class="ov-kpi-card">
-          <div class="ov-kpi-label">Awaiting Docs</div>
-          <div class="ov-kpi-val" id="s-awaiting">0</div>
-          <div class="ov-kpi-sub sub-orange" id="s-awaiting-sub">0 past deadline</div>
-        </div>
-        <div class="ov-kpi-card" id="flagged-card">
-          <div class="ov-kpi-label" id="flagged-label">Flagged Issues</div>
-          <div class="ov-kpi-val" id="s-flagged">0</div>
-          <div class="ov-kpi-sub" id="s-flagged-sub">0 new today</div>
+        <div class="ov-table-wrap">
+          <table class="ov-table">
+            <colgroup>
+              <col style="width:30%">
+              <col style="width:16%">
+              <col style="width:18%">
+              <col style="width:16%">
+              <col style="width:12%">
+              <col style="width:8%">
+            </colgroup>
+            <thead><tr>
+              <th>Property Address</th>
+              <th>Broker</th>
+              <th>Status</th>
+              <th>Expires</th>
+              <th style="text-align:right;padding-right:24px">Score</th>
+            </tr></thead>
+            <tbody id="files-tbody">
+              <tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-tertiary);font-size:12.5px">
+                <i class="ti ti-file-off" style="font-size:22px;display:block;margin-bottom:8px"></i>
+                No files yet — add a file from Transaction Files
+              </td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <!-- CENTER: TABLE + RIGHT COLUMN -->
-      <div class="ov-center">
-        <div class="ov-panel">
+      <!-- BOTTOM ROW: CHART (left) + AGENTS (right) -->
+      <div class="ov-bottom">
+
+        <!-- LEFT: Transaction volume line chart -->
+        <div class="ov-panel ov-chart-panel">
           <div class="ov-panel-head">
-            <span class="ov-panel-title">Active Transaction Files</span>
-            <span class="action-pill" id="action-pill" style="display:none">0 require action</span>
-          </div>
-          <div class="ov-table-wrap">
-            <table class="ov-table">
-              <colgroup>
-  <col style="width:32%">
-  <col style="width:17%">
-  <col style="width:19%">
-  <col style="width:17%">
-  <col style="width:15%">
-</colgroup>
-<thead><tr><th>Property Address</th><th>Broker</th><th>Status</th><th>Expires</th><th style="text-align:right;padding-right:24px">Score</th></tr></thead>
-              <tbody id="files-tbody">
-                <tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-tertiary);font-size:12.5px">
-                  <i class="ti ti-file-off" style="font-size:22px;display:block;margin-bottom:8px"></i>
-                  No files yet — add a file from Transaction Files
-                </td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="ov-right">
-          <!-- Portfolio -->
-          <div class="ov-mini-panel">
-            <div class="ov-mini-title">Portfolio</div>
-            <div style="display:flex;justify-content:center;margin-bottom:10px">
-              <canvas id="donut" width="90" height="90"></canvas>
-            </div>
-            <div class="legend">
-              <div class="legend-row"><div class="legend-left"><span class="legend-dot" style="background:var(--green)"></span>Complete</div><span class="legend-val" id="leg-c">0</span></div>
-              <div class="legend-row"><div class="legend-left"><span class="legend-dot" style="background:var(--amber)"></span>Pending</div><span class="legend-val" id="leg-p">0</span></div>
-              <div class="legend-row"><div class="legend-left"><span class="legend-dot" style="background:var(--orange)"></span>Missing</div><span class="legend-val" id="leg-m">0</span></div>
+            <span class="ov-panel-title">Transaction Volume</span>
+            <div class="ov-period-switcher">
+              <button class="ov-period active" onclick="switchPeriod(this,'7d')">7D</button>
+              <button class="ov-period" onclick="switchPeriod(this,'30d')">30D</button>
+              <button class="ov-period" onclick="switchPeriod(this,'3m')">3M</button>
             </div>
           </div>
-
-          <!-- Requires Action -->
-          <div class="ov-mini-panel ov-action-panel">
-            <div class="ov-mini-title">Requires Action</div>
-            <div id="requires-action-list">
-              <div style="font-size:12px;color:var(--text-tertiary);padding:8px 0">No actions required</div>
-            </div>
+          <div class="ov-chart-wrap">
+            <canvas id="txn-chart"></canvas>
           </div>
         </div>
-      </div>
 
-      <!-- AGENTS ROW -->
-      <div class="ov-agents">
-        <div class="ov-agent offline">
-          <div class="ov-agent-top"><div class="ov-agent-name"><div class="ov-agent-dot" style="background:#d4d4d0"></div>Monitor</div><span class="ov-agent-tag ov-tag-off">OFFLINE</span></div>
-          <div class="ov-agent-num">—</div><div class="ov-agent-lbl">Files under watch</div>
-          <div class="ov-agent-bar"><div style="width:0%;background:#d4d4d0;height:100%;border-radius:2px"></div></div>
-        </div>
-        <div class="ov-agent">
-          <div class="ov-agent-top"><div class="ov-agent-name"><div class="ov-agent-dot" style="background:var(--blue);animation:pulse 2s infinite"></div>Verify</div><span class="ov-agent-tag ov-tag-run">RUNNING</span></div>
-          <div class="ov-agent-num" id="ag-v">0</div><div class="ov-agent-lbl">Checks completed</div>
-          <div class="ov-agent-bar"><div style="width:65%;background:var(--blue);height:100%;border-radius:2px"></div></div>
-        </div>
-        <div class="ov-agent offline">
-          <div class="ov-agent-top"><div class="ov-agent-name"><div class="ov-agent-dot" style="background:#d4d4d0"></div>Audit</div><span class="ov-agent-tag ov-tag-off">OFFLINE</span></div>
-          <div class="ov-agent-num">—</div><div class="ov-agent-lbl">Audit packets ready</div>
-          <div class="ov-agent-bar"><div style="width:0%;background:#d4d4d0;height:100%;border-radius:2px"></div></div>
-        </div>
-      </div>
+        <!-- RIGHT: Agents panel -->
+        <div class="ov-panel ov-agents-panel">
+          <div class="ov-panel-head">
+            <span class="ov-panel-title">Agents</span>
+            <span style="font-size:10px;color:var(--text-tertiary)">1 running</span>
+          </div>
+          <div class="ov-agents-list">
 
-      </div><!-- end ov-inner -->
+            <div class="ov-agent-row">
+              <div class="ov-agent-row-left">
+                <div class="ov-agent-dot-sm" style="background:#d4d4d0"></div>
+                <div>
+                  <div class="ov-agent-row-name">Monitor</div>
+                  <div class="ov-agent-row-meta">Files under watch</div>
+                </div>
+              </div>
+              <div class="ov-agent-row-right">
+                <span class="ov-agent-count">—</span>
+                <label class="ov-toggle">
+                  <input type="checkbox" disabled>
+                  <span class="ov-toggle-track"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="ov-agent-row">
+              <div class="ov-agent-row-left">
+                <div class="ov-agent-dot-sm" style="background:var(--blue);animation:pulse 2s infinite"></div>
+                <div>
+                  <div class="ov-agent-row-name">Verify</div>
+                  <div class="ov-agent-row-meta" id="ag-v-meta">0 checks completed</div>
+                </div>
+              </div>
+              <div class="ov-agent-row-right">
+                <span class="ov-agent-count" id="ag-v">0</span>
+                <label class="ov-toggle">
+                  <input type="checkbox" checked onchange="toggleAgent(this,'verify')">
+                  <span class="ov-toggle-track"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="ov-agent-row">
+              <div class="ov-agent-row-left">
+                <div class="ov-agent-dot-sm" style="background:#d4d4d0"></div>
+                <div>
+                  <div class="ov-agent-row-name">Audit</div>
+                  <div class="ov-agent-row-meta">Audit packets ready</div>
+                </div>
+              </div>
+              <div class="ov-agent-row-right">
+                <span class="ov-agent-count">—</span>
+                <label class="ov-toggle">
+                  <input type="checkbox" disabled>
+                  <span class="ov-toggle-track"></span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- end ov-bottom -->
+
+      <!-- Hidden KPI ids still needed by renderDash -->
+      <span id="s-complete" style="display:none">0</span>
+      <span id="s-awaiting" style="display:none">0</span>
+      <span id="s-awaiting-sub" style="display:none"></span>
+      <span id="s-flagged" style="display:none">0</span>
+      <span id="s-flagged-sub" style="display:none"></span>
+      <span id="flagged-card" style="display:none"></span>
+      <span id="flagged-label" style="display:none"></span>
+      <span id="leg-c" style="display:none">0</span>
+      <span id="leg-p" style="display:none">0</span>
+      <span id="leg-m" style="display:none">0</span>
+      <canvas id="donut" style="display:none"></canvas>
+      <span id="requires-action-list" style="display:none"></span>
+
       </div><!-- end ov-composition -->
 
       <!-- Hidden upload inputs still needed for Transaction Files view -->
@@ -1231,7 +1292,7 @@ function navTo(view) {
   });
   // Update topbar
   const titles = {
-    overview: 'Home',
+    overview: 'Compliance Overview',
     files: 'Transaction Files',
     agents: 'Agents',
     audit: 'Audit Log'
@@ -1503,6 +1564,132 @@ async function renderAuditLog() {
     el.innerHTML = '<div class="view-header"><div class="view-title">Audit Log</div></div><p style="color:var(--text-tertiary);font-size:13px">Could not load audit log.</p>';
   }
 }
+
+// ── TRANSACTION VOLUME CHART ──────────────────────────────────
+let txnChart = null;
+const chartData = {
+  '7d':  { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], values: [2,3,1,4,3,2,5] },
+  '30d': { labels: ['W1','W2','W3','W4'], values: [8,12,7,14] },
+  '3m':  { labels: ['Jan','Feb','Mar'], values: [18,24,31] }
+};
+
+function drawTxnChart(period) {
+  const canvas = document.getElementById('txn-chart');
+  if (!canvas) return;
+  const d = chartData[period] || chartData['7d'];
+  const labels = d.labels;
+  const values = d.values;
+  // Use real file count for latest period point
+  if (period === '7d') values[values.length - 1] = Math.max(S.files.length, values[values.length-1]);
+
+  const w = canvas.offsetWidth || 400;
+  const h = canvas.offsetHeight || 140;
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+
+  const pad = { top: 16, right: 16, bottom: 28, left: 32 };
+  const cw = w - pad.left - pad.right;
+  const ch = h - pad.top - pad.bottom;
+  const max = Math.max(...values) || 1;
+  const step = cw / (values.length - 1);
+
+  // Grid lines
+  ctx.strokeStyle = '#f0f0ec';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (ch / 4) * i;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cw, y); ctx.stroke();
+  }
+
+  // Points
+  const pts = values.map((v, i) => ({
+    x: pad.left + i * step,
+    y: pad.top + ch - (v / max) * ch
+  }));
+
+  // Fill gradient
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+  grad.addColorStop(0, 'rgba(29,78,216,.15)');
+  grad.addColorStop(1, 'rgba(29,78,216,0)');
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) {
+    const cpx = (pts[i-1].x + pts[i].x) / 2;
+    ctx.bezierCurveTo(cpx, pts[i-1].y, cpx, pts[i].y, pts[i].x, pts[i].y);
+  }
+  ctx.lineTo(pts[pts.length-1].x, pad.top + ch);
+  ctx.lineTo(pts[0].x, pad.top + ch);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = '#1d4ed8';
+  ctx.lineWidth = 1.5;
+  ctx.lineJoin = 'round';
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) {
+    const cpx = (pts[i-1].x + pts[i].x) / 2;
+    ctx.bezierCurveTo(cpx, pts[i-1].y, cpx, pts[i].y, pts[i].x, pts[i].y);
+  }
+  ctx.stroke();
+
+  // Dots
+  pts.forEach(p => {
+    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, 2*Math.PI);
+    ctx.fillStyle = '#1d4ed8'; ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+  });
+
+  // X labels
+  ctx.fillStyle = '#a8a8a3';
+  ctx.font = '10px Inter,sans-serif';
+  ctx.textAlign = 'center';
+  labels.forEach((l, i) => {
+    ctx.fillText(l, pts[i].x, h - 6);
+  });
+
+  // Y labels
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 2; i++) {
+    const v = Math.round(max * (1 - i/2));
+    const y = pad.top + (ch / 2) * i + 3;
+    ctx.fillText(v, pad.left - 4, y);
+  }
+}
+
+let currentPeriod = '7d';
+function switchPeriod(btn, period) {
+  document.querySelectorAll('.ov-period').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentPeriod = period;
+  drawTxnChart(period);
+}
+
+function toggleAgent(checkbox, agentName) {
+  const row = checkbox.closest('.ov-agent-row');
+  const dot = row.querySelector('.ov-agent-dot-sm');
+  if (checkbox.checked) {
+    dot.style.background = 'var(--blue)';
+    dot.style.animation = 'pulse 2s infinite';
+    toast(agentName.charAt(0).toUpperCase() + agentName.slice(1) + ' agent enabled');
+  } else {
+    dot.style.background = '#d4d4d0';
+    dot.style.animation = 'none';
+    toast(agentName.charAt(0).toUpperCase() + agentName.slice(1) + ' agent paused');
+  }
+}
+
+// Draw chart after render
+const _origRenderDash = renderDash;
+function renderDash() {
+  _origRenderDash();
+  setTimeout(() => drawTxnChart(currentPeriod), 50);
+}
+
 checkSession();
 renderDash();
 const _tb = document.querySelector('.topbar'); if (_tb) _tb.style.display = 'none';
