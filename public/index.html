@@ -1903,6 +1903,9 @@ function buildFile(extraction, report, filename, fileId) {
 
 async function saveFile(f, extraction) {
   try {
+    const token = localStorage.getItem('sb_access_token');
+    if (!token) { console.error('No auth token — not saving'); return; }
+
     // Save transaction file
     const r = await fetch(`${SB_URL}/rest/v1/transaction_files`, {
       method: 'POST',
@@ -1921,55 +1924,104 @@ async function saveFile(f, extraction) {
         user_id: S.user?.id || null
       })
     });
-    if (r.ok) {
-      const rows = await r.json();
-      if (rows?.[0]) {
-        f.sb_id = rows[0].id;
-        // Save document with full extraction + verification report
-        await fetch(`${SB_URL}/rest/v1/documents`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
-            transaction_file_id: f.sb_id,
-            document_type: f.file_type,
-            file_name: f.filename,
-            raw_extraction: extraction || null,
-            verification_report: f.report,
-            status: f.status,
-            flagged_fields: f.report.flagged_items,
-            missing_fields: f.report.missing_items,
-            user_id: S.user?.id || null
-          })
-        });
-        // Save audit log entry
-        await fetch(`${SB_URL}/rest/v1/audit_log`, {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
-            transaction_file_id: f.sb_id,
-            action: 'VERIFICATION_COMPLETED',
-            user_id: S.user?.id || null,
-            detail: `${f.file_type} verified. Score: ${f.score}%. Verdict: ${f.report.verdict}. Checks: ${f.report.checks_run}. Critical fails: ${f.report.critical_fails || 0}. File: ${f.filename}`
-          })
-        });
-      }
+
+    if (!r.ok) {
+      const errText = await r.text();
+      console.error('saveFile transaction_files failed:', r.status, errText);
+      toast('Save error — check console');
+      return;
     }
-  } catch(e) { console.warn('Supabase save:', e); }
+
+    const rows = await r.json();
+    if (!rows?.[0]) { console.error('saveFile: no row returned'); return; }
+    f.sb_id = rows[0].id;
+
+    // Save document with full extraction + verification report
+    const docR = await fetch(`${SB_URL}/rest/v1/documents`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        transaction_file_id: f.sb_id,
+        document_type: f.file_type,
+        file_name: f.filename,
+        raw_extraction: extraction || null,
+        verification_report: f.report,
+        status: f.status,
+        flagged_fields: f.report?.flagged_items || null,
+        missing_fields: f.report?.missing_items || null,
+        user_id: S.user?.id || null
+      })
+    });
+    if (!docR.ok) console.error('saveFile documents failed:', docR.status, await docR.text());
+
+    // Save audit log
+    const auditR = await fetch(`${SB_URL}/rest/v1/audit_log`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        transaction_file_id: f.sb_id,
+        action: 'VERIFICATION_COMPLETED',
+        user_id: S.user?.id || null,
+        detail: `${f.file_type} verified. Score: ${f.score}%. Verdict: ${f.report?.verdict}. Checks: ${f.report?.checks_run}. File: ${f.filename}`
+      })
+    });
+    if (!auditR.ok) console.error('saveFile audit_log failed:', auditR.status, await auditR.text());
+
+  } catch(e) { console.error('saveFile exception:', e); }
 }
 
 async function loadFiles() {
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/transaction_files?status=neq.deleted&order=created_at.desc&limit=50`, {
-      headers: getAuthHeaders()
-    });
-    if (r.ok) {
-      const rows = await r.json();
-      if (rows?.length) {
-        S.files = rows.map(row => ({ ...row, sb_id: row.id, report: null }));
-        renderDash();
-      }
+    const token = localStorage.getItem('sb_access_token');
+    if (!token) { console.error('loadFiles: no token'); return; }
+
+    // Load transaction files
+    const r = await fetch(
+      `${SB_URL}/rest/v1/transaction_files?status=neq.deleted&order=created_at.desc&limit=200`,
+      { headers: getAuthHeaders() }
+    );
+    if (!r.ok) {
+      console.error('loadFiles failed:', r.status, await r.text());
+      return;
     }
-  } catch(e) { console.warn('Load:', e); }
+    const rows = await r.json();
+
+    // Always render even if empty (clears stale UI)
+    if (!rows || !rows.length) {
+      S.files = [];
+      renderDash();
+      return;
+    }
+
+    // Load documents (for reports) — fetch all docs for these file ids
+    const fileIds = rows.map(row => row.id);
+    const docsR = await fetch(
+      `${SB_URL}/rest/v1/documents?transaction_file_id=in.(${fileIds.join(',')})&select=transaction_file_id,verification_report,raw_extraction`,
+      { headers: getAuthHeaders() }
+    );
+    const docs = docsR.ok ? await docsR.json() : [];
+
+    // Build a map: file_id → {report, extraction}
+    const docMap = {};
+    (docs || []).forEach(d => {
+      if (!docMap[d.transaction_file_id]) {
+        docMap[d.transaction_file_id] = {
+          report: d.verification_report || null,
+          extraction: d.raw_extraction || null
+        };
+      }
+    });
+
+    // Merge files with their reports
+    S.files = rows.map(row => ({
+      ...row,
+      sb_id: row.id,
+      report: docMap[row.id]?.report || null,
+      extraction: docMap[row.id]?.extraction || null
+    }));
+
+    renderDash();
+  } catch(e) { console.error('loadFiles exception:', e); }
 }
 
 function renderDash() {
