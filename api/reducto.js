@@ -100,14 +100,13 @@ const EBCS_RULES = [
     email_text: "The asking price at clause 4.1 is missing. Please draft an amendment for correction."
   },
 
-  // 11. Seller ID type
+  // 11. Seller ID type — just check it's present; the form only has valid checkboxes
   {
     field: "Sellers[0].ID type", clause: "1.1", severity: "critical",
-    check: "one_of",
-    values: ["Driver's licence", "Passport", "Health insurance card", "Permanent resident card", "Canadian citizenship card", "Permis de conduire", "Passeport", "Carte d'assurance maladie", "Carte de résident permanent", "Carte de citoyenneté canadienne"],
+    check: "present",
     label: "Seller ID Type",
     next_action: "Draft an Amendment",
-    email_text: "The Seller ID type at clause 1.1 is missing/invalid. Please draft an amendment for correction."
+    email_text: "The Seller ID type at clause 1.1 is missing. Please draft an amendment for correction."
   },
 
   // 12. Seller ID Document Number
