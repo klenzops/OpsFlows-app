@@ -1739,6 +1739,17 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 const SB_URL = 'https://ipufxgeffnldfnztxitw.supabase.co';
 const SB_KEY = 'sb_publishable_LiEQa4VRHPapcv1MprZfnw_Iw4Ft2Qh';
 
+// Always use the real user JWT for data requests — not the anon key
+// This enforces Row Level Security so each brokerage only sees their own data
+function getAuthHeaders(extra) {
+  const token = localStorage.getItem('sb_access_token') || SB_KEY;
+  return Object.assign({
+    'Content-Type': 'application/json',
+    'apikey': SB_KEY,
+    'Authorization': 'Bearer ' + token
+  }, extra || {});
+}
+
 const S = { files: [], checks: 0, docType: 'EBCS', user: null };
 let txnChart = null;
 let currentPeriod = '7d';
@@ -1895,7 +1906,7 @@ async function saveFile(f, extraction) {
     // Save transaction file
     const r = await fetch(`${SB_URL}/rest/v1/transaction_files`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Prefer': 'return=representation' },
+      headers: Object.assign(getAuthHeaders(), {'Prefer': 'return=representation'}),
       body: JSON.stringify({
         txn_number: f.txn_number,
         property_address: f.property_address,
@@ -1906,7 +1917,8 @@ async function saveFile(f, extraction) {
         file_type: f.file_type,
         status: f.status,
         score: f.score,
-        property_type: 'residential'
+        property_type: 'residential',
+        user_id: S.user?.id || null
       })
     });
     if (r.ok) {
@@ -1916,7 +1928,7 @@ async function saveFile(f, extraction) {
         // Save document with full extraction + verification report
         await fetch(`${SB_URL}/rest/v1/documents`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` },
+          headers: getAuthHeaders(),
           body: JSON.stringify({
             transaction_file_id: f.sb_id,
             document_type: f.file_type,
@@ -1925,16 +1937,18 @@ async function saveFile(f, extraction) {
             verification_report: f.report,
             status: f.status,
             flagged_fields: f.report.flagged_items,
-            missing_fields: f.report.missing_items
+            missing_fields: f.report.missing_items,
+            user_id: S.user?.id || null
           })
         });
         // Save audit log entry
         await fetch(`${SB_URL}/rest/v1/audit_log`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` },
+          headers: getAuthHeaders(),
           body: JSON.stringify({
             transaction_file_id: f.sb_id,
             action: 'VERIFICATION_COMPLETED',
+            user_id: S.user?.id || null,
             detail: `${f.file_type} verified. Score: ${f.score}%. Verdict: ${f.report.verdict}. Checks: ${f.report.checks_run}. Critical fails: ${f.report.critical_fails || 0}. File: ${f.filename}`
           })
         });
@@ -1946,7 +1960,7 @@ async function saveFile(f, extraction) {
 async function loadFiles() {
   try {
     const r = await fetch(`${SB_URL}/rest/v1/transaction_files?status=neq.deleted&order=created_at.desc&limit=50`, {
-      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+      headers: getAuthHeaders()
     });
     if (r.ok) {
       const rows = await r.json();
@@ -2216,7 +2230,7 @@ async function renderAuditLog() {
   el.innerHTML = '<div class="view-header"><div class="view-title">Audit Log</div><div class="view-sub">Every action performed by the platform</div></div><div style="color:var(--text-tertiary);font-size:13px;padding:20px 0">Loading...</div>';
   try {
     const r = await fetch(SB_URL + '/rest/v1/audit_log?order=created_at.desc&limit=100', {
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+      headers: getAuthHeaders()
     });
     if (!r.ok) throw new Error('Failed to load');
     const rows = await r.json();
@@ -2703,7 +2717,7 @@ function executeDelete() {
     // Hard delete from Supabase so it never reappears on login
     fetch(SB_URL + '/rest/v1/transaction_files?id=eq.' + f.sb_id, {
       method: 'DELETE',
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+      headers: getAuthHeaders()
     }).catch(e => console.warn('Delete:', e));
   }
   closeOverlay('delete-overlay');
