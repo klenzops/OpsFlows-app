@@ -2924,24 +2924,27 @@ async function executeDelete() {
   if (S.currentView === 'files') renderFilesView();
   toast('File deleted · 7-day recovery window active');
 
-  // Hard delete from Supabase with proper auth
+  // Delete from Supabase — children first, then parent
   if (f.sb_id) {
     try {
+      // 1. Delete audit_log rows
+      await fetch(SB_URL + '/rest/v1/audit_log?transaction_file_id=eq.' + f.sb_id, {
+        method: 'DELETE', headers: getAuthHeaders()
+      });
+      // 2. Delete documents rows
+      await fetch(SB_URL + '/rest/v1/documents?transaction_file_id=eq.' + f.sb_id, {
+        method: 'DELETE', headers: getAuthHeaders()
+      });
+      // 3. Now delete the parent transaction file
       const r = await fetch(SB_URL + '/rest/v1/transaction_files?id=eq.' + f.sb_id, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
+        method: 'DELETE', headers: getAuthHeaders()
       });
       if (!r.ok) {
         const err = await r.text();
-        console.error('Delete failed:', r.status, err);
+        console.error('Delete parent failed:', r.status, err);
         toast('Warning: could not delete from database — ' + r.status);
       } else {
         console.log('Deleted from Supabase:', f.sb_id);
-        // Also delete associated documents
-        await fetch(SB_URL + '/rest/v1/documents?transaction_file_id=eq.' + f.sb_id, {
-          method: 'DELETE',
-          headers: getAuthHeaders()
-        });
       }
     } catch(e) { console.error('Delete exception:', e); }
   }
@@ -2962,10 +2965,13 @@ async function executeBulkDelete(indices) {
   for (const f of toDelete) {
     if (!f.sb_id) continue;
     try {
-      await fetch(SB_URL + '/rest/v1/transaction_files?id=eq.' + f.sb_id, {
+      await fetch(SB_URL + '/rest/v1/audit_log?transaction_file_id=eq.' + f.sb_id, {
         method: 'DELETE', headers: getAuthHeaders()
       });
       await fetch(SB_URL + '/rest/v1/documents?transaction_file_id=eq.' + f.sb_id, {
+        method: 'DELETE', headers: getAuthHeaders()
+      });
+      await fetch(SB_URL + '/rest/v1/transaction_files?id=eq.' + f.sb_id, {
         method: 'DELETE', headers: getAuthHeaders()
       });
     } catch(e) { console.error('Bulk delete error:', e); }
