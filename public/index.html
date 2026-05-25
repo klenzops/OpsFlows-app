@@ -1213,6 +1213,31 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .user-menu-item.danger { color: #f87171; }
 .user-menu-item.danger:hover { background: #b91c1c18; }
 
+
+/* Bulk select toolbar */
+.txf-bulk-bar {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--accent);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  animation: fadeIn .15s ease;
+}
+.txf-bulk-bar.visible { display: flex; }
+.txf-bulk-bar span { font-size: 12.5px; color: white; font-weight: 500; flex: 1; }
+.txf-bulk-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 11px; border-radius: 4px; font-size: 12px; font-weight: 500;
+  cursor: pointer; border: none; font-family: inherit;
+  background: rgba(255,255,255,.15); color: white; transition: background .12s;
+}
+.txf-bulk-btn:hover { background: rgba(255,255,255,.25); }
+.txf-bulk-btn.danger { background: rgba(185,28,28,.7); }
+.txf-bulk-btn.danger:hover { background: rgba(185,28,28,.95); }
+.txf-file-cb { width: 15px; height: 15px; cursor: pointer; accent-color: var(--accent); flex-shrink: 0; margin-right: 4px; }
+
 </style>
 </head>
 <body>
@@ -2618,7 +2643,7 @@ function renderFilesView() {
   const detailEl = document.getElementById('txf-detail');
   if (!listEl) return;
   listEl.style.display = '';
-  detailEl.style.display = 'none';
+  if (detailEl) detailEl.style.display = 'none';
 
   const search = (document.getElementById('files-search')?.value || '').toLowerCase();
   let files = S.files;
@@ -2633,24 +2658,90 @@ function renderFilesView() {
     return;
   }
 
-  listEl.innerHTML = files.map(function(f) {
-    const sp = { complete: 'sp-complete', missing: 'sp-missing', flagged: 'sp-flagged', pending: 'sp-pending' }[f.status] || 'sp-pending';
-    const sl = { complete: 'Complete', missing: 'Missing docs', flagged: 'Flagged', pending: 'Pending' }[f.status] || f.status;
+  const bulkBar =
+    '<div class="txf-bulk-bar" id="txf-bulk-bar">' +
+      '<span id="txf-bulk-count">0 selected</span>' +
+      '<button class="txf-bulk-btn" onclick="bulkExportFiles()"><i class="ti ti-download"></i>Export</button>' +
+      '<button class="txf-bulk-btn danger" onclick="bulkDeleteFiles()"><i class="ti ti-trash"></i>Delete</button>' +
+      '<button class="txf-bulk-btn" onclick="clearFileSelection()"><i class="ti ti-x"></i>Cancel</button>' +
+    '</div>';
+
+  const selectAllRow =
+    '<div style="display:flex;align-items:center;gap:8px;padding:4px 2px 8px;font-size:12px;color:var(--text-tertiary)">' +
+      '<input type="checkbox" class="txf-file-cb" id="cb-select-all" onchange="toggleSelectAll(this)">' +
+      '<label for="cb-select-all" style="cursor:pointer">Select all</label>' +
+    '</div>';
+
+  const cards = files.map(function(f) {
+    const sp = { complete:'sp-complete', missing:'sp-missing', flagged:'sp-flagged', pending:'sp-pending' }[f.status] || 'sp-pending';
+    const sl = { complete:'Complete', missing:'Missing docs', flagged:'Flagged', pending:'Pending' }[f.status] || f.status;
     const sc = f.score >= 90 ? 'score-hi' : f.score >= 70 ? 'score-mid' : 'score-lo';
     const idx = S.files.indexOf(f);
-    return '<div class="txf-card" onclick="openTxfDetail(' + idx + ')">' +
-      '<div>' +
-        '<div class="txf-card-addr">' + (f.property_address || '—') + '</div>' +
-        '<div class="txf-card-meta">' + (f.txn_number || '') + (f.file_type ? ' · ' + f.file_type : '') + ' · ' + new Date(f.created_at).toLocaleDateString('en-CA') + '</div>' +
+    return '<div class="txf-card">' +
+      '<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">' +
+        '<input type="checkbox" class="txf-file-cb file-cb" data-idx="' + idx + '" onchange="updateFileSelection()" onclick="event.stopPropagation()">' +
+        '<div style="flex:1;min-width:0;cursor:pointer" onclick="openTxfDetail(' + idx + ')">' +
+          '<div class="txf-card-addr">' + (f.property_address || '—') + '</div>' +
+          '<div class="txf-card-meta">' + (f.txn_number || '') + (f.file_type ? ' · ' + f.file_type : '') + ' · ' + new Date(f.created_at).toLocaleDateString('en-CA') + '</div>' +
+        '</div>' +
       '</div>' +
       '<div class="txf-card-right">' +
         '<div style="font-size:12px;color:var(--text-secondary)">' + (f.broker_name || '—') + '</div>' +
         '<span class="status-pill ' + sp + '" style="font-size:10.5px">' + sl + '</span>' +
         '<span class="score ' + sc + '" style="font-size:12px">' + f.score + '%</span>' +
         '<i class="ti ti-chevron-right" style="color:var(--text-tertiary);font-size:13px"></i>' +
+        '<button class="del-btn" onclick="event.stopPropagation();confirmDelete(' + idx + ')" title="Delete"><i class="ti ti-trash"></i></button>' +
       '</div>' +
     '</div>';
   }).join('');
+
+  listEl.innerHTML = bulkBar + selectAllRow + cards;
+}
+
+function updateFileSelection() {
+  const checked = document.querySelectorAll('.file-cb:checked');
+  const bar = document.getElementById('txf-bulk-bar');
+  const countEl = document.getElementById('txf-bulk-count');
+  if (bar) bar.classList.toggle('visible', checked.length > 0);
+  if (countEl) countEl.textContent = checked.length + ' selected';
+  const all = document.querySelectorAll('.file-cb');
+  const sa = document.getElementById('cb-select-all');
+  if (sa) sa.checked = all.length > 0 && checked.length === all.length;
+}
+
+function toggleSelectAll(cb) {
+  document.querySelectorAll('.file-cb').forEach(function(c) { c.checked = cb.checked; });
+  updateFileSelection();
+}
+
+function clearFileSelection() {
+  document.querySelectorAll('.file-cb, #cb-select-all').forEach(function(c) { c.checked = false; });
+  updateFileSelection();
+}
+
+function getSelectedIndices() {
+  return Array.from(document.querySelectorAll('.file-cb:checked')).map(function(cb) { return parseInt(cb.dataset.idx); });
+}
+
+function bulkDeleteFiles() {
+  const indices = getSelectedIndices();
+  if (!indices.length) return;
+  if (!confirm('Delete ' + indices.length + ' file(s)? This cannot be undone after 7 days.')) return;
+  executeBulkDelete(indices);
+}
+
+function bulkExportFiles() {
+  const indices = getSelectedIndices();
+  if (!indices.length) return;
+  const selected = indices.map(function(i) { return S.files[i]; }).filter(Boolean);
+  const rows = [['TXN#','Address','Broker','Type','Status','Score','Date']];
+  selected.forEach(function(f) { rows.push([f.txn_number, f.property_address, f.broker_name, f.file_type, f.status, f.score + '%', (f.created_at || '').slice(0,10)]); });
+  const csv = rows.map(function(r) { return r.map(function(c) { return '"' + (c || '').toString().replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'opsflows_export.csv';
+  a.click();
+  toast(selected.length + ' file(s) exported');
 }
 
 function openTxfDetail(idx) {
@@ -2821,23 +2912,64 @@ function confirmDelete(idx) {
   if (el) el.textContent = 'File: ' + (f.property_address || '—') + ' · ' + (f.txn_number || '');
   document.getElementById('delete-overlay').classList.add('open');
 }
-function executeDelete() {
+async function executeDelete() {
   if (_deleteIdx === null) return;
   const f = S.files[_deleteIdx];
+
+  // Remove from UI immediately
   S.files.splice(_deleteIdx, 1);
-  // Mark deleted in Supabase (soft delete via status)
-  if (f.sb_id) {
-    // Hard delete from Supabase so it never reappears on login
-    fetch(SB_URL + '/rest/v1/transaction_files?id=eq.' + f.sb_id, {
-      method: 'DELETE',
-      headers: getAuthHeaders()
-    }).catch(e => console.warn('Delete:', e));
-  }
   closeOverlay('delete-overlay');
   _deleteIdx = null;
   renderDash();
   if (S.currentView === 'files') renderFilesView();
   toast('File deleted · 7-day recovery window active');
+
+  // Hard delete from Supabase with proper auth
+  if (f.sb_id) {
+    try {
+      const r = await fetch(SB_URL + '/rest/v1/transaction_files?id=eq.' + f.sb_id, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      if (!r.ok) {
+        const err = await r.text();
+        console.error('Delete failed:', r.status, err);
+        toast('Warning: could not delete from database — ' + r.status);
+      } else {
+        console.log('Deleted from Supabase:', f.sb_id);
+        // Also delete associated documents
+        await fetch(SB_URL + '/rest/v1/documents?transaction_file_id=eq.' + f.sb_id, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+      }
+    } catch(e) { console.error('Delete exception:', e); }
+  }
+}
+
+async function executeBulkDelete(indices) {
+  // Sort descending so splice doesn't shift indices
+  const sorted = [...indices].sort((a, b) => b - a);
+  const toDelete = sorted.map(i => S.files[i]).filter(Boolean);
+
+  // Remove from UI
+  sorted.forEach(i => S.files.splice(i, 1));
+  renderDash();
+  if (S.currentView === 'files') renderFilesView();
+  toast(toDelete.length + ' file(s) deleted · 7-day recovery window active');
+
+  // Delete from Supabase
+  for (const f of toDelete) {
+    if (!f.sb_id) continue;
+    try {
+      await fetch(SB_URL + '/rest/v1/transaction_files?id=eq.' + f.sb_id, {
+        method: 'DELETE', headers: getAuthHeaders()
+      });
+      await fetch(SB_URL + '/rest/v1/documents?transaction_file_id=eq.' + f.sb_id, {
+        method: 'DELETE', headers: getAuthHeaders()
+      });
+    } catch(e) { console.error('Bulk delete error:', e); }
+  }
 }
 
 // ── SEARCH WITH DROPDOWN ──────────────────────────────────────
