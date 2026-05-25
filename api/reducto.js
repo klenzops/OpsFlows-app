@@ -309,15 +309,13 @@ const EBCS_SCHEMA = {
 
     "Seller(s) initials": {
       type: "array",
-      description: "The row of 4 small initial boxes at the very top of page 1, above Section 1, labeled SELLER 1, SELLER 2, SELLER 3, SELLER 4. You MUST return exactly 4 objects — one per box position — regardless of whether the box is filled or empty. If a box is blank or you cannot see handwritten characters in it, return null for Initials. Never skip a position.",
-      minItems: 4,
-      maxItems: 4,
+      description: "At the very top of page 1, before Section 1, there is a horizontal row of 4 small rectangular boxes labeled underneath SELLER 1, SELLER 2, SELLER 3, SELLER 4. Look only at these 4 boxes. For each box: if you see handwritten characters inside the box return those characters as Initials. If the box is empty return null for Initials. Return one object per box using the label number (1, 2, 3, or 4) as the Seller value.",
       items: {
         type: "object",
         required: ["Seller", "Initials"],
         properties: {
-          "Seller":   { type: "number", description: "The seller position number: 1, 2, 3, or 4" },
-          "Initials": { type: ["string", "null"], description: "Exact handwritten characters in the box, or null if blank" }
+          "Seller":   { type: "number", description: "1, 2, 3, or 4 matching the label under the box" },
+          "Initials": { type: ["string", "null"], description: "Handwritten characters found inside the box or null if empty" }
         }
       }
     },
@@ -467,22 +465,30 @@ function verifyEBCS(extraction) {
           detail = 'Initials section not found';
           break;
         }
-        // Count how many sellers are on this contract
+        // Count actual sellers from the Sellers array
         const sellers = getField(extraction, 'Sellers') || [];
         const sellerCount = Math.max(1, sellers.filter(s => s && s['Full Name']).length);
-        // Check each required position
-        const missing = [];
-        for (let i = 0; i < sellerCount; i++) {
-          const entry = initialsArr[i];
-          const initials = entry?.Initials ?? entry?.initials ?? null;
-          if (!initials || String(initials).trim() === '' || initials === 'null') {
-            missing.push(i + 1);
+        // Build a lookup by Seller number (not array position)
+        // Reducto may return them in any order or skip positions
+        const initialsMap = {};
+        initialsArr.forEach(function(entry) {
+          if (entry && entry.Seller) {
+            const num = parseInt(entry.Seller);
+            const val = entry.Initials ?? entry.initials ?? null;
+            initialsMap[num] = val;
           }
+        });
+        // Check only the positions that matter (1 through sellerCount)
+        const missing = [];
+        for (let i = 1; i <= sellerCount; i++) {
+          const val = initialsMap[i];
+          const hasInitials = val !== null && val !== undefined && String(val).trim() !== '' && String(val) !== 'null';
+          if (!hasInitials) missing.push(i);
         }
         passed = missing.length === 0;
         detail = passed
-          ? `All ${sellerCount} seller(s) initialed`
-          : `Seller ${missing.join(', ')} missing initials`;
+          ? 'Seller ' + Array.from({length: sellerCount}, (_, i) => i+1).join(', ') + ' initialed'
+          : 'Seller ' + missing.join(', ') + ' missing initials';
         break;
       }
 
