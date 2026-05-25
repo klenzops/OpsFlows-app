@@ -22,7 +22,7 @@ const EBCS_RULES = [
   // 2. Declaration Seller (DS) number
   {
     field: "Declaration by the seller contract number", clause: "12.1", severity: "critical",
-    check: "present_and_format", format: /^DS\s?\d+/i,
+    check: "present",
     label: "Declaration Seller (DS) Number",
     next_action: "Draft an Amendment",
     email_text: "The Declaration of the seller (DS) at clause 12.1 is missing. Please draft an amendment for correction."
@@ -236,7 +236,7 @@ const EBCS_SCHEMA = {
     },
     "Declaration by the seller contract number": {
       type: "string",
-      description: "DS number referenced in clause 12.1. Format: DS followed by digits e.g. DS 00001."
+      description: "Found in clause 12.1. Look for the sentence that reads: 'The provisions set forth in the Annex Declarations by the seller of the immovable DS -'. Immediately after 'DS -' there is a handwritten or printed number field. Extract only that number. It may appear as digits only (e.g. 12345) or with a DS prefix (e.g. DS 12345). Do not include the word 'specimen' or any watermark text. Return null if the field after 'DS -' is blank."
     },
     "Contract End Date": {
       type: "string",
