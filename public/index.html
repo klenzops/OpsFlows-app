@@ -2427,14 +2427,21 @@ function _drawChart(canvas, labels, values) {
 function drawTxnChart(period) {
   const canvas = document.getElementById('txn-chart');
   if (!canvas) return;
+
+  // Always use real data from S.files — no mock fallback
+  const realData = getTxnVolumeData(period);
+  if (realData && realData.labels.length) {
+    return _drawChart(canvas, realData.labels, realData.values);
+  }
+
+  // No files at all — show empty chart with today's date
+  const today = new Date().toLocaleDateString('en-CA', {month:'short', day:'numeric'});
+  return _drawChart(canvas, [today], [0]);
+
+  // Dead code below kept for reference only
   const d = chartData[period] || chartData['7d'];
   const labels = d.labels;
   const values = d.values;
-  // Use real data if available
-  const realData = getTxnVolumeData();
-  if (realData && realData.labels.length > 1) {
-    return _drawChart(canvas, realData.labels, realData.values);
-  }
   if (period === '7d') values[values.length - 1] = Math.max(S.files.length, values[values.length-1]);
 
   const w = canvas.offsetWidth || 400;
@@ -3004,31 +3011,91 @@ function closeSearchDd() {
 }
 
 // ── TRANSACTION VOLUME TRACKING ───────────────────────────────
-function getTxnVolumeData() {
-  // Group files by date
-  const byDay = {};
-  S.files.forEach(f => {
+function getTxnVolumeData(period) {
+  if (!S.files.length) return null;
+
+  const now = new Date();
+  now.setHours(23, 59, 59, 999);
+
+  // Determine window start based on period
+  let windowStart;
+  let labelFormat;
+  let buckets = [];
+
+  if (period === '7d') {
+    // Last 7 days — one bucket per day
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      const label = d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+      buckets.push({ key, label, count: 0 });
+    }
+    windowStart = new Date(now);
+    windowStart.setDate(windowStart.getDate() - 6);
+    windowStart.setHours(0, 0, 0, 0);
+
+  } else if (period === '30d') {
+    // Last 30 days — one bucket per day
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      // Label every 5 days to avoid crowding
+      const label = i % 5 === 0 ? d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' }) : '';
+      buckets.push({ key, label, count: 0 });
+    }
+    windowStart = new Date(now);
+    windowStart.setDate(windowStart.getDate() - 29);
+    windowStart.setHours(0, 0, 0, 0);
+
+  } else {
+    // 3m — last 12 weeks, one bucket per week
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - (i * 7));
+      const weekStart = new Date(d);
+      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+      const key = weekStart.toISOString().slice(0, 10);
+      const label = weekStart.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+      buckets.push({ key, label, count: 0 });
+    }
+    windowStart = new Date(now);
+    windowStart.setDate(windowStart.getDate() - 83);
+    windowStart.setHours(0, 0, 0, 0);
+  }
+
+  // Count files per bucket — each file counts once on its created_at date
+  // S.files only contains non-deleted files (deleted ones are removed from S.files)
+  S.files.forEach(function(f) {
     if (!f.created_at) return;
-    const day = f.created_at.slice(0, 10);
-    if (!byDay[day]) byDay[day] = new Set();
-    byDay[day].add(f.property_address);
+    const fileDate = new Date(f.created_at);
+    if (fileDate < windowStart) return;
+    const fileDateStr = f.created_at.slice(0, 10);
+
+    if (period === '7d' || period === '30d') {
+      const bucket = buckets.find(function(b) { return b.key === fileDateStr; });
+      if (bucket) bucket.count++;
+    } else {
+      // Find the right week bucket
+      const fileDay = new Date(fileDateStr);
+      const weekStartDay = new Date(fileDay);
+      weekStartDay.setDate(weekStartDay.getDate() - weekStartDay.getDay());
+      const weekKey = weekStartDay.toISOString().slice(0, 10);
+      const bucket = buckets.find(function(b) { return b.key === weekKey; });
+      if (bucket) bucket.count++;
+    }
   });
 
-  const days = Object.keys(byDay).sort();
-  if (!days.length) return null;
+  // Filter to only labeled buckets for 30d (avoid empty labels crowding x-axis)
+  const displayBuckets = period === '30d'
+    ? buckets.filter(function(b) { return b.label !== ''; })
+    : buckets;
 
-  // Build cumulative running total
-  const allDays = [];
-  const allVals = [];
-  let cumulative = 0;
-  const addressesSeen = new Set();
-  days.forEach(day => {
-    byDay[day].forEach(addr => { if (!addressesSeen.has(addr)) { addressesSeen.add(addr); cumulative++; } });
-    allDays.push(day.slice(5)); // MM-DD
-    allVals.push(cumulative);
-  });
-
-  return { labels: allDays.slice(-7), values: allVals.slice(-7) };
+  return {
+    labels: displayBuckets.map(function(b) { return b.label; }),
+    values: displayBuckets.map(function(b) { return b.count; })
+  };
 }
 
 // ── VERIFY AGENT COUNTER (resets at midnight) ─────────────────
