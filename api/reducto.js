@@ -229,6 +229,32 @@ const EBCS_CONDITIONAL_RULES = [
     ]
   },
 
+  // Broker 2 — only if present
+  {
+    condition_field: "Name of Agency or Broker[1].Representative",
+    label_prefix: "Broker 2",
+    then_check: [
+      { field: "Name of Agency or Broker[1].Licence Number", severity: "critical", label: "Broker 2 Licence Number", check: "present", next_action: "Draft an Amendment", email_text: "Broker 2 licence number is missing. Please draft an amendment for correction." },
+      { field: "Signature Part - Agency/Broker[1].Signature present", severity: "critical", label: "Broker 2 Signature", check: "is_true", next_action: "Contact Broker Immediately", email_text: "Broker 2 signature is missing. Please have the broker sign and resubmit." }
+    ]
+  },
+  {
+    condition_field: "Name of Agency or Broker[2].Representative",
+    label_prefix: "Broker 3",
+    then_check: [
+      { field: "Name of Agency or Broker[2].Licence Number", severity: "critical", label: "Broker 3 Licence Number", check: "present", next_action: "Draft an Amendment", email_text: "Broker 3 licence number is missing. Please draft an amendment for correction." },
+      { field: "Signature Part - Agency/Broker[2].Signature present", severity: "critical", label: "Broker 3 Signature", check: "is_true", next_action: "Contact Broker Immediately", email_text: "Broker 3 signature is missing. Please have the broker sign and resubmit." }
+    ]
+  },
+  {
+    condition_field: "Name of Agency or Broker[3].Representative",
+    label_prefix: "Broker 4",
+    then_check: [
+      { field: "Name of Agency or Broker[3].Licence Number", severity: "critical", label: "Broker 4 Licence Number", check: "present", next_action: "Draft an Amendment", email_text: "Broker 4 licence number is missing. Please draft an amendment for correction." },
+      { field: "Signature Part - Agency/Broker[3].Signature present", severity: "critical", label: "Broker 4 Signature", check: "is_true", next_action: "Contact Broker Immediately", email_text: "Broker 4 signature is missing. Please have the broker sign and resubmit." }
+    ]
+  },
+
   // Spouse intervention — informational only, not critical
   {
     condition_field: "Intervention of the married or civil union spouse of the seller",
@@ -258,7 +284,7 @@ const EBCS_SCHEMA = {
     },
     "Contract End Date": {
       type: "string",
-      description: "The date the brokerage contract expires, found in clause 2.1. Return as written on the form."
+      description: "The expiry date of the brokerage contract found in clause 2.1. It is written as a full date on the form (day, month, year). Return the date EXACTLY as it is written on the form — do not reformat, convert, or abbreviate it. For example if it reads '15 juin 2025' return '15 juin 2025'. If it reads 'June 15, 2025' return 'June 15, 2025'. Return null if blank."
     },
     "Property Address": {
       type: "string",
@@ -605,6 +631,15 @@ function verifyEBCS(extraction) {
   const contractNum = getField(extraction, 'Brokerage contract number') || 'Unknown';
   const brokerEmail = getField(extraction, 'Name of Agency or Broker[0].Email') || null;
   const brokerName  = getField(extraction, 'Name of Agency or Broker[0].Representative') || null;
+  // All brokers for tab population
+  const allBrokers = (extraction['Name of Agency or Broker'] || []).map(function(b) {
+    return {
+      name: b['Representative'] || b['Name'] || null,
+      licence: b['Licence Number'] || null,
+      email: b['Email'] || null,
+      agency: b['Name'] || null
+    };
+  }).filter(function(b) { return b.name; });
 
   // Summary
   const summary = criticalFails === 0
@@ -640,6 +675,7 @@ function verifyEBCS(extraction) {
     broker_email_body: brokerEmailBody,
     check_results: results,
     verified_at: new Date().toISOString(),
+    all_brokers: allBrokers,
     document_type: 'EBCS'
   };
 }
