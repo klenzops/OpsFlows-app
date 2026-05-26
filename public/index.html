@@ -1974,8 +1974,9 @@ function buildFile(extraction, report, filename, fileId) {
     txn_number: report.contract_number || ('TXN-' + now.getFullYear() + '-' + String(S.files.length + 1).padStart(4, '0')),
     property_address: report.property_address || extraction?.['Property Address'] || 'Unknown Address',
     broker_name: report.broker_name || extraction?.['Name of Agency or Broker']?.[0]?.Representative || '—',
-    broker_licence: extraction?.['Name of Agency or Broker']?.[0]?.['Licence Number'] || report?.check_results?.find(r => r.rule === 'Broker Licence Number')?.value || '—',
+    broker_licence: extraction?.['Name of Agency or Broker']?.[0]?.['Licence Number'] || '—',
     broker_email: extraction?.['Name of Agency or Broker']?.[0]?.Email || report?.broker_email || '—',
+    all_brokers: report?.all_brokers || [],
     seller_name: report.seller_name || extraction?.['Sellers']?.[0]?.['Full Name'] || null,
     contract_number: report.contract_number || extraction?.['Brokerage contract number'] || null,
     cadastral_number: report.cadastral_number || extraction?.['Cadastral Number'] || null,
@@ -2007,6 +2008,9 @@ async function saveFile(f, extraction) {
         status: f.status,
         score: f.score,
         property_type: 'residential',
+        broker_licence: f.broker_licence || null,
+        broker_email: f.broker_email || null,
+        all_brokers: f.all_brokers || null,
         user_id: S.user?.id || null
       })
     });
@@ -2098,13 +2102,29 @@ async function loadFiles() {
       }
     });
 
-    // Merge files with their reports
-    S.files = rows.map(row => ({
-      ...row,
-      sb_id: row.id,
-      report: docMap[row.id]?.report || null,
-      extraction: docMap[row.id]?.extraction || null
-    }));
+    // Merge files with their reports + re-derive broker fields from extraction
+    S.files = rows.map(function(row) {
+      const report = docMap[row.id]?.report || null;
+      const extraction = docMap[row.id]?.extraction || null;
+      const brokers = (extraction && extraction['Name of Agency or Broker']) || [];
+      const allBrokers = brokers.map(function(b) {
+        return {
+          name: b['Representative'] || b['Name'] || null,
+          licence: b['Licence Number'] || null,
+          email: b['Email'] || null
+        };
+      }).filter(function(b) { return b.name; });
+
+      return {
+        ...row,
+        sb_id: row.id,
+        report,
+        extraction,
+        broker_licence: brokers[0]?.['Licence Number'] || row.broker_licence || '—',
+        broker_email: brokers[0]?.['Email'] || row.broker_email || '—',
+        all_brokers: allBrokers.length ? allBrokers : (row.all_brokers || [])
+      };
+    });
 
     renderDash();
   } catch(e) { console.error('loadFiles exception:', e); }
@@ -2823,6 +2843,7 @@ function openTxfDetail(idx) {
           '<span class="txf-detail-tag"><i class="ti ti-hash"></i>' + (f.txn_number || '—') + '</span>' +
           '<span class="txf-detail-tag"><i class="ti ti-user"></i>' + (f.broker_name || '—') + '</span>' +
           (f.cadastral_number ? '<span class="txf-detail-tag"><i class="ti ti-map-pin"></i>Cadastral: ' + f.cadastral_number + '</span>' : '') +
+          (f.extraction && f.extraction['Contract End Date'] ? '<span class="txf-detail-tag"><i class="ti ti-calendar"></i>Expires: ' + f.extraction['Contract End Date'] + '</span>' : '') +
         '</div>' +
       '</div>' +
       '<div style="display:flex;align-items:center;gap:8px">' +
@@ -3160,18 +3181,25 @@ function renderBrokers(alpha) {
   // Merge manual brokers + auto-detected from files
   const manual = getBrokers();
   const fromFiles = {};
-  S.files.forEach(f => {
-    if (!f.broker_name || f.broker_name === '—') return;
-    if (!fromFiles[f.broker_name]) {
-      fromFiles[f.broker_name] = {
-        name: f.broker_name,
-        licence: f.broker_licence || f.report?.check_results?.find(r => r.rule === 'Broker Licence Number')?.value || '—',
-        email: f.broker_email && f.broker_email !== '—' ? f.broker_email : '—',
-        files: 0, scores: [], source: 'file'
-      };
-    }
-    fromFiles[f.broker_name].files++;
-    fromFiles[f.broker_name].scores.push(f.score || 0);
+  S.files.forEach(function(f) {
+    // Support multi-broker documents via all_brokers array
+    const brokers = (f.all_brokers && f.all_brokers.length)
+      ? f.all_brokers
+      : (f.broker_name && f.broker_name !== '—' ? [{ name: f.broker_name, licence: f.broker_licence || '—', email: f.broker_email || '—' }] : []);
+
+    brokers.forEach(function(b) {
+      if (!b.name || b.name === '—') return;
+      if (!fromFiles[b.name]) {
+        fromFiles[b.name] = {
+          name: b.name,
+          licence: b.licence && b.licence !== '—' ? b.licence : '—',
+          email: b.email && b.email !== '—' ? b.email : '—',
+          files: 0, scores: [], source: 'file'
+        };
+      }
+      fromFiles[b.name].files++;
+      fromFiles[b.name].scores.push(f.score || 0);
+    });
   });
 
   // Merge: manual entries take priority
