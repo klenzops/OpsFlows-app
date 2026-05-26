@@ -1747,6 +1747,38 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
     </div>
   </div>
 </div>
+
+<!-- Broker Delete Popup -->
+<div class="overlay" id="broker-delete-overlay" onclick="if(event.target===this)closeOverlay('broker-delete-overlay')">
+  <div class="upload-popup" style="width:480px">
+    <div class="upload-popup-head">
+      <div>
+        <div class="modal-title">Delete Broker Profile</div>
+        <div class="modal-sub">This action cannot be undone</div>
+      </div>
+      <button class="modal-close" onclick="closeOverlay('broker-delete-overlay')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="upload-popup-body" style="padding:24px 28px">
+      <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:20px">
+        <i class="ti ti-alert-circle" style="font-size:26px;color:var(--red);flex-shrink:0;margin-top:2px"></i>
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:8px">Are you sure?</div>
+          <div style="font-size:13.5px;color:var(--text-secondary);line-height:1.7">
+            This will permanently remove the broker profile from your registry.<br>
+            <strong style="color:var(--text-primary)">This cannot be undone.</strong>
+          </div>
+          <div id="broker-delete-info" style="font-size:12.5px;color:var(--text-tertiary);margin-top:10px;padding:8px 12px;background:var(--bg);border-radius:var(--radius-sm)"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" onclick="closeOverlay('broker-delete-overlay')">Cancel</button>
+        <button class="btn" style="background:var(--red);color:white;border-color:var(--red)" onclick="executeBrokerDelete()">
+          <i class="ti ti-trash"></i>Delete Broker
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Report Modal -->
 <div class="overlay" id="report-overlay">
   <div class="modal">
@@ -3275,7 +3307,7 @@ function renderBrokers(alpha) {
         '<td style="text-align:right">' + (avg ? '<span class="score ' + sc + '">' + avg + '%</span>' : '—') + '</td>' +
         '<td style="text-align:center;white-space:nowrap">' +
           '<button class="del-btn" onclick="editBrokerByName(\'' + encodeURIComponent(b.name) + '\')" title="Edit broker" style="margin-right:2px"><i class="ti ti-pencil"></i></button>' +
-          '<button class="del-btn" onclick="confirmDeleteBroker(' + globalIdx + ')" title="Delete broker"><i class="ti ti-trash"></i></button>' +
+          '<button class="del-btn" onclick="confirmDeleteBroker(\'' + encodeURIComponent(b.name) + '\')" title="Delete broker"><i class="ti ti-trash"></i></button>' +
         '</td>' +
       '</tr>';
     }).join('') + '</tbody></table>';
@@ -3295,47 +3327,36 @@ async function saveNewBroker() {
   toast('Broker added');
 }
 
-function confirmDeleteBroker(idx) {
-  _deleteBrokerIdx = idx;
-  // Update popup for broker context
-  const titleEl = document.querySelector('#delete-overlay .modal-title');
-  if (titleEl) titleEl.innerHTML = '<i class="ti ti-alert-triangle" style="margin-right:6px"></i>Delete Broker';
-  const msgEl = document.getElementById('delete-main-msg');
-  if (msgEl) msgEl.innerHTML = 'This will remove the broker profile from your registry immediately.<br>You have <strong>7 days</strong> to contact OpsFlows support to reverse this action.<br>After 7 days, the broker profile is <strong>permanently deleted</strong> and cannot be recovered.';
-  const el = document.getElementById('delete-file-info');
-  // Get full merged broker list to find the right one
+function confirmDeleteBroker(encodedName) {
+  const name = typeof encodedName === 'string' && encodedName.includes('%') ? decodeURIComponent(encodedName) : encodedName;
+  // Find broker by name
   const manual = getBrokers();
-  const fromFiles = {};
-  S.files.forEach(function(f) {
-    const brokers = (f.all_brokers && f.all_brokers.length) ? f.all_brokers : (f.broker_name && f.broker_name !== '—' ? [{ name: f.broker_name, licence: f.broker_licence || '—', email: f.broker_email || '—' }] : []);
-    brokers.forEach(function(b) { if (b.name && !fromFiles[b.name]) fromFiles[b.name] = b; });
-  });
-  const merged = [...manual];
-  Object.values(fromFiles).forEach(function(fb) { if (!merged.find(function(m) { return m.name === fb.name; })) merged.push(fb); });
-  if (el && merged[idx]) el.textContent = merged[idx].name + (merged[idx].licence && merged[idx].licence !== '—' ? ' · ' + merged[idx].licence : '');
-  const btn = document.querySelector('#delete-overlay button[onclick="executeDelete()"]');
-  if (btn) btn.setAttribute('onclick', 'executeBrokerDelete()');
-  document.getElementById('delete-overlay').classList.add('open');
+  let found = manual.find(function(b) { return b.name === name; });
+  if (!found) {
+    S.files.forEach(function(f) {
+      const bl = (f.all_brokers && f.all_brokers.length) ? f.all_brokers : (f.broker_name && f.broker_name !== '—' ? [{ name: f.broker_name }] : []);
+      bl.forEach(function(b) { if (b.name === name && !found) found = { name: b.name, licence: b.licence, source: 'file' }; });
+    });
+  }
+  window._brokerToDelete = found || { name };
+  const el = document.getElementById('broker-delete-info');
+  if (el) el.textContent = name + (found && found.licence && found.licence !== '—' ? ' · ' + found.licence : '');
+  document.getElementById('broker-delete-overlay').classList.add('open');
 }
 
-function executeBrokerDelete() {
-  if (_deleteBrokerIdx === null) return;
-  const brokers = getBrokers();
-  const broker = brokers[_deleteBrokerIdx];
-  brokers.splice(_deleteBrokerIdx, 1);
-  _manualBrokers = brokers;
-  if (broker?.id) deleteBrokerFromSupabase(broker.id);
-  _deleteBrokerIdx = null;
-  // Restore popup to file-delete defaults
-  const btn = document.querySelector('#delete-overlay button[onclick="executeBrokerDelete()"]');
-  if (btn) btn.setAttribute('onclick', 'executeDelete()');
-  const titleEl = document.querySelector('#delete-overlay .modal-title');
-  if (titleEl) titleEl.innerHTML = '<i class="ti ti-alert-triangle" style="margin-right:6px"></i>Delete File';
-  const msgEl = document.getElementById('delete-main-msg');
-  if (msgEl) msgEl.innerHTML = 'This will remove the file from your dashboard immediately.<br>You have <strong>7 days</strong> to contact OpsFlows support to reverse this action.<br>After 7 days, the file and all associated documents are <strong>permanently deleted</strong> and cannot be recovered.';
-  closeOverlay('delete-overlay');
+async function executeBrokerDelete() {
+  const broker = window._brokerToDelete;
+  if (!broker) return;
+  // Remove from _manualBrokers cache
+  _manualBrokers = _manualBrokers.filter(function(b) { return b.name !== broker.name; });
+  // Delete from Supabase if it has an id
+  if (broker.id) {
+    await deleteBrokerFromSupabase(broker.id);
+  }
+  window._brokerToDelete = null;
+  closeOverlay('broker-delete-overlay');
   renderBrokers();
-  toast('Broker deleted · 7-day recovery window active');
+  toast('Broker deleted');
 }
 
 // ── COMPLETE FILE EMAIL ───────────────────────────────────────
@@ -3386,20 +3407,23 @@ async function saveEditBroker() {
   if (!name) { toast('Name is required'); return; }
 
   if (brokerId) {
-    // Update existing Supabase broker
     try {
       const r = await fetch(SB_URL + '/rest/v1/brokers?id=eq.' + brokerId, {
         method: 'PATCH',
-        headers: getAuthHeaders(),
+        headers: Object.assign(getAuthHeaders(), {'Prefer': 'return=representation'}),
         body: JSON.stringify({ name, licence: licence || null, email: email || null })
       });
       if (r.ok) {
-        const b = _manualBrokers.find(function(x) { return x.id === brokerId; });
-        if (b) { b.name = name; b.licence = licence || null; b.email = email || null; }
-      } else { console.error('saveEditBroker PATCH failed:', r.status); }
-    } catch(e) { console.error('saveEditBroker exception:', e); }
+        // Refresh full broker list from Supabase to ensure accuracy
+        await loadManualBrokers();
+      } else {
+        console.error('saveEditBroker PATCH failed:', r.status, await r.text());
+        toast('Save failed — try again');
+        return;
+      }
+    } catch(e) { console.error('saveEditBroker exception:', e); return; }
   } else {
-    // File-sourced broker — save as new manual entry in Supabase
+    // File-sourced broker — create new manual entry
     await addBrokerToSupabase({ name, licence: licence || null, email: email || null });
   }
 
