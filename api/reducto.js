@@ -41,7 +41,7 @@ const EBCS_RULES = [
   {
     field: "Seller(s) initials", clause: "-", severity: "critical",
     check: "seller_initials",
-    label: "Seller Initials",
+    label: "Seller 1 Initials",
     next_action: "Contact Seller Immediately",
     email_text: "A seller(s) initials is missing. Please have the seller sign and resubmit."
   },
@@ -50,7 +50,7 @@ const EBCS_RULES = [
   {
     field: "Sellers[0].Full Name", clause: "1", severity: "critical",
     check: "present",
-    label: "Seller Full Name",
+    label: "Seller 1 Full Name",
     next_action: "Draft an Amendment",
     email_text: "The Full Name of the seller(s) is missing. Please draft an amendment for correction."
   },
@@ -59,7 +59,7 @@ const EBCS_RULES = [
   {
     field: "Signature Part - Seller(s)", clause: "15", severity: "critical",
     check: "at_least_one_signature",
-    label: "Seller Signature",
+    label: "Seller 1 Signature",
     next_action: "Contact Seller Immediately",
     email_text: "A seller(s) signature is missing. Please have the seller sign and resubmit."
   },
@@ -68,7 +68,7 @@ const EBCS_RULES = [
   {
     field: "Signature Part - Agency/Broker[0].Signature present", clause: "15", severity: "critical",
     check: "is_true",
-    label: "Broker Signature",
+    label: "Broker 1 Signature",
     next_action: "Contact Broker Immediately",
     email_text: "A broker(s) signature is missing. Please have the broker sign and resubmit."
   },
@@ -104,7 +104,7 @@ const EBCS_RULES = [
   {
     field: "Sellers[0].ID type", clause: "1.1", severity: "critical",
     check: "present",
-    label: "Seller ID Type",
+    label: "Seller 1 ID Type",
     next_action: "Draft an Amendment",
     email_text: "The Seller ID type at clause 1.1 is missing. Please draft an amendment for correction."
   },
@@ -113,7 +113,7 @@ const EBCS_RULES = [
   {
     field: "Sellers[0].ID Document Number", clause: "1.1", severity: "critical",
     check: "present",
-    label: "Seller ID Document Number",
+    label: "Seller 1 ID Document Number",
     next_action: "Draft an Amendment",
     email_text: "The Seller ID document number at clause 1.1 is missing/invalid. Please draft an amendment for correction."
   },
@@ -122,7 +122,7 @@ const EBCS_RULES = [
   {
     field: "Sellers[0].Date of Birth", clause: "1.1", severity: "critical",
     check: "present",
-    label: "Seller Date of Birth",
+    label: "Seller 1 Date of Birth",
     next_action: "Draft an Amendment",
     email_text: "The Seller Date of Birth at clause 1.1 is missing/invalid. Please draft an amendment for correction."
   },
@@ -149,7 +149,7 @@ const EBCS_RULES = [
   {
     field: "Name of Agency or Broker[0].Licence Number", clause: "1", severity: "critical",
     check: "present",
-    label: "Broker Licence Number",
+    label: "Broker 1 Licence Number",
     next_action: "Draft an Amendment",
     email_text: "The broker licence number at clause 1 is missing. Please draft an amendment for correction."
   },
