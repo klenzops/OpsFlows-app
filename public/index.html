@@ -3274,7 +3274,7 @@ function renderBrokers(alpha) {
         '<td style="color:var(--text-secondary)">' + (b.files || 0) + '</td>' +
         '<td style="text-align:right">' + (avg ? '<span class="score ' + sc + '">' + avg + '%</span>' : '—') + '</td>' +
         '<td style="text-align:center;white-space:nowrap">' +
-          '<button class="del-btn" onclick="editBroker(' + globalIdx + ')" title="Edit broker" style="margin-right:2px"><i class="ti ti-pencil"></i></button>' +
+          '<button class="del-btn" onclick="editBrokerByName(\'' + encodeURIComponent(b.name) + '\')" title="Edit broker" style="margin-right:2px"><i class="ti ti-pencil"></i></button>' +
           '<button class="del-btn" onclick="confirmDeleteBroker(' + globalIdx + ')" title="Delete broker"><i class="ti ti-trash"></i></button>' +
         '</td>' +
       '</tr>';
@@ -3351,32 +3351,32 @@ function buildCompleteEmail(f) {
 
 
 // ── EDIT BROKER ───────────────────────────────────────────────
-function editBroker(idx) {
-  // Build merged list exactly as renderBrokers does
+function editBrokerByName(encodedName) {
+  const name = decodeURIComponent(encodedName);
+  // Find broker by name across manual + file-sourced
   const manual = getBrokers();
-  const fromFiles = {};
-  S.files.forEach(function(f) {
-    const brokers = (f.all_brokers && f.all_brokers.length) ? f.all_brokers
-      : (f.broker_name && f.broker_name !== '—' ? [{ name: f.broker_name, licence: f.broker_licence || '—', email: f.broker_email || '—' }] : []);
-    brokers.forEach(function(b) {
-      if (b.name && !fromFiles[b.name]) fromFiles[b.name] = { name: b.name, licence: b.licence || '—', email: b.email || '—', source: 'file' };
+  let found = manual.find(function(b) { return b.name === name; });
+
+  if (!found) {
+    // Check file-sourced brokers
+    S.files.forEach(function(f) {
+      const brokers = (f.all_brokers && f.all_brokers.length) ? f.all_brokers
+        : (f.broker_name && f.broker_name !== '—' ? [{ name: f.broker_name, licence: f.broker_licence || '—', email: f.broker_email || '—' }] : []);
+      brokers.forEach(function(b) { if (b.name === name && !found) found = b; });
     });
-  });
-  const merged = [...manual];
-  Object.values(fromFiles).forEach(function(fb) { if (!merged.find(function(m) { return m.name === fb.name; })) merged.push(fb); });
+  }
 
-  const b = merged[idx];
-  if (!b) { console.warn('editBroker: no broker at idx', idx, merged); return; }
+  if (!found) { console.warn('editBrokerByName: not found:', name); return; }
 
-  // Store the broker id and original name for save
-  document.getElementById('edit-broker-idx').value = idx;
-  document.getElementById('edit-broker-idx').dataset.brokerId = b.id || '';
-  document.getElementById('edit-broker-idx').dataset.originalName = b.name || '';
-  document.getElementById('edit-broker-name').value = b.name || '';
-  document.getElementById('edit-broker-licence').value = (b.licence && b.licence !== '—') ? b.licence : '';
-  document.getElementById('edit-broker-email').value = (b.email && b.email !== '—') ? b.email : '';
+  document.getElementById('edit-broker-idx').dataset.brokerId = found.id || '';
+  document.getElementById('edit-broker-idx').dataset.originalName = found.name || '';
+  document.getElementById('edit-broker-name').value = found.name || '';
+  document.getElementById('edit-broker-licence').value = (found.licence && found.licence !== '—') ? found.licence : '';
+  document.getElementById('edit-broker-email').value = (found.email && found.email !== '—') ? found.email : '';
   document.getElementById('edit-broker-overlay').classList.add('open');
 }
+
+function editBroker(idx) { editBrokerByName(encodeURIComponent(idx)); }
 
 async function saveEditBroker() {
   const name = document.getElementById('edit-broker-name').value.trim();
