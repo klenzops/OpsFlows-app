@@ -1990,8 +1990,19 @@ function buildFile(extraction, report, filename, fileId) {
 async function saveFile(f, extraction) {
   try {
     const token = localStorage.getItem('sb_access_token');
-    if (!token) { console.error('No auth token — not saving'); return; }
-    console.log('saveFile: user.id =', S.user?.id, '| token starts with:', token?.slice(0,20));
+    if (!token) { console.error('saveFile: no token'); toast('Not signed in — please refresh and log in again'); return; }
+
+    // Ensure user.id is available — re-fetch if missing
+    if (!S.user?.id) {
+      try {
+        const uR = await fetch(SB_URL + '/auth/v1/user', { headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token } });
+        if (uR.ok) { const u = await uR.json(); S.user = u; localStorage.setItem('sb_user', JSON.stringify(u)); }
+      } catch(e) {}
+    }
+
+    if (!S.user?.id) { console.error('saveFile: still no user.id after refresh'); toast('Session error — please log out and back in'); return; }
+
+    console.log('saveFile: user.id =', S.user.id, '| token[:20] =', token.slice(0,20));
 
     // Save transaction file
     const r = await fetch(`${SB_URL}/rest/v1/transaction_files`, {
@@ -2017,8 +2028,8 @@ async function saveFile(f, extraction) {
 
     if (!r.ok) {
       const errText = await r.text();
-      console.error('saveFile transaction_files failed:', r.status, errText);
-      toast('Save error — check console');
+      console.error('saveFile FAILED:', r.status, errText);
+      toast('Save failed (' + r.status + ') — open console for details');
       return;
     }
 
