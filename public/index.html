@@ -2227,16 +2227,15 @@ function renderTable() {
     const sp = { complete: 'sp-complete', missing: 'sp-missing', flagged: 'sp-flagged', pending: 'sp-pending' }[f.status] || 'sp-pending';
     const sl = { complete: 'Complete', missing: 'Missing ' + (f.report?.missing_items?.length || ''), flagged: 'Flagged', pending: 'Pending' }[f.status] || f.status;
     const sc = f.score >= 90 ? 'score-hi' : f.score >= 70 ? 'score-mid' : 'score-lo';
-    const addr = (f.property_address || '').split(',')[0];
-    const city = (f.property_address || '').split(',').slice(1).join(',').trim();
+    const fullAddr = (f.property_address || '').trim();
     const contractEnd = f.extraction?.['Contract End Date'] || f.report?.full_extraction?.['Contract End Date'] || null;
     // Show exactly as written on the contract — no reformatting
     const expiry = contractEnd || '—';
     const isExpiringSoon = contractEnd && (() => { const d = new Date(contractEnd); const diff = (d - new Date()) / (1000*60*60*24); return diff >= 0 && diff <= 30; })();
     const isExpired = contractEnd && new Date(contractEnd) < new Date();
     return '<tr class="row" onclick="openReport(S.files[' + i + '])">' +
-      '<td><div class="file-addr" style="font-size:12.5px;color:var(--text-primary);font-weight:500">' + addr + '</div>' +
-      '<div class="file-meta" style="color:var(--text-tertiary)">' + (city || '') + (city && (f.txn_number || f.file_type) ? ' · ' : '') + (f.txn_number || '') + (f.file_type ? ' · ' + f.file_type : '') + '</div></td>' +
+      '<td><div class="file-addr" style="font-size:12.5px;color:var(--text-primary);font-weight:500">' + fullAddr + '</div>' +
+      '<div class="file-meta" style="color:var(--text-tertiary)">' + (f.txn_number || '') + (f.file_type ? ' · ' + f.file_type : '') + '</div></td>' +
       '<td style="font-size:12px;color:var(--text-secondary)">' + (f.broker_name || '—') + '</td>' +
       '<td><span class="status-pill ' + sp + '" style="font-size:10.5px">' + sl + '</span></td>' +
       '<td style="font-size:11.5px;' + (isExpired ? 'color:var(--red)' : isExpiringSoon ? 'color:var(--orange)' : 'color:var(--text-tertiary)') + '">' + expiry + '</td>' +
@@ -2310,24 +2309,19 @@ function openReport(f) {
       b += '</div>';
     }
 
-    // Send to broker (before audit trail)
+    // Send to broker — editable textarea before sending
     if (r.broker_email_body) {
-      const encodedEmail2 = encodeURIComponent(r.broker_email_body);
-      const encodedSubject2 = encodeURIComponent('OpsFlows Compliance Review — ' + (r.contract_number || 'EBCS'));
+      const subj2 = 'OpsFlows Compliance Review — ' + (r.contract_number || 'EBCS');
       const brokerEmail2 = r.broker_email || '';
+      const textareaId = 'broker-email-body-' + Date.now();
       b += '<div class="section" style="border-top:1px solid var(--border-light);padding-top:16px;margin-top:4px">' +
         '<div class="section-title">Send to Broker</div>' +
-        '<div style="background:var(--bg);border-radius:var(--radius-md);padding:14px;margin-bottom:12px;font-size:13px;white-space:pre-line;color:var(--text-secondary);line-height:1.6">' + r.broker_email_body + '</div>' +
-        '<a href="mailto:' + brokerEmail2 + '?subject=' + encodedSubject2 + '&body=' + encodedEmail2 + '" style="display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:white;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;text-decoration:none;letter-spacing:-.01em"><i class="ti ti-mail"></i> Send Email to Broker</a>' +
-        '</div>';
-    }
-    // Complete email (100% only, before audit trail)
-    if (r && r.verdict === 'COMPLETE' && r.score === 100) {
-      const mailto2 = buildCompleteEmail(f);
-      b += '<div class="section" style="border-top:1px solid var(--border-light);padding-top:16px;margin-top:4px">' +
-        '<div class="section-title" style="color:var(--green-text)">✓ File Complete</div>' +
-        '<div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px">This file has passed all compliance checks. You may notify the broker.</div>' +
-        '<a href="' + mailto2 + '" style="display:inline-flex;align-items:center;gap:6px;background:var(--green-text);color:white;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;text-decoration:none"><i class="ti ti-mail"></i>Send Completion Email to Broker</a>' +
+        '<div style="font-size:12px;color:var(--text-tertiary);margin-bottom:8px">Review and edit the email below before sending.</div>' +
+        '<textarea id="' + textareaId + '" style="width:100%;padding:12px 14px;border:0.5px solid var(--border-light);border-radius:var(--radius-md);font-size:13px;font-family:inherit;color:var(--text-primary);background:var(--bg);outline:none;resize:vertical;line-height:1.7;min-height:160px;transition:border-color .15s" onfocus="this.style.borderColor=\'#a1a1aa\'" onblur="this.style.borderColor=\'\'">' + r.broker_email_body.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>' +
+        '<div style="display:flex;gap:8px;margin-top:10px;align-items:center">' +
+        '<button onclick="(function(){var ta=document.getElementById(\'' + textareaId + '\');var body=ta.value;var encoded=encodeURIComponent(body);var subj=encodeURIComponent(\'' + subj2.replace(/'/g,"\'") + '\');window.open(\'mailto:' + brokerEmail2 + '?subject=\'+subj+\'&body=\'+encoded);})()" style="display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:white;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;text-decoration:none;letter-spacing:-.01em;border:none;cursor:pointer;font-family:inherit"><i class="ti ti-mail"></i>Send Email to Broker</button>' +
+        '<button onclick="document.getElementById(\'' + textareaId + '\').value=\'' + r.broker_email_body.replace(/\\/g,'\\\\').replace(/'/g,"\'").replace(/\n/g,'\\n') + '\'" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--radius-sm);font-size:12.5px;font-weight:500;border:0.5px solid var(--border-light);background:var(--surface);color:var(--text-secondary);cursor:pointer;font-family:inherit"><i class="ti ti-refresh"></i>Reset</button>' +
+        '</div>' +
         '</div>';
     }
 
