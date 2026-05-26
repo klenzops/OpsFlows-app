@@ -353,13 +353,13 @@ const EBCS_SCHEMA = {
 
     "Seller(s) initials": {
       type: "array",
-      description: "At the very top of page 1, before Section 1, there is a horizontal row of 4 small rectangular boxes labeled underneath SELLER 1, SELLER 2, SELLER 3, SELLER 4. Look only at these 4 boxes. For each box: if you see handwritten characters inside the box return those characters as Initials. If the box is empty return null for Initials. Return one object per box using the label number (1, 2, 3, or 4) as the Seller value.",
+      description: "On page 1, located in the middle of the page, under the large explanatory paragraph about the contract terms, and directly BEFORE Section 1 begins, there is a horizontal row of exactly four small rectangular boxes. Each box has a label printed below it: SELLER 1, SELLER 2, SELLER 3, SELLER 4. Examine each box individually from left to right. A box is considered filled if it contains ANY mark whatsoever — handwritten letters, initials, a checkmark, a pen stroke, a scribble, or any ink mark at all. Even a single letter or partial mark counts as filled. Only return null if the box is completely blank with absolutely no marks. Return one object per box. The array must always have exactly 4 entries — one for each box position.",
       items: {
         type: "object",
         required: ["Seller", "Initials"],
         properties: {
-          "Seller":   { type: "number", description: "1, 2, 3, or 4 matching the label under the box" },
-          "Initials": { type: ["string", "null"], description: "Handwritten characters found inside the box or null if empty" }
+          "Seller":   { type: "number", description: "The box position: 1 for leftmost (SELLER 1), 2 for second (SELLER 2), 3 for third (SELLER 3), 4 for rightmost (SELLER 4)" },
+          "Initials": { type: ["string", "null"], description: "Any characters or marks found inside this box exactly as they appear. Return null only if the box contains absolutely no ink marks." }
         }
       }
     },
