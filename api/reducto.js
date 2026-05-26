@@ -266,7 +266,7 @@ const EBCS_SCHEMA = {
     },
     "Cadastral Number": {
       type: "string",
-      description: "Cadastral lot number found in clause 3.1."
+      description: "In clause 3.1 on page 3, look for the cadastral lot number of the property. In Quebec, a renovated lot cadastral number is exactly 7 digits (e.g. 1234567). It may appear after the words 'lot' or 'cadastre' or within the legal description of the immovable. Do not confuse it with the civic address, postal code, dimensions, or area of the property. Do not confuse it with the municipal lot number or any other number on the page. Extract only the 7-digit cadastral number. If the property is a condo, there may be multiple cadastral numbers — extract the one for the private portion. Return null if not found."
     },
     "Asking Price": {
       type: "string",
@@ -662,11 +662,17 @@ export default async function handler(req, res) {
     const apiKey = process.env.REDUCTO_API_KEY;
 
     // Upload to Reducto
-    const uploadResp = await fetch('https://platform.reducto.ai/upload', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': contentType },
-      body,
-    });
+    const uploadController = new AbortController();
+    const uploadTimeout = setTimeout(() => uploadController.abort(), 60000);
+    let uploadResp;
+    try {
+      uploadResp = await fetch('https://platform.reducto.ai/upload', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': contentType },
+        body,
+        signal: uploadController.signal
+      });
+    } finally { clearTimeout(uploadTimeout); }
 
     if (!uploadResp.ok) {
       const t = await uploadResp.text();
@@ -677,15 +683,21 @@ export default async function handler(req, res) {
     const fileRef = `reducto://${uploadData.file_id}`;
 
     // Extract with schema
-    const extractResp = await fetch('https://platform.reducto.ai/extract', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        input: fileRef,
-        instructions: { schema: EBCS_SCHEMA, system_prompt: EBCS_SYSTEM_PROMPT },
-        settings: { include_images: false }
-      }),
-    });
+    const extractController = new AbortController();
+    const extractTimeout = setTimeout(() => extractController.abort(), 240000);
+    let extractResp;
+    try {
+      extractResp = await fetch('https://platform.reducto.ai/extract', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          input: fileRef,
+          instructions: { schema: EBCS_SCHEMA, system_prompt: EBCS_SYSTEM_PROMPT },
+          settings: { include_images: false }
+        }),
+        signal: extractController.signal
+      });
+    } finally { clearTimeout(extractTimeout); }
 
     if (!extractResp.ok) {
       const t = await extractResp.text();
@@ -704,6 +716,7 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
-    return res.status(200).json({ error: err.message });
+    const msg = err.name === 'AbortError' ? 'Reducto took too long to respond. Please try again with a smaller file.' : err.message;
+    return res.status(200).json({ error: msg });
   }
 }
