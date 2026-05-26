@@ -1905,6 +1905,8 @@ function enterApp(user) {
   document.getElementById('app').classList.add('visible');
   loadFiles();
   loadManualBrokers();
+  // Restore hidden broker names
+  try { _hiddenBrokerNames = new Set(JSON.parse(localStorage.getItem('opsflows_hidden_brokers') || '[]')); } catch(e) {}
 }
 
 async function handleSignOut() {
@@ -3199,6 +3201,7 @@ function incrementVerifyCount() {
 
 // ── BROKER MANAGEMENT — Supabase persisted ───────────────────
 let _manualBrokers = []; // in-memory cache
+let _hiddenBrokerNames = new Set(); // brokers deleted by user — never show again
 
 async function loadManualBrokers() {
   try {
@@ -3249,6 +3252,7 @@ function renderBrokers(alpha) {
 
     brokers.forEach(function(b) {
       if (!b.name || b.name === '—') return;
+      if (_hiddenBrokerNames.has(b.name)) return; // skip deleted brokers
       if (!fromFiles[b.name]) {
         fromFiles[b.name] = {
           name: b.name,
@@ -3262,10 +3266,13 @@ function renderBrokers(alpha) {
     });
   });
 
+  // Also filter hidden from manual list
+  const visibleManual = _manualBrokers.filter(function(b) { return !_hiddenBrokerNames.has(b.name); });
+
   // Merge: manual entries take priority
-  const merged = [...manual];
-  Object.values(fromFiles).forEach(fb => {
-    if (!merged.find(m => m.name === fb.name)) merged.push(fb);
+  const merged = [...visibleManual];
+  Object.values(fromFiles).forEach(function(fb) {
+    if (!merged.find(function(m) { return m.name === fb.name; })) merged.push(fb);
   });
 
   // Alpha filter
@@ -3347,12 +3354,25 @@ function confirmDeleteBroker(encodedName) {
 async function executeBrokerDelete() {
   const broker = window._brokerToDelete;
   if (!broker) return;
+
   // Remove from _manualBrokers cache
   _manualBrokers = _manualBrokers.filter(function(b) { return b.name !== broker.name; });
+
+  // Add to hidden set so file-sourced brokers with same name don't reappear
+  _hiddenBrokerNames.add(broker.name);
+
+  // Persist hidden list in localStorage so it survives refresh
+  localStorage.setItem('opsflows_hidden_brokers', JSON.stringify([..._hiddenBrokerNames]));
+
   // Delete from Supabase if it has an id
   if (broker.id) {
-    await deleteBrokerFromSupabase(broker.id);
+    const r = await fetch(SB_URL + '/rest/v1/brokers?id=eq.' + broker.id, {
+      method: 'DELETE', headers: getAuthHeaders()
+    });
+    if (!r.ok) console.error('broker DELETE failed:', r.status, await r.text());
+    else console.log('Broker deleted from Supabase:', broker.id);
   }
+
   window._brokerToDelete = null;
   closeOverlay('broker-delete-overlay');
   renderBrokers();
