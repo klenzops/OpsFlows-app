@@ -127,6 +127,15 @@ const EBCS_RULES = [
     email_text: "The Seller ID document number at clause 1.1 is missing/invalid. Please draft an amendment for correction."
   },
 
+  // 12b. Seller ID Document Expiration
+  {
+    field: "Sellers[0].ID expiry date", clause: "1.1", severity: "critical",
+    check: "present",
+    label: "Seller 1 ID Expiry Date",
+    next_action: "Draft an Amendment",
+    email_text: "The Seller ID document expiration at clause 1.1 is missing/invalid. Please draft an amendment for correction."
+  },
+
   // 13. Seller Date of Birth
   {
     field: "Sellers[0].Date of Birth", clause: "1.1", severity: "critical",
@@ -198,6 +207,7 @@ const EBCS_CONDITIONAL_RULES = [
       { field: "Sellers[1].Address", severity: "critical", label: "Seller 2 Address", check: "present", next_action: "Draft an Amendment", email_text: "Seller 2 address is missing. Please draft an amendment for correction." },
       { field: "Sellers[1].ID type", severity: "critical", label: "Seller 2 ID Type", check: "present", next_action: "Draft an Amendment", email_text: "The seller 2 ID type at clause 1 is missing. Please draft an amendment for correction." },
       { field: "Sellers[1].ID Document Number", severity: "critical", label: "Seller 2 ID Document Number", check: "present", next_action: "Draft an Amendment", email_text: "The seller 2 ID document number is missing. Please draft an amendment for correction." },
+      { field: "Sellers[1].ID expiry date", severity: "critical", label: "Seller 2 ID Expiry Date", check: "present", next_action: "Draft an Amendment", email_text: "The seller 2 ID expiry date is missing. Please draft an amendment for correction." },
       { field: "Sellers[1].Date of Birth", severity: "critical", label: "Seller 2 Date of Birth", check: "present", next_action: "Draft an Amendment", email_text: "The seller 2 date of birth is missing. Please draft an amendment for correction." },
       { field: "Signature Part - Seller(s)", severity: "critical", label: "Seller 2 Signature", check: "seller_sig_by_position", seller_position: 2, next_action: "Contact Seller Immediately", email_text: "Seller 2 signature is missing. Please have the seller sign and resubmit." }
     ]
@@ -211,6 +221,7 @@ const EBCS_CONDITIONAL_RULES = [
       { field: "Sellers[2].Address", severity: "critical", label: "Seller 3 Address", check: "present", next_action: "Draft an Amendment", email_text: "Seller 3 address is missing. Please draft an amendment for correction." },
       { field: "Sellers[2].ID type", severity: "critical", label: "Seller 3 ID Type", check: "present", next_action: "Draft an Amendment", email_text: "The seller 3 ID type at clause 1 is missing. Please draft an amendment for correction." },
       { field: "Sellers[2].ID Document Number", severity: "critical", label: "Seller 3 ID Document Number", check: "present", next_action: "Draft an Amendment", email_text: "The seller 3 ID document number is missing. Please draft an amendment for correction." },
+      { field: "Sellers[2].ID expiry date", severity: "critical", label: "Seller 3 ID Expiry Date", check: "present", next_action: "Draft an Amendment", email_text: "The seller 3 ID expiry date is missing. Please draft an amendment for correction." },
       { field: "Sellers[2].Date of Birth", severity: "critical", label: "Seller 3 Date of Birth", check: "present", next_action: "Draft an Amendment", email_text: "The seller 3 date of birth is missing. Please draft an amendment for correction." },
       { field: "Signature Part - Seller(s)", severity: "critical", label: "Seller 3 Signature", check: "seller_sig_by_position", seller_position: 3, next_action: "Contact Seller Immediately", email_text: "Seller 3 signature is missing. Please have the seller sign and resubmit." }
     ]
@@ -224,6 +235,7 @@ const EBCS_CONDITIONAL_RULES = [
       { field: "Sellers[3].Address", severity: "critical", label: "Seller 4 Address", check: "present", next_action: "Draft an Amendment", email_text: "Seller 4 address is missing. Please draft an amendment for correction." },
       { field: "Sellers[3].ID type", severity: "critical", label: "Seller 4 ID Type", check: "present", next_action: "Draft an Amendment", email_text: "The seller 4 ID type at clause 1 is missing. Please draft an amendment for correction." },
       { field: "Sellers[3].ID Document Number", severity: "critical", label: "Seller 4 ID Document Number", check: "present", next_action: "Draft an Amendment", email_text: "The seller 4 ID document number is missing. Please draft an amendment for correction." },
+      { field: "Sellers[3].ID expiry date", severity: "critical", label: "Seller 4 ID Expiry Date", check: "present", next_action: "Draft an Amendment", email_text: "The seller 4 ID expiry date is missing. Please draft an amendment for correction." },
       { field: "Sellers[3].Date of Birth", severity: "critical", label: "Seller 4 Date of Birth", check: "present", next_action: "Draft an Amendment", email_text: "The seller 4 date of birth is missing. Please draft an amendment for correction." },
       { field: "Signature Part - Seller(s)", severity: "critical", label: "Seller 4 Signature", check: "seller_sig_by_position", seller_position: 4, next_action: "Contact Seller Immediately", email_text: "Seller 4 signature is missing. Please have the seller sign and resubmit." }
     ]
