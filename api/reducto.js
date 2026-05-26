@@ -55,6 +55,15 @@ const EBCS_RULES = [
     email_text: "The Full Name of the seller(s) is missing. Please draft an amendment for correction."
   },
 
+  // 5b. Seller 1 Address
+  {
+    field: "Sellers[0].Address", clause: "1", severity: "critical",
+    check: "present",
+    label: "Seller 1 Address",
+    next_action: "Draft an Amendment",
+    email_text: "The address of seller 1 is missing. Please draft an amendment for correction."
+  },
+
   // 6. Seller Signature (at least 1 = true)
   {
     field: "Signature Part - Seller(s)", clause: "15", severity: "critical",
@@ -183,31 +192,40 @@ const EBCS_CONDITIONAL_RULES = [
   {
     condition_field: "Sellers[1].Full Name",
     label_prefix: "Seller 2",
+    seller_position: 2,
     then_check: [
+      { field: "Sellers[1].Full Name", severity: "critical", label: "Seller 2 Full Name", check: "present", next_action: "Draft an Amendment", email_text: "Seller 2 full name is missing. Please draft an amendment for correction." },
+      { field: "Sellers[1].Address", severity: "critical", label: "Seller 2 Address", check: "present", next_action: "Draft an Amendment", email_text: "Seller 2 address is missing. Please draft an amendment for correction." },
       { field: "Sellers[1].ID type", severity: "critical", label: "Seller 2 ID Type", check: "present", next_action: "Draft an Amendment", email_text: "The seller 2 ID type at clause 1 is missing. Please draft an amendment for correction." },
       { field: "Sellers[1].ID Document Number", severity: "critical", label: "Seller 2 ID Document Number", check: "present", next_action: "Draft an Amendment", email_text: "The seller 2 ID document number is missing. Please draft an amendment for correction." },
       { field: "Sellers[1].Date of Birth", severity: "critical", label: "Seller 2 Date of Birth", check: "present", next_action: "Draft an Amendment", email_text: "The seller 2 date of birth is missing. Please draft an amendment for correction." },
-      { field: "Signature Part - Seller(s)[1].Signature present", severity: "critical", label: "Seller 2 Signature", check: "is_true", next_action: "Contact Seller Immediately", email_text: "Seller 2 signature is missing. Please have the seller sign and resubmit." }
+      { field: "Signature Part - Seller(s)", severity: "critical", label: "Seller 2 Signature", check: "seller_sig_by_position", seller_position: 2, next_action: "Contact Seller Immediately", email_text: "Seller 2 signature is missing. Please have the seller sign and resubmit." }
     ]
   },
   {
     condition_field: "Sellers[2].Full Name",
     label_prefix: "Seller 3",
+    seller_position: 3,
     then_check: [
+      { field: "Sellers[2].Full Name", severity: "critical", label: "Seller 3 Full Name", check: "present", next_action: "Draft an Amendment", email_text: "Seller 3 full name is missing. Please draft an amendment for correction." },
+      { field: "Sellers[2].Address", severity: "critical", label: "Seller 3 Address", check: "present", next_action: "Draft an Amendment", email_text: "Seller 3 address is missing. Please draft an amendment for correction." },
       { field: "Sellers[2].ID type", severity: "critical", label: "Seller 3 ID Type", check: "present", next_action: "Draft an Amendment", email_text: "The seller 3 ID type at clause 1 is missing. Please draft an amendment for correction." },
       { field: "Sellers[2].ID Document Number", severity: "critical", label: "Seller 3 ID Document Number", check: "present", next_action: "Draft an Amendment", email_text: "The seller 3 ID document number is missing. Please draft an amendment for correction." },
       { field: "Sellers[2].Date of Birth", severity: "critical", label: "Seller 3 Date of Birth", check: "present", next_action: "Draft an Amendment", email_text: "The seller 3 date of birth is missing. Please draft an amendment for correction." },
-      { field: "Signature Part - Seller(s)[2].Signature present", severity: "critical", label: "Seller 3 Signature", check: "is_true", next_action: "Contact Seller Immediately", email_text: "Seller 3 signature is missing. Please have the seller sign and resubmit." }
+      { field: "Signature Part - Seller(s)", severity: "critical", label: "Seller 3 Signature", check: "seller_sig_by_position", seller_position: 3, next_action: "Contact Seller Immediately", email_text: "Seller 3 signature is missing. Please have the seller sign and resubmit." }
     ]
   },
   {
     condition_field: "Sellers[3].Full Name",
     label_prefix: "Seller 4",
+    seller_position: 4,
     then_check: [
+      { field: "Sellers[3].Full Name", severity: "critical", label: "Seller 4 Full Name", check: "present", next_action: "Draft an Amendment", email_text: "Seller 4 full name is missing. Please draft an amendment for correction." },
+      { field: "Sellers[3].Address", severity: "critical", label: "Seller 4 Address", check: "present", next_action: "Draft an Amendment", email_text: "Seller 4 address is missing. Please draft an amendment for correction." },
       { field: "Sellers[3].ID type", severity: "critical", label: "Seller 4 ID Type", check: "present", next_action: "Draft an Amendment", email_text: "The seller 4 ID type at clause 1 is missing. Please draft an amendment for correction." },
       { field: "Sellers[3].ID Document Number", severity: "critical", label: "Seller 4 ID Document Number", check: "present", next_action: "Draft an Amendment", email_text: "The seller 4 ID document number is missing. Please draft an amendment for correction." },
       { field: "Sellers[3].Date of Birth", severity: "critical", label: "Seller 4 Date of Birth", check: "present", next_action: "Draft an Amendment", email_text: "The seller 4 date of birth is missing. Please draft an amendment for correction." },
-      { field: "Signature Part - Seller(s)[3].Signature present", severity: "critical", label: "Seller 4 Signature", check: "is_true", next_action: "Contact Seller Immediately", email_text: "Seller 4 signature is missing. Please have the seller sign and resubmit." }
+      { field: "Signature Part - Seller(s)", severity: "critical", label: "Seller 4 Signature", check: "seller_sig_by_position", seller_position: 4, next_action: "Contact Seller Immediately", email_text: "Seller 4 signature is missing. Please have the seller sign and resubmit." }
     ]
   },
 
@@ -434,6 +452,24 @@ function verifyEBCS(extraction) {
         break;
       }
 
+      case 'seller_sig_by_position': {
+        // Find signature by matching seller position in the array
+        // Reducto may return sellers in any order — match by array index (position - 1)
+        const sigsArr = getField(extraction, 'Signature Part - Seller(s)') || [];
+        const pos = (rule.seller_position || 1) - 1; // convert to 0-based
+        // Try direct index first
+        let sig = sigsArr[pos];
+        // If that entry is missing, try scanning for a non-null signature at that logical position
+        if (!sig && sigsArr.length > pos) sig = sigsArr[pos];
+        // Check signature present field — handle various key capitalizations
+        const sigPresent = sig
+          ? (sig['Signature present'] === true || sig['signature_present'] === true || sig['Signature Present'] === true)
+          : false;
+        passed = sigPresent;
+        detail = passed ? 'Signature present' : (sig ? 'Signature line blank' : 'Signature row not found');
+        break;
+      }
+
       case 'at_least_one_signature': {
         const arr = getField(extraction, rule.field);
         if (Array.isArray(arr)) {
@@ -519,7 +555,16 @@ function verifyEBCS(extraction) {
       let passed = false;
       let detail = null;
 
-      if (check.check === 'is_true') {
+      if (check.check === 'seller_sig_by_position') {
+        const sigsArr = getField(extraction, 'Signature Part - Seller(s)') || [];
+        const pos = (check.seller_position || 1) - 1;
+        const sig = sigsArr[pos];
+        const sigPresent = sig
+          ? (sig['Signature present'] === true || sig['signature_present'] === true || sig['Signature Present'] === true)
+          : false;
+        passed = sigPresent;
+        detail = passed ? 'Signature present' : (sig ? 'Signature line blank' : 'Signature row not found');
+      } else if (check.check === 'is_true') {
         const v = getField(extraction, check.field);
         passed = v === true;
         detail = passed ? 'Signature present' : 'No signature found';
