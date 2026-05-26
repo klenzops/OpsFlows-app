@@ -1872,6 +1872,7 @@ function enterApp(user) {
   document.getElementById('auth-wrap').style.display = 'none';
   document.getElementById('app').classList.add('visible');
   loadFiles();
+  loadManualBrokers();
 }
 
 async function handleSignOut() {
@@ -3164,13 +3165,39 @@ function incrementVerifyCount() {
   return count;
 }
 
-// ── BROKER MANAGEMENT ─────────────────────────────────────────
-// Brokers stored in localStorage (Supabase table can be added later)
-function getBrokers() {
-  return JSON.parse(localStorage.getItem('opsflows_brokers') || '[]');
+// ── BROKER MANAGEMENT — Supabase persisted ───────────────────
+let _manualBrokers = []; // in-memory cache
+
+async function loadManualBrokers() {
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/brokers?order=name.asc', { headers: getAuthHeaders() });
+    if (r.ok) { _manualBrokers = await r.json() || []; }
+  } catch(e) { console.warn('loadManualBrokers:', e); }
 }
-function saveBrokers(brokers) {
-  localStorage.setItem('opsflows_brokers', JSON.stringify(brokers));
+
+function getBrokers() { return _manualBrokers; }
+
+async function saveBrokers(brokers) {
+  // Not used directly — we use addBrokerToSupabase / deleteBrokerFromSupabase
+  _manualBrokers = brokers;
+}
+
+async function addBrokerToSupabase(broker) {
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/brokers', {
+      method: 'POST',
+      headers: Object.assign(getAuthHeaders(), {'Prefer': 'return=representation'}),
+      body: JSON.stringify({ name: broker.name, licence: broker.licence || null, email: broker.email || null, user_id: S.user?.id || null })
+    });
+    if (r.ok) { const rows = await r.json(); if (rows?.[0]) _manualBrokers.push(rows[0]); }
+    else console.error('addBroker failed:', r.status, await r.text());
+  } catch(e) { console.error('addBroker exception:', e); }
+}
+
+async function deleteBrokerFromSupabase(id) {
+  try {
+    await fetch(SB_URL + '/rest/v1/brokers?id=eq.' + id, { method: 'DELETE', headers: getAuthHeaders() });
+  } catch(e) { console.error('deleteBroker exception:', e); }
 }
 
 
@@ -3254,14 +3281,12 @@ function renderBrokers(alpha) {
     }).join('') + '</tbody></table>';
 }
 
-function saveNewBroker() {
+async function saveNewBroker() {
   const name = document.getElementById('new-broker-name')?.value.trim();
   const licence = document.getElementById('new-broker-licence')?.value.trim();
   const email = document.getElementById('new-broker-email')?.value.trim();
-  if (!name) { alert('Full name is required'); return; }
-  const brokers = getBrokers();
-  brokers.push({ name, licence: licence || '—', email: email || '—', files: 0, scores: [], source: 'manual' });
-  saveBrokers(brokers);
+  if (!name) { toast('Full name is required'); return; }
+  await addBrokerToSupabase({ name, licence: licence || null, email: email || null });
   closeOverlay('add-broker-overlay');
   document.getElementById('new-broker-name').value = '';
   document.getElementById('new-broker-licence').value = '';
@@ -3272,11 +3297,22 @@ function saveNewBroker() {
 
 function confirmDeleteBroker(idx) {
   _deleteBrokerIdx = idx;
-  // Reuse delete popup
+  // Update popup for broker context
+  const titleEl = document.querySelector('#delete-overlay .modal-title');
+  if (titleEl) titleEl.innerHTML = '<i class="ti ti-alert-triangle" style="margin-right:6px"></i>Delete Broker';
+  const msgEl = document.getElementById('delete-main-msg');
+  if (msgEl) msgEl.innerHTML = 'This will remove the broker profile from your registry immediately.<br>You have <strong>7 days</strong> to contact OpsFlows support to reverse this action.<br>After 7 days, the broker profile is <strong>permanently deleted</strong> and cannot be recovered.';
   const el = document.getElementById('delete-file-info');
-  const merged = getBrokers();
-  if (el && merged[idx]) el.textContent = 'Broker: ' + merged[idx].name;
-  // Swap button action
+  // Get full merged broker list to find the right one
+  const manual = getBrokers();
+  const fromFiles = {};
+  S.files.forEach(function(f) {
+    const brokers = (f.all_brokers && f.all_brokers.length) ? f.all_brokers : (f.broker_name && f.broker_name !== '—' ? [{ name: f.broker_name, licence: f.broker_licence || '—', email: f.broker_email || '—' }] : []);
+    brokers.forEach(function(b) { if (b.name && !fromFiles[b.name]) fromFiles[b.name] = b; });
+  });
+  const merged = [...manual];
+  Object.values(fromFiles).forEach(function(fb) { if (!merged.find(function(m) { return m.name === fb.name; })) merged.push(fb); });
+  if (el && merged[idx]) el.textContent = merged[idx].name + (merged[idx].licence && merged[idx].licence !== '—' ? ' · ' + merged[idx].licence : '');
   const btn = document.querySelector('#delete-overlay button[onclick="executeDelete()"]');
   if (btn) btn.setAttribute('onclick', 'executeBrokerDelete()');
   document.getElementById('delete-overlay').classList.add('open');
@@ -3285,13 +3321,19 @@ function confirmDeleteBroker(idx) {
 function executeBrokerDelete() {
   if (_deleteBrokerIdx === null) return;
   const brokers = getBrokers();
+  const broker = brokers[_deleteBrokerIdx];
   brokers.splice(_deleteBrokerIdx, 1);
-  saveBrokers(brokers);
-  closeOverlay('delete-overlay');
+  _manualBrokers = brokers;
+  if (broker?.id) deleteBrokerFromSupabase(broker.id);
   _deleteBrokerIdx = null;
-  // Restore button
+  // Restore popup to file-delete defaults
   const btn = document.querySelector('#delete-overlay button[onclick="executeBrokerDelete()"]');
   if (btn) btn.setAttribute('onclick', 'executeDelete()');
+  const titleEl = document.querySelector('#delete-overlay .modal-title');
+  if (titleEl) titleEl.innerHTML = '<i class="ti ti-alert-triangle" style="margin-right:6px"></i>Delete File';
+  const msgEl = document.getElementById('delete-main-msg');
+  if (msgEl) msgEl.innerHTML = 'This will remove the file from your dashboard immediately.<br>You have <strong>7 days</strong> to contact OpsFlows support to reverse this action.<br>After 7 days, the file and all associated documents are <strong>permanently deleted</strong> and cannot be recovered.';
+  closeOverlay('delete-overlay');
   renderBrokers();
   toast('Broker deleted · 7-day recovery window active');
 }
@@ -3310,45 +3352,57 @@ function buildCompleteEmail(f) {
 
 // ── EDIT BROKER ───────────────────────────────────────────────
 function editBroker(idx) {
-  // Get merged broker list same way renderBrokers does
+  // Build merged list exactly as renderBrokers does
   const manual = getBrokers();
   const fromFiles = {};
   S.files.forEach(function(f) {
-    if (!f.broker_name || f.broker_name === '—') return;
-    if (!fromFiles[f.broker_name]) {
-      fromFiles[f.broker_name] = { name: f.broker_name, licence: f.broker_licence || '—', email: f.broker_email && f.broker_email !== '—' ? f.broker_email : '—', files: 0, scores: [], source: 'file' };
-    }
+    const brokers = (f.all_brokers && f.all_brokers.length) ? f.all_brokers
+      : (f.broker_name && f.broker_name !== '—' ? [{ name: f.broker_name, licence: f.broker_licence || '—', email: f.broker_email || '—' }] : []);
+    brokers.forEach(function(b) {
+      if (b.name && !fromFiles[b.name]) fromFiles[b.name] = { name: b.name, licence: b.licence || '—', email: b.email || '—', source: 'file' };
+    });
   });
   const merged = [...manual];
   Object.values(fromFiles).forEach(function(fb) { if (!merged.find(function(m) { return m.name === fb.name; })) merged.push(fb); });
+
   const b = merged[idx];
-  if (!b) return;
+  if (!b) { console.warn('editBroker: no broker at idx', idx, merged); return; }
+
+  // Store the broker id and original name for save
   document.getElementById('edit-broker-idx').value = idx;
+  document.getElementById('edit-broker-idx').dataset.brokerId = b.id || '';
+  document.getElementById('edit-broker-idx').dataset.originalName = b.name || '';
   document.getElementById('edit-broker-name').value = b.name || '';
-  document.getElementById('edit-broker-licence').value = b.licence !== '—' ? b.licence : '';
-  document.getElementById('edit-broker-email').value = b.email !== '—' ? b.email : '';
-  // Store source so saveEditBroker knows where to save
-  document.getElementById('edit-broker-idx').dataset.source = b.source || 'file';
+  document.getElementById('edit-broker-licence').value = (b.licence && b.licence !== '—') ? b.licence : '';
+  document.getElementById('edit-broker-email').value = (b.email && b.email !== '—') ? b.email : '';
   document.getElementById('edit-broker-overlay').classList.add('open');
 }
 
-function saveEditBroker() {
-  const idx = parseInt(document.getElementById('edit-broker-idx').value);
+async function saveEditBroker() {
   const name = document.getElementById('edit-broker-name').value.trim();
   const licence = document.getElementById('edit-broker-licence').value.trim();
   const email = document.getElementById('edit-broker-email').value.trim();
+  const brokerId = document.getElementById('edit-broker-idx').dataset.brokerId;
   if (!name) { toast('Name is required'); return; }
-  // Always save to manual brokers list (overrides file-sourced data)
-  const brokers = getBrokers();
-  const existing = brokers.findIndex(function(b) { return b.name === document.getElementById('edit-broker-name').defaultValue || b.name === name; });
-  if (existing >= 0) {
-    brokers[existing].name = name;
-    brokers[existing].licence = licence || brokers[existing].licence;
-    brokers[existing].email = email || brokers[existing].email;
+
+  if (brokerId) {
+    // Update existing Supabase broker
+    try {
+      const r = await fetch(SB_URL + '/rest/v1/brokers?id=eq.' + brokerId, {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ name, licence: licence || null, email: email || null })
+      });
+      if (r.ok) {
+        const b = _manualBrokers.find(function(x) { return x.id === brokerId; });
+        if (b) { b.name = name; b.licence = licence || null; b.email = email || null; }
+      } else { console.error('saveEditBroker PATCH failed:', r.status); }
+    } catch(e) { console.error('saveEditBroker exception:', e); }
   } else {
-    brokers.push({ name, licence: licence || '—', email: email || '—', files: 0, scores: [], source: 'manual' });
+    // File-sourced broker — save as new manual entry in Supabase
+    await addBrokerToSupabase({ name, licence: licence || null, email: email || null });
   }
-  saveBrokers(brokers);
+
   closeOverlay('edit-broker-overlay');
   renderBrokers();
   toast('Broker updated');
