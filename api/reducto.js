@@ -172,7 +172,25 @@ const EBCS_RULES = [
     email_text: "The shared remuneration at clause 7.3 is missing/invalid. Please draft an amendment for correction."
   },
 
-  // 16. Broker Licence Number
+  // 16a. Broker 1 Agency Name
+  {
+    field: "Name of Agency or Broker[0].Name", clause: "1", severity: "critical",
+    check: "present",
+    label: "Broker 1 Agency Name",
+    next_action: "Draft an Amendment",
+    email_text: "The Name of agency or broker at clause 1 is missing. Please draft an amendment for correction."
+  },
+
+  // 16b. Broker 1 Address
+  {
+    field: "Name of Agency or Broker[0].Address", clause: "1", severity: "critical",
+    check: "present",
+    label: "Broker 1 Agency Address",
+    next_action: "Draft an Amendment",
+    email_text: "The Address of the agency or broker at clause 1 is missing. Please draft an amendment for correction."
+  },
+
+  // 16c. Broker Licence Number
   {
     field: "Name of Agency or Broker[0].Licence Number", clause: "1", severity: "critical",
     check: "present",
@@ -258,6 +276,8 @@ const EBCS_CONDITIONAL_RULES = [
     condition_field: "Name of Agency or Broker[1].Representative",
     label_prefix: "Broker 2",
     then_check: [
+      { field: "Name of Agency or Broker[1].Name", severity: "critical", label: "Broker 2 Agency Name", check: "present", next_action: "Draft an Amendment", email_text: "The name of agency or broker 2 at clause 1 is missing. Please draft an amendment for correction." },
+      { field: "Name of Agency or Broker[1].Address", severity: "critical", label: "Broker 2 Agency Address", check: "present", next_action: "Draft an Amendment", email_text: "The address of agency or broker 2 at clause 1 is missing. Please draft an amendment for correction." },
       { field: "Name of Agency or Broker[1].Licence Number", severity: "critical", label: "Broker 2 Licence Number", check: "present", next_action: "Draft an Amendment", email_text: "Broker 2 licence number is missing. Please draft an amendment for correction." },
       { field: "Signature Part - Agency/Broker[1].Signature present", severity: "critical", label: "Broker 2 Signature", check: "is_true", next_action: "Contact Broker Immediately", email_text: "Broker 2 signature is missing. Please have the broker sign and resubmit." }
     ]
@@ -266,6 +286,8 @@ const EBCS_CONDITIONAL_RULES = [
     condition_field: "Name of Agency or Broker[2].Representative",
     label_prefix: "Broker 3",
     then_check: [
+      { field: "Name of Agency or Broker[2].Name", severity: "critical", label: "Broker 3 Agency Name", check: "present", next_action: "Draft an Amendment", email_text: "The name of agency or broker 3 at clause 1 is missing. Please draft an amendment for correction." },
+      { field: "Name of Agency or Broker[2].Address", severity: "critical", label: "Broker 3 Agency Address", check: "present", next_action: "Draft an Amendment", email_text: "The address of agency or broker 3 at clause 1 is missing. Please draft an amendment for correction." },
       { field: "Name of Agency or Broker[2].Licence Number", severity: "critical", label: "Broker 3 Licence Number", check: "present", next_action: "Draft an Amendment", email_text: "Broker 3 licence number is missing. Please draft an amendment for correction." },
       { field: "Signature Part - Agency/Broker[2].Signature present", severity: "critical", label: "Broker 3 Signature", check: "is_true", next_action: "Contact Broker Immediately", email_text: "Broker 3 signature is missing. Please have the broker sign and resubmit." }
     ]
@@ -274,6 +296,8 @@ const EBCS_CONDITIONAL_RULES = [
     condition_field: "Name of Agency or Broker[3].Representative",
     label_prefix: "Broker 4",
     then_check: [
+      { field: "Name of Agency or Broker[3].Name", severity: "critical", label: "Broker 4 Agency Name", check: "present", next_action: "Draft an Amendment", email_text: "The name of agency or broker 4 at clause 1 is missing. Please draft an amendment for correction." },
+      { field: "Name of Agency or Broker[3].Address", severity: "critical", label: "Broker 4 Agency Address", check: "present", next_action: "Draft an Amendment", email_text: "The address of agency or broker 4 at clause 1 is missing. Please draft an amendment for correction." },
       { field: "Name of Agency or Broker[3].Licence Number", severity: "critical", label: "Broker 4 Licence Number", check: "present", next_action: "Draft an Amendment", email_text: "Broker 4 licence number is missing. Please draft an amendment for correction." },
       { field: "Signature Part - Agency/Broker[3].Signature present", severity: "critical", label: "Broker 4 Signature", check: "is_true", next_action: "Contact Broker Immediately", email_text: "Broker 4 signature is missing. Please have the broker sign and resubmit." }
     ]
