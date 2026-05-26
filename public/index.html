@@ -2237,12 +2237,46 @@ function openReport(f) {
   let b = '';
   if (!r) { b = '<p style="color:var(--text-tertiary);font-size:13px">No verification report available yet.</p>'; }
   else {
-    // Anchor fields first
-    b += `<div class="section"><div class="section-title">Anchor Fields</div><div class="field-grid">`;
-    [{ l: 'Property Address', v: r.property_address }, { l: 'Broker', v: r.broker_name }, { l: 'Seller', v: r.seller_name }, { l: 'Contract #', v: r.contract_number }, { l: 'Cadastral #', v: r.cadastral_number }].forEach(a => {
+    // Anchor fields — expand for all sellers + all brokers
+    b += '<div class="section"><div class="section-title">Anchor Fields</div><div class="field-grid">';
+
+    // Static anchor fields
+    [
+      { l: 'Property Address', v: r.property_address },
+      { l: 'Contract #', v: r.contract_number },
+      { l: 'Cadastral #', v: r.cadastral_number }
+    ].forEach(function(a) {
       const ok = a.v && a.v !== 'null';
-      b += `<div class="field-box"><div class="field-box-label">${a.l}</div><div class="field-box-val">${ok ? a.v : '—'}</div><div class="field-box-status" style="color:${ok ? 'var(--green-text)' : 'var(--orange)'}">${ok ? '✓ extracted' : '✗ not found'}</div></div>`;
+      b += '<div class="field-box"><div class="field-box-label">' + a.l + '</div><div class="field-box-val">' + (ok ? a.v : '—') + '</div><div class="field-box-status" style="color:' + (ok ? 'var(--green-text)' : 'var(--orange)') + '">' + (ok ? '✓ extracted' : '✗ not found') + '</div></div>';
     });
+
+    // All sellers from extraction
+    const exSellers = (f.extraction && f.extraction['Sellers']) || [];
+    if (exSellers.length === 0 && r.seller_name) {
+      const ok = true;
+      b += '<div class="field-box"><div class="field-box-label">Seller 1</div><div class="field-box-val">' + r.seller_name + '</div><div class="field-box-status" style="color:var(--green-text)">✓ extracted</div></div>';
+    } else {
+      exSellers.forEach(function(s, i) {
+        const name = s['Full Name'] || s['full_name'] || null;
+        const ok = !!name;
+        b += '<div class="field-box"><div class="field-box-label">Seller ' + (i + 1) + '</div><div class="field-box-val">' + (ok ? name : '—') + '</div><div class="field-box-status" style="color:' + (ok ? 'var(--green-text)' : 'var(--orange)') + '">' + (ok ? '✓ extracted' : '✗ not found') + '</div></div>';
+      });
+    }
+
+    // All brokers from extraction
+    const exBrokers = (f.extraction && f.extraction['Name of Agency or Broker']) || [];
+    if (exBrokers.length === 0 && r.broker_name) {
+      const ok = true;
+      b += '<div class="field-box"><div class="field-box-label">Broker</div><div class="field-box-val">' + r.broker_name + '</div><div class="field-box-status" style="color:var(--green-text)">✓ extracted</div></div>';
+    } else {
+      exBrokers.forEach(function(bk, i) {
+        const name = bk['Representative'] || bk['Name'] || null;
+        const ok = !!name;
+        const label = exBrokers.length > 1 ? 'Broker ' + (i + 1) : 'Broker';
+        b += '<div class="field-box"><div class="field-box-label">' + label + '</div><div class="field-box-val">' + (ok ? name : '—') + '</div><div class="field-box-status" style="color:' + (ok ? 'var(--green-text)' : 'var(--orange)') + '">' + (ok ? '✓ extracted' : '✗ not found') + '</div></div>';
+      });
+    }
+
     b += '</div></div>';
 
     // Critical issues — expanded with next action
@@ -3017,85 +3051,77 @@ function getTxnVolumeData(period) {
   const now = new Date();
   now.setHours(23, 59, 59, 999);
 
-  // Determine window start based on period
-  let windowStart;
-  let labelFormat;
+  // Sort all files by date ascending
+  const sorted = S.files
+    .filter(function(f) { return !!f.created_at; })
+    .sort(function(a, b) { return new Date(a.created_at) - new Date(b.created_at); });
+
+  if (!sorted.length) return null;
+
+  // Build period buckets
   let buckets = [];
 
   if (period === '7d') {
-    // Last 7 days — one bucket per day
     for (let i = 6; i >= 0; i--) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
-      const key = d.toISOString().slice(0, 10);
-      const label = d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
-      buckets.push({ key, label, count: 0 });
+      buckets.push({ key: d.toISOString().slice(0, 10), label: d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' }) });
     }
-    windowStart = new Date(now);
-    windowStart.setDate(windowStart.getDate() - 6);
-    windowStart.setHours(0, 0, 0, 0);
-
   } else if (period === '30d') {
-    // Last 30 days — one bucket per day
     for (let i = 29; i >= 0; i--) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
-      const key = d.toISOString().slice(0, 10);
-      // Label every 5 days to avoid crowding
-      const label = i % 5 === 0 ? d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' }) : '';
-      buckets.push({ key, label, count: 0 });
+      buckets.push({ key: d.toISOString().slice(0, 10), label: i % 6 === 0 ? d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' }) : '' });
     }
-    windowStart = new Date(now);
-    windowStart.setDate(windowStart.getDate() - 29);
-    windowStart.setHours(0, 0, 0, 0);
-
   } else {
-    // 3m — last 12 weeks, one bucket per week
     for (let i = 11; i >= 0; i--) {
       const d = new Date(now);
       d.setDate(d.getDate() - (i * 7));
-      const weekStart = new Date(d);
-      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-      const key = weekStart.toISOString().slice(0, 10);
-      const label = weekStart.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
-      buckets.push({ key, label, count: 0 });
+      const ws = new Date(d);
+      ws.setDate(ws.getDate() - ws.getDay());
+      buckets.push({ key: ws.toISOString().slice(0, 10), label: ws.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' }) });
     }
-    windowStart = new Date(now);
-    windowStart.setDate(windowStart.getDate() - 83);
-    windowStart.setHours(0, 0, 0, 0);
   }
 
-  // Count files per bucket — each file counts once on its created_at date
-  // S.files only contains non-deleted files (deleted ones are removed from S.files)
-  S.files.forEach(function(f) {
-    if (!f.created_at) return;
-    const fileDate = new Date(f.created_at);
-    if (fileDate < windowStart) return;
-    const fileDateStr = f.created_at.slice(0, 10);
+  // Assign each file to its bucket
+  const bucketCounts = {};
+  buckets.forEach(function(b) { bucketCounts[b.key] = 0; });
 
+  sorted.forEach(function(f) {
+    const dateStr = f.created_at.slice(0, 10);
     if (period === '7d' || period === '30d') {
-      const bucket = buckets.find(function(b) { return b.key === fileDateStr; });
-      if (bucket) bucket.count++;
+      if (bucketCounts.hasOwnProperty(dateStr)) bucketCounts[dateStr]++;
     } else {
-      // Find the right week bucket
-      const fileDay = new Date(fileDateStr);
-      const weekStartDay = new Date(fileDay);
-      weekStartDay.setDate(weekStartDay.getDate() - weekStartDay.getDay());
-      const weekKey = weekStartDay.toISOString().slice(0, 10);
-      const bucket = buckets.find(function(b) { return b.key === weekKey; });
-      if (bucket) bucket.count++;
+      const fd = new Date(dateStr);
+      fd.setDate(fd.getDate() - fd.getDay());
+      const wk = fd.toISOString().slice(0, 10);
+      if (bucketCounts.hasOwnProperty(wk)) bucketCounts[wk]++;
     }
   });
 
-  // Filter to only labeled buckets for 30d (avoid empty labels crowding x-axis)
-  const displayBuckets = period === '30d'
-    ? buckets.filter(function(b) { return b.label !== ''; })
-    : buckets;
+  // Build cumulative running total across buckets
+  let running = 0;
+  // Start cumulative from total files BEFORE the window
+  const windowStart = new Date(buckets[0].key);
+  sorted.forEach(function(f) {
+    if (new Date(f.created_at) < windowStart) running++;
+  });
 
-  return {
-    labels: displayBuckets.map(function(b) { return b.label; }),
-    values: displayBuckets.map(function(b) { return b.count; })
-  };
+  const displayBuckets = period === '30d' ? buckets.filter(function(b) { return b.label !== ''; }) : buckets;
+
+  const labels = [];
+  const values = [];
+  let runningIdx = 0;
+
+  buckets.forEach(function(b) {
+    running += bucketCounts[b.key];
+    if (displayBuckets.find(function(d) { return d.key === b.key; })) {
+      labels.push(b.label);
+      values.push(running);
+    }
+  });
+
+  return { labels, values };
 }
 
 // ── VERIFY AGENT COUNTER (resets at midnight) ─────────────────
