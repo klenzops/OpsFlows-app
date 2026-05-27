@@ -52,9 +52,9 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 .auth-sub { font-size: 13.5px; color: #666663; margin-bottom: 28px; line-height: 1.5; text-align: center; }
 .field { margin-bottom: 16px; }
 .field label { display: block; font-size: 12px; font-weight: 500; color: #888885; margin-bottom: 6px; letter-spacing: .04em; text-transform: uppercase; }
-.field input { width: 100%; padding: 11px 14px; border: 1.5px solid #1a1a1a; border-radius: var(--radius-sm); font-size: 14px; font-family: inherit; color: #ffffff; background: #111110; transition: border-color .15s, box-shadow .15s; outline: none; }
-.field input:focus { border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,.15); }
-.field input::placeholder { color: #444442; }
+.auth-wrap .field input { width: 100%; padding: 11px 14px; border: 1.5px solid #1a1a1a; border-radius: var(--radius-sm); font-size: 14px; font-family: inherit; color: #ffffff; background: #111110; transition: border-color .15s, box-shadow .15s; outline: none; }
+.auth-wrap .field input:focus { border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,.15); }
+.auth-wrap .field input::placeholder { color: #444442; }
 .auth-btn { width: 100%; padding: 12px; background: #16a34a; color: white; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; transition: background .15s; letter-spacing: .01em; margin-top: 4px; }
 .auth-btn:hover { background: #15803d; }
 .auth-btn:disabled { opacity: .4; cursor: not-allowed; }
@@ -3164,25 +3164,15 @@ function getTxnVolumeData(period) {
     }
   });
 
-  // Build cumulative running total across buckets
-  let running = 0;
-  // Start cumulative from total files BEFORE the window
-  const windowStart = new Date(buckets[0].key);
-  sorted.forEach(function(f) {
-    if (new Date(f.created_at) < windowStart) running++;
-  });
-
-  const displayBuckets = period === '30d' ? buckets.filter(function(b) { return b.label !== ''; }) : buckets;
+const displayBuckets = period === '30d' ? buckets.filter(function(b) { return b.label !== ''; }) : buckets;
 
   const labels = [];
   const values = [];
-  let runningIdx = 0;
 
   buckets.forEach(function(b) {
-    running += bucketCounts[b.key];
     if (displayBuckets.find(function(d) { return d.key === b.key; })) {
       labels.push(b.label);
-      values.push(running);
+      values.push(bucketCounts[b.key]);
     }
   });
 
