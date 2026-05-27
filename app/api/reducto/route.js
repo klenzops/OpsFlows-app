@@ -1,8 +1,8 @@
 // app/api/reducto/route.js
 // Thin HTTP handler only — all logic lives in lib/ebcs/
 
-import { EBCS_SCHEMA, EBCS_SYSTEM_PROMPT } from '../../../lib/ebcs/schema.js'
-import { verifyEBCS } from '../../../lib/ebcs/verify.js'
+import { EBCS_SCHEMA, EBCS_SYSTEM_PROMPT } from '../../../lib/ebcs/schema'
+import { verifyEBCS } from '../../../lib/ebcs/verify'
 
 export const maxDuration = 60
 
