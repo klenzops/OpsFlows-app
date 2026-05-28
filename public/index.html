@@ -661,7 +661,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
   letter-spacing: -.015em;
 }
 .sidebar .nav-item:hover { background: #ffffff0d; color: #d0d0ce; }
-.sidebar .nav-item.active { background: #ffffff12; color: #ebebе9; font-weight: 500; }
+.sidebar .nav-item.active { background: #ffffff12; color: #ebebe9; font-weight: 500; }
 .sidebar .nav-item i { font-size: 15px; flex-shrink: 0; }
 .sidebar .nav-badge { margin-left: auto; font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 10px; }
 .sidebar .nb-green { background: #16a34a22; color: #4ade80; }
@@ -975,6 +975,227 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 }
 .broker-empty i { font-size: 32px; color: var(--text-tertiary); margin-bottom: 12px; }
 .broker-empty p { font-size: 13px; color: var(--text-tertiary); }
+
+/* ── ADMIN PAGE ───────────────────────────────────────────── */
+.pg-admin {
+  padding: 20px 24px;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.pg-admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 0.5px solid #e4e4de;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+.admin-list-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  background: var(--surface);
+  border: 0.5px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.admin-list-row:hover { background: #f8f8f5; border-color: #c4c4be; }
+.admin-list-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--border-light);
+  flex-shrink: 0;
+}
+.admin-list-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -.15px;
+}
+.admin-list-sub {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+.admin-job-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #f0f0ec;
+  color: var(--text-secondary);
+}
+.admin-list-email {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.admin-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+}
+.admin-row-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  padding: 5px 7px;
+  border-radius: 5px;
+  font-size: 13px;
+  transition: background .12s, color .12s;
+  display: flex;
+  align-items: center;
+}
+.admin-row-btn:hover { background: #ededea; color: var(--text-primary); }
+.admin-row-btn.danger:hover { background: #fee2e2; color: #dc2626; }
+/* profile detail */
+.admin-detail-back {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 20px;
+  width: fit-content;
+  padding: 4px 0;
+}
+.admin-detail-back:hover { color: var(--text-primary); }
+.admin-detail-hero {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 0.5px solid var(--border-light);
+}
+.admin-detail-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-light);
+  flex-shrink: 0;
+}
+.admin-detail-title { font-size: 16px; font-weight: 600; letter-spacing: -.3px; margin-bottom: 4px; }
+.admin-detail-role { font-size: 11px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+.admin-detail-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 4px 0;
+}
+.admin-detail-email:hover { color: var(--text-primary); }
+.admin-detail-bio {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  font-style: italic;
+  background: #f8f8f5;
+  border-left: 3px solid #d4d4ce;
+  padding: 12px 16px;
+  border-radius: 0 6px 6px 0;
+  margin-top: 4px;
+}
+.admin-access-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 20px;
+  letter-spacing: .02em;
+}
+.admin-access-full  { background: #ede9fe; color: #6d28d9; }
+.admin-access-txn   { background: #dbeafe; color: #1d4ed8; }
+.admin-access-list  { background: #d1fae5; color: #065f46; }
+.admin-stat-card {
+  background: var(--surface);
+  border: 0.5px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  flex: 1;
+}
+.admin-stat-val { font-size: 22px; font-weight: 700; letter-spacing: -.5px; color: var(--text-primary); }
+.admin-stat-lbl { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.admin-coming-soon {
+  background: #fafaf8;
+  border: 0.5px dashed #d4d4ce;
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+/* ── ADMIN BUBBLE (on transaction files) ──────────────────── */
+.txf-admin-bubble {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: default;
+  flex-shrink: 0;
+}
+.txf-admin-bubble img {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #d4d4ce;
+  display: block;
+}
+.txf-admin-bubble .admin-tip {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  right: 0;
+  background: #1a1a18;
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 7px 10px;
+  border-radius: 7px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .12s;
+  z-index: 100;
+  min-width: 148px;
+  text-align: left;
+}
+.txf-admin-bubble .admin-tip strong {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.txf-admin-bubble:hover .admin-tip { opacity: 1; }
+.txf-admin-bubble-lg img {
+  width: 34px;
+  height: 34px;
+}
 
 /* ── TRANSACTION FILES PAGE ───────────────────────────────── */
 .txf-page {
@@ -1317,6 +1538,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
         <div class="nav-section-label">Reports</div>
         <div class="nav-item" id="nav-analytics" onclick="navTo('analytics')"><i class="ti ti-chart-bar"></i>Analytics</div>
         <div class="nav-item" id="nav-brokers" onclick="navTo('brokers')"><i class="ti ti-users"></i>Brokers</div>
+        <div class="nav-item" id="nav-admin" onclick="navTo('admin')"><i class="ti ti-shield-check"></i>Admin</div>
       </div>
     </nav>
 
@@ -1578,6 +1800,19 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       </div>
     </div>
 
+    <div class="view" id="view-admin">
+      <div class="pg-admin">
+        <div class="pg-admin-header" id="admin-page-header">
+          <div>
+            <div style="font-size:15px;font-weight:600;letter-spacing:-.25px;margin-bottom:2px">Agency Administrators</div>
+            <div class="topbar-sub" id="admin-count">5 administrators · Active team</div>
+          </div>
+        </div>
+        <div id="admin-list"></div>
+        <div id="admin-detail" style="display:none"></div>
+      </div>
+    </div>
+
     <div class="view" id="view-help">
       <div class="help-page">
         <div class="help-form-col">
@@ -1728,6 +1963,38 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
       <div style="display:flex;gap:8px;justify-content:flex-end">
         <button class="btn" onclick="closeOverlay('edit-broker-overlay')">Cancel</button>
         <button class="btn btn-dark" onclick="saveEditBroker()"><i class="ti ti-check"></i>Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Admin Popup -->
+<div class="overlay" id="edit-admin-overlay" onclick="if(event.target===this)closeOverlay('edit-admin-overlay')">
+  <div class="upload-popup" style="width:460px">
+    <div class="upload-popup-head">
+      <div>
+        <div class="modal-title">Edit Administrator</div>
+        <div class="modal-sub">Update profile information</div>
+      </div>
+      <button class="modal-close" onclick="closeOverlay('edit-admin-overlay')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="upload-popup-body">
+      <input type="hidden" id="edit-admin-idx">
+      <div class="field"><label style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">Full Name</label>
+        <input id="edit-admin-name" type="text" style="width:100%;padding:9px 12px;border:1px solid #e4e4e1;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;color:var(--text-primary)">
+      </div>
+      <div class="field"><label style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">Job Title</label>
+        <input id="edit-admin-job" type="text" style="width:100%;padding:9px 12px;border:1px solid #e4e4e1;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;color:var(--text-primary)">
+      </div>
+      <div class="field"><label style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">Email</label>
+        <input id="edit-admin-email" type="email" style="width:100%;padding:9px 12px;border:1px solid #e4e4e1;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;color:var(--text-primary)">
+      </div>
+      <div class="field"><label style="font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:6px">A word from them</label>
+        <textarea id="edit-admin-bio" rows="3" style="width:100%;padding:9px 12px;border:1px solid #e4e4e1;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;color:var(--text-primary);resize:vertical"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" onclick="closeOverlay('edit-admin-overlay')">Cancel</button>
+        <button class="btn btn-dark" onclick="saveEditAdmin()"><i class="ti ti-check"></i>Save Changes</button>
       </div>
     </div>
   </div>
@@ -2293,7 +2560,7 @@ function renderTable() {
       '<td style="font-size:12px;color:var(--text-secondary)">' + (f.broker_name || '—') + '</td>' +
       '<td><span class="status-pill ' + sp + '" style="font-size:10.5px">' + sl + '</span></td>' +
       '<td style="font-size:11.5px;' + (isExpired ? 'color:var(--red)' : isExpiringSoon ? 'color:var(--orange)' : 'color:var(--text-tertiary)') + '">' + expiry + '</td>' +
-      '<td style="text-align:right;padding-right:8px"><span class="score ' + sc + '" style="font-size:12px">' + f.score + '%</span></td>' +
+      '<td style="text-align:right;padding-right:8px"><div style="display:flex;align-items:center;justify-content:flex-end;gap:8px">' + adminBubbleHtml(getFileAdmin(f), false) + '<span class="score ' + sc + '" style="font-size:12px">' + f.score + '%</span></div></td>' +
       '<td style="width:36px;text-align:center"><button class="del-btn" onclick="event.stopPropagation();confirmDelete(' + i + ')" title="Delete file"><i class="ti ti-trash"></i></button></td>' +
     '</tr>';
   }).join('');
@@ -2408,7 +2675,7 @@ function exportData() {
 // ============================================================
 // NAVIGATION
 // ============================================================
-const VIEWS = ['overview', 'files', 'agents', 'audit', 'analytics', 'brokers', 'help'];
+const VIEWS = ['overview', 'files', 'agents', 'audit', 'analytics', 'brokers', 'admin', 'help'];
 
 function navTo(view) {
   // Update nav items
@@ -2429,6 +2696,7 @@ function navTo(view) {
     audit: 'Audit Log',
     analytics: 'Analytics',
     brokers: 'Brokers',
+    admin: 'Admin',
     help: 'Help Center'
   };
   const el = document.getElementById('topbar-title');
@@ -2445,6 +2713,7 @@ function navTo(view) {
   if (view === 'audit') renderAuditLog();
   if (view === 'analytics') drawAnalyticsDonut();
   if (view === 'brokers') renderBrokers();
+  if (view === 'admin') renderAdmins();
   if (view === 'help') {} // static view
 }
 
@@ -2716,6 +2985,7 @@ async function onPopupFile(file) {
     setStepsPopup(3, 3); await sleep(200);
 
     const f2 = buildFile(result.extraction, result.report, file.name, result.file_id);
+    f2._assignedTo = LISTINGS_SPECIALISTS[Math.floor(Math.random() * LISTINGS_SPECIALISTS.length)];
     S.files.unshift(f2);
     S.checks += result.report.checks_run || 1;
     incrementVerifyCount();
@@ -2732,7 +3002,7 @@ async function onPopupFile(file) {
     }, 600);
 
     renderDash();
-    toast('✓ Verified and saved');
+    toast('✓ Verified · Assigned to ' + f2._assignedTo.name);
     openReport(f2);
   } catch(e) {
     proc.style.display = 'none';
@@ -2794,6 +3064,7 @@ function renderFilesView() {
         '<div style="font-size:12px;color:var(--text-secondary)">' + (f.broker_name || '—') + '</div>' +
         '<span class="status-pill ' + sp + '" style="font-size:10.5px">' + sl + '</span>' +
         '<span class="score ' + sc + '" style="font-size:12px">' + f.score + '%</span>' +
+        adminBubbleHtml(getFileAdmin(f), false) +
         '<i class="ti ti-chevron-right" style="color:var(--text-tertiary);font-size:13px"></i>' +
         '<button class="del-btn" onclick="event.stopPropagation();confirmDelete(' + idx + ')" title="Delete"><i class="ti ti-trash"></i></button>' +
       '</div>' +
@@ -2892,6 +3163,7 @@ function openTxfDetail(idx) {
       '</div>' +
       '<div style="display:flex;align-items:center;gap:8px">' +
         '<span class="status-pill ' + sp + '">' + sl + '</span>' +
+        adminBubbleHtml(getFileAdmin(f), true) +
         '<button class="del-btn" onclick="confirmDelete(' + idx + ')" title="Delete file" style="font-size:15px"><i class="ti ti-trash"></i></button>' +
       '</div>' +
     '</div>' +
@@ -2986,6 +3258,175 @@ function renderBrokers() {
       '</tr>';
     }).join('') +
     '</tbody></table>';
+}
+
+// ── ADMIN TEAM ────────────────────────────────────────────────
+const ADMINS = [
+  { name: 'Sarah Mitchell',  role: 'Administrator',      job: 'Listings Specialist',     access: 'Full Platform Access', accessBg: '#EAF3DE', accessColor: '#3B6D11', avatarBg: '#EDE8F7', avatarColor: '#6B52A3', avatar: 'https://randomuser.me/api/portraits/women/26.jpg', email: 'sarah.mitchell@opsflows.ca',  bio: 'Focused on keeping every listing file clean from day one. Happy to walk through any document question — just send me a message.' },
+  { name: 'James Okafor',    role: 'Administrator',      job: 'Transactions Manager',    access: 'Full Platform Access', accessBg: '#EAF3DE', accessColor: '#3B6D11', avatarBg: '#E0EBF7', avatarColor: '#2B57A4', avatar: 'https://randomuser.me/api/portraits/men/54.jpg',   email: 'james.okafor@opsflows.ca',   bio: 'Overseeing the full transaction pipeline. If a file has a timeline issue or needs sign-off, I\'m the first call.' },
+  { name: 'Nicole Tremblay', role: 'Administrator',      job: 'Transactions Specialist', access: 'Transactions Access',  accessBg: '#E6F1FB', accessColor: '#185FA5', avatarBg: '#F7E4EA', avatarColor: '#A33D57',                                                               email: 'nicole.tremblay@opsflows.ca', bio: 'Detail-oriented and fast. Reach out anytime a transaction needs a second set of eyes or a quick clarification.' },
+  { name: 'Devon Castillo',  role: 'Administrator',      job: 'Transactions Specialist', access: 'Transactions Access',  accessBg: '#E6F1FB', accessColor: '#185FA5', avatarBg: '#E2F0E6', avatarColor: '#3A7A52',                                                               email: 'devon.castillo@opsflows.ca',  bio: 'Transaction compliance is my thing. If something looks off in a file, I\'ll catch it — don\'t hesitate to loop me in.' },
+  { name: 'Priya Sharma',    role: 'Administrator',      job: 'Listings Specialist',     access: 'Listings Access',      accessBg: '#FEF3E2', accessColor: '#915A0A', avatarBg: '#F5EBE0', avatarColor: '#9A5C2A', avatar: 'https://randomuser.me/api/portraits/women/70.jpg', email: 'priya.sharma@opsflows.ca',   bio: 'Making sure every listing is set up correctly before it moves forward. I love catching issues early.' },
+  { name: 'Aisha Roy',       role: 'Compliance Officer', job: 'Risk & Compliance',       access: 'Full Platform Access', accessBg: '#EAF3DE', accessColor: '#3B6D11', avatarBg: '#E0F2F1', avatarColor: '#1A7A6E', avatar: 'https://randomuser.me/api/portraits/women/45.jpg', email: 'aisha.roy@opsflows.ca',      bio: 'Compliance is the backbone of every clean transaction. I\'m here to make sure nothing slips through the cracks — reach out anytime.' }
+];
+let _adminList = ADMINS.map(function(a) { return Object.assign({}, a); });
+
+const SECONDARY_TEAM = [
+  { name: 'Marcus Chen',      role: 'Transaction Coordinator', job: 'Compliance Associate', avatarBg: '#E0F4F5', avatarColor: '#1A7A80' },
+  { name: 'Isabelle Gervais', role: 'Listings Associate',      job: 'Document Review',      avatarBg: '#F0EAF8', avatarColor: '#7440A0' }
+];
+// 6 admins + 2 secondary = 8 slots → secondary appears ~25% of the time (under 1/3)
+const TEAM_POOL = ADMINS.concat(SECONDARY_TEAM);
+
+function _adminInitials(name) {
+  return name.split(' ').map(function(w) { return w[0]; }).join('');
+}
+
+function _adminAvatar(a, size) {
+  if (a.avatar) {
+    return '<img src="' + a.avatar + '" alt="' + a.name + '" style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;object-fit:cover;border:1.5px solid #e4e4e0;flex-shrink:0" onerror="this.style.display=\'none\'">';
+  }
+  var fs = Math.round(size * 0.36);
+  return '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;background:' + a.avatarBg + ';color:' + a.avatarColor + ';display:flex;align-items:center;justify-content:center;font-size:' + fs + 'px;font-weight:500;flex-shrink:0;font-family:Inter,sans-serif;letter-spacing:.5px">' + _adminInitials(a.name) + '</div>';
+}
+
+function _adminBadge(a) {
+  return '<span style="display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:' + a.accessBg + ';color:' + a.accessColor + ';white-space:nowrap">' + a.access + '</span>';
+}
+
+function _iconBtn(action, icon, danger) {
+  var base = 'width:30px;height:30px;border:0.5px solid #E0E0DC;border-radius:6px;background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:';
+  var col = danger ? '#C0392B' : '#777770';
+  return '<button style="' + base + col + '" onclick="event.stopPropagation();' + action + '" title="' + icon + '"><i class="ti ti-' + icon + '"></i></button>';
+}
+
+const LISTINGS_SPECIALISTS = ADMINS.filter(function(a) { return a.job === 'Listings Specialist'; });
+
+function getFileAdmin(f) {
+  if (f._assignedTo) return f._assignedTo;
+  // All existing (pre-loaded) files default to Sarah
+  return ADMINS.find(function(a) { return a.name === 'Sarah Mitchell'; }) || ADMINS[0];
+}
+
+function adminBubbleHtml(admin, large) {
+  var cls = 'txf-admin-bubble' + (large ? ' txf-admin-bubble-lg' : '');
+  var sz = large ? 34 : 26;
+  var inner;
+  if (admin.avatar) {
+    inner = '<img src="' + admin.avatar + '" alt="' + admin.name + '" onerror="this.style.display=\'none\'">';
+  } else {
+    var initials = _adminInitials(admin.name);
+    var fs = Math.round(sz * 0.38);
+    inner = '<div style="width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;background:' + (admin.avatarBg || '#e0e0e0') + ';color:' + (admin.avatarColor || '#555') + ';display:flex;align-items:center;justify-content:center;font-size:' + fs + 'px;font-weight:500;border:1.5px solid #d4d4ce;flex-shrink:0">' + initials + '</div>';
+  }
+  return '<div class="' + cls + '">' + inner + '<div class="admin-tip"><strong>' + admin.name + '</strong>' + admin.role + ' · ' + admin.job + '</div></div>';
+}
+
+function renderAdmins() {
+  var listEl = document.getElementById('admin-list');
+  var detailEl = document.getElementById('admin-detail');
+  var hdr = document.getElementById('admin-page-header');
+  if (!listEl) return;
+  detailEl.style.display = 'none';
+  listEl.style.display = '';
+  if (hdr) hdr.style.display = '';
+  var countEl = document.getElementById('admin-count');
+  if (countEl) countEl.textContent = _adminList.length + ' administrator' + (_adminList.length !== 1 ? 's' : '') + ' · Active team';
+
+  if (!_adminList.length) {
+    listEl.innerHTML = '<div class="broker-empty"><i class="ti ti-shield-off"></i><p>No administrators yet</p></div>';
+    return;
+  }
+
+  var rows = _adminList.map(function(a, i) {
+    var isLast = i === _adminList.length - 1;
+    var borderStyle = isLast ? '' : 'border-bottom:0.5px solid #EBEBEB;';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 24px;' + borderStyle + 'cursor:pointer" onclick="openAdminProfile(' + i + ')">' +
+      '<div style="display:flex;align-items:center;gap:12px">' +
+        _adminAvatar(a, 36) +
+        '<div>' +
+          '<div style="font-size:14px;font-weight:500;color:#111110;font-family:Inter,sans-serif">' + a.name + '</div>' +
+          '<div style="font-size:12px;color:#888885;margin-top:2px;font-family:Inter,sans-serif">' + a.role + ' · ' + a.job + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        _adminBadge(a) +
+        _iconBtn('editAdmin(' + i + ')', 'pencil', false) +
+        _iconBtn('deleteAdmin(' + i + ')', 'trash', true) +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  listEl.innerHTML = '<div style="background:#fff;border:0.5px solid #E8E8E5;border-radius:10px;overflow:hidden">' + rows + '</div>';
+}
+
+function openAdminProfile(i) {
+  var a = _adminList[i];
+  if (!a) return;
+  var listEl = document.getElementById('admin-list');
+  var detailEl = document.getElementById('admin-detail');
+  var hdr = document.getElementById('admin-page-header');
+  listEl.style.display = 'none';
+  if (hdr) hdr.style.display = 'none';
+  detailEl.style.display = '';
+
+  var pool = _adminList.length ? _adminList : ADMINS;
+  var fileCount = S.files.filter(function(f) {
+    var key = (f.txn_number || f.property_address || '').split('').reduce(function(acc, c) { return acc + c.charCodeAt(0); }, 0);
+    return pool[key % pool.length] === a;
+  }).length;
+
+  detailEl.innerHTML =
+    '<div class="admin-detail-back" onclick="renderAdmins()"><i class="ti ti-arrow-left"></i> Administrators</div>' +
+    '<div class="admin-detail-hero">' +
+      _adminAvatar(a, 72) +
+      '<div>' +
+        '<div class="admin-detail-title">' + a.name + '</div>' +
+        '<div class="admin-detail-role" style="margin-bottom:8px">' + a.role + ' · ' + a.job + '</div>' +
+        _adminBadge(a) +
+      '</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:10px;margin-bottom:20px">' +
+      '<div class="admin-stat-card"><div class="admin-stat-val">' + fileCount + '</div><div class="admin-stat-lbl">Files Assigned</div></div>' +
+      '<div class="admin-coming-soon"><i class="ti ti-clock" style="font-size:14px"></i>Documents Reviewed · Coming soon</div>' +
+      '<div class="admin-coming-soon"><i class="ti ti-chart-line" style="font-size:14px"></i>Audit Activity · Coming soon</div>' +
+    '</div>' +
+    '<div style="margin-bottom:16px">' +
+      '<div style="font-size:10px;font-weight:500;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px">Contact</div>' +
+      '<a class="admin-detail-email" href="mailto:' + a.email + '"><i class="ti ti-mail" style="font-size:13px"></i>' + a.email + '</a>' +
+    '</div>' +
+    '<div>' +
+      '<div style="font-size:10px;font-weight:500;color:var(--text-tertiary);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">A word from them</div>' +
+      '<div class="admin-detail-bio">' + (a.bio || '—') + '</div>' +
+    '</div>';
+}
+
+function editAdmin(i) {
+  var a = _adminList[i];
+  if (!a) return;
+  document.getElementById('edit-admin-idx').value = i;
+  document.getElementById('edit-admin-name').value = a.name;
+  document.getElementById('edit-admin-job').value = a.job;
+  document.getElementById('edit-admin-email').value = a.email || '';
+  document.getElementById('edit-admin-bio').value = a.bio || '';
+  document.getElementById('edit-admin-overlay').classList.add('open');
+}
+
+function saveEditAdmin() {
+  var i = parseInt(document.getElementById('edit-admin-idx').value);
+  if (isNaN(i) || !_adminList[i]) return;
+  _adminList[i].name  = document.getElementById('edit-admin-name').value.trim()  || _adminList[i].name;
+  _adminList[i].job   = document.getElementById('edit-admin-job').value.trim()   || _adminList[i].job;
+  _adminList[i].email = document.getElementById('edit-admin-email').value.trim();
+  _adminList[i].bio   = document.getElementById('edit-admin-bio').value.trim();
+  closeOverlay('edit-admin-overlay');
+  renderAdmins();
+}
+
+function deleteAdmin(i) {
+  if (!confirm('Remove ' + _adminList[i].name + ' from the admin list?')) return;
+  _adminList.splice(i, 1);
+  renderAdmins();
 }
 
 // ── ANALYTICS DONUT ───────────────────────────────────────────
